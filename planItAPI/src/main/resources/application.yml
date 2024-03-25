@@ -1,0 +1,19 @@
+server:
+  config:
+    secrets:
+      password-secret: J8Bon8MoizjQijRTHMl1JpcIYYbaNRU279Vvef9onhhmWhFb1CZIQ7szXT9xnYcWZ
+      access-token-secret: mRk4Tl7Y5vtcmRn60C1mbLEGdNbaqPKtFPl0NY85geFZwu4uQfIOKajHu
+      refresh-token-secret: lbtiqTjif4y18LXlMEgDsEwkQiuIcD041lu7hmKxDvmYtgVM6JS
+      token-hash-secret: 9okxeepSaFoj2nkn4doAb9yW5iKbvfz7Ro84w5HIbwOMBNcMP6PMQEeh9
+
+  port: 1904
+
+spring:
+  application:
+    name: PlanIt
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 123
+

@@ -1,7 +1,7 @@
 package project.planItAPI.http
 
 object PathTemplates {
-    const val PREFIX = "/planit"
+    const val PREFIX = "/api-planit"
 
     // USER
     const val REGISTER = "/register"

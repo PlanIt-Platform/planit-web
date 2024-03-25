@@ -19,11 +19,34 @@ repositories {
 }
 
 dependencies {
-	// for JDBI
+	/**
+	 * JDBI
+	 * Database
+	 */
 	implementation("org.jdbi:jdbi3-core:3.37.1")
 	implementation("org.jdbi:jdbi3-kotlin:3.37.1")
 	implementation("org.jdbi:jdbi3-postgres:3.37.1")
 	implementation('org.postgresql:postgresql:42.7.0')
+
+	/**
+	 * Kotlin DateTime
+	 * Date and Time. Used to get Clock
+	 */
+	implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+
+	/**
+	 * JWT - JSON Web Token
+	 * Used for Token Authentication
+	 */
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+	/**
+	 * Gson
+	 * JSON Parser
+	 */
+	implementation("com.google.code.gson:gson:2.10.1")
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
