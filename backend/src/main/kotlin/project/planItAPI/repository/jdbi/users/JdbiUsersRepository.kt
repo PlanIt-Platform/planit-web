@@ -31,7 +31,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
     override fun getUserByEmail(email: String): UserLogInValidation? =
         handle.createQuery(
-            "select id, username, password_validation from dbo.Users where email = :email",
+            "select id, username, hashed_password from dbo.Users where email = :email",
         )
             .bind("email", email)
             .mapTo(UserLogInValidation::class.java)
@@ -39,7 +39,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
     override fun getUserByUsername(name: String): UserLogInValidation? =
         handle.createQuery(
-            "select id, username, password_validation from dbo.Users where username = :name",
+            "select id, username, hashed_password from dbo.Users where username = :name",
         )
             .bind("name", name)
             .mapTo(UserLogInValidation::class.java)

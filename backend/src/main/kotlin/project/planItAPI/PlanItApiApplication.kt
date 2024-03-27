@@ -29,7 +29,7 @@ class PlanItApiApplication{
 
 		val connection: Connection = DriverManager.getConnection(jdbcUrl)
 
-		val script = String(Files.readAllBytes(Paths.get("planitapi/src/main/sql/createSchema.sql")))
+		val script = String(Files.readAllBytes(Paths.get("backend/src/main/sql/createSchema.sql")))
 		val statements = script.split(";")
 
 		for (statement in statements) {

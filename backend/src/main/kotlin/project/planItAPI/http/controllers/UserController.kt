@@ -76,8 +76,8 @@ class UserController(private val usersServices: UsersServices) {
      */
     @PostMapping(PathTemplates.LOGOUT)
     fun logout(
-        @RequestAttribute("access_token", required = true) accessToken: String,
-        @RequestAttribute("refresh_token", required = true) refreshToken: String
+        @CookieValue("access_token", required = true) accessToken: String,
+        @CookieValue("refresh_token", required = true) refreshToken: String
     ): ResponseEntity<*> {
         return when (val res = usersServices.logout(accessToken, refreshToken)) {
             is Failure -> {

@@ -87,7 +87,7 @@ class UserRegisterErrorException : HTTPCodeException(
  * The HTTP code is 400, because it is a bad request.
  */
 class IncorrectPasswordException : HTTPCodeException(
-    message = "Incorrect password or email.",
+    message = "Incorrect password.",
     httpCode = BAD_REQUEST
 )
 
