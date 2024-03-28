@@ -1,6 +1,6 @@
 package project.planItAPI.repository.transaction
 
-import project.planItAPI.repository.UsersRepository
+import project.planItAPI.repository.jdbi.users.UsersRepository
 
 /**
  * Interface representing a transaction that involves interactions with multiple repositories.

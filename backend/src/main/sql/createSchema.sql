@@ -7,9 +7,13 @@ drop table if exists dbo.RefreshTokens;
 create table dbo.Users
 (
     id                  serial primary key,
+    name                VARCHAR(64)         not null,
     username            VARCHAR(64) unique  not null,
-    hashed_password VARCHAR(256)        not null,
-    email               VARCHAR(320) unique not null
+    hashed_password     VARCHAR(128)        not null,
+    email               VARCHAR(128) unique not null,
+    description         VARCHAR(512),
+    profile_picture     BYTEA,
+    profile_picture_type VARCHAR(128)
 );
 
 create table dbo.RefreshTokens

@@ -1,19 +1,21 @@
 package project.planItAPI.repository.jdbi.users
 
 import org.jdbi.v3.core.Handle
-import project.planItAPI.repository.UsersRepository
 import project.planItAPI.utils.RefreshTokenInfo
+import project.planItAPI.utils.UserInfo
+import project.planItAPI.utils.UserInfoRepo
 import project.planItAPI.utils.UserLogInValidation
 import java.sql.Timestamp
 
 class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
-    override fun register(name: String, email: String, password: String): Int? =
+    override fun register(name: String, username: String, email: String, password: String): Int? =
         handle.createUpdate(
-            "insert into dbo.users(username, hashed_password, email) " +
-                    "values (:username, :password, :email)",
+            "insert into dbo.users(name, username, hashed_password, email) " +
+                    "values (:name, :username, :password, :email)",
         )
-            .bind("username", name)
+            .bind("name", name)
+            .bind("username", username)
             .bind("password", password)
             .bind("email", email)
             .executeAndReturnGeneratedKeys()
@@ -37,11 +39,11 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .mapTo(UserLogInValidation::class.java)
             .singleOrNull()
 
-    override fun getUserByUsername(name: String): UserLogInValidation? =
+    override fun getUserByUsername(username: String): UserLogInValidation? =
         handle.createQuery(
             "select id, username, hashed_password from dbo.Users where username = :name",
         )
-            .bind("name", name)
+            .bind("name", username)
             .mapTo(UserLogInValidation::class.java)
             .singleOrNull()
 
@@ -95,4 +97,25 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .bind("token", refreshToken)
             .mapTo(Int::class.java)
             .singleOrNull()
+
+
+    override fun getUser(id: Int): UserInfoRepo? {
+        return handle.createQuery(
+            "select id, name, username, description, profile_picture, profile_picture_type from dbo.Users where id = :id",
+        )
+            .bind("id", id)
+            .mapTo(UserInfoRepo::class.java)
+            .singleOrNull()
+    }
+
+
+    override fun uploadProfilePicture(id: Int, picture: ByteArray, fileType: String): Int? =
+        handle.createUpdate(
+            "update dbo.Users set profile_picture = :picture and profile_picture_type = :fileType where id = :id",
+        )
+            .bind("picture", picture)
+            .bind("fileType", fileType)
+            .bind("id", id)
+            .execute()
+
 }

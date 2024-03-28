@@ -1,7 +1,7 @@
 package project.planItAPI.repository.transaction
 
 import org.jdbi.v3.core.Handle
-import project.planItAPI.repository.UsersRepository
+import project.planItAPI.repository.jdbi.users.UsersRepository
 import project.planItAPI.repository.jdbi.users.JdbiUsersRepository
 
 class JdbiTransaction(

@@ -1,9 +1,10 @@
 package project.planItAPI.services
 
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import project.planItAPI.utils.AccessRefreshTokensModel
 import project.planItAPI.utils.UserRegisterOutputModel
-import project.planItAPI.repository.UsersRepository
+import project.planItAPI.repository.jdbi.users.UsersRepository
 import project.planItAPI.repository.jdbi.utils.UsersDomain
 import project.planItAPI.repository.jdbi.utils.UsersDomainConfig
 import project.planItAPI.repository.transaction.TransactionManager
@@ -11,10 +12,17 @@ import project.planItAPI.utils.ExistingEmailException
 import project.planItAPI.utils.ExistingUsernameException
 import project.planItAPI.utils.IncorrectPasswordException
 import project.planItAPI.utils.SystemInfo
+import project.planItAPI.utils.UserInfo
 import project.planItAPI.utils.UserLogInOutputModel
 import project.planItAPI.utils.UserLogInValidation
+import project.planItAPI.utils.IncorrectLoginException
+import project.planItAPI.utils.SuccessMessage
+import project.planItAPI.utils.UnsupportedMediaTypeException
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
+import java.io.InputStream
+import org.springframework.mock.web.MockMultipartFile
+
 
 
 /**
@@ -35,11 +43,12 @@ class UsersServices (
      * Registers a new user.
      *
      * @param name The user's name.
+     * @param username The user's username.
      * @param email The user's email.
      * @param password The user's password.
      * @return The result of the user registration as [UserRegisterResult].
      */
-    fun register(name: String, email: String, password: String): UserRegisterResult {
+    fun register(name: String, username: String, email: String, password: String): UserRegisterResult {
         return transactionManager.run {
             // Check if the password is safe, if not throw exception with problems
             domain.isPasswordSafe(password)
@@ -49,15 +58,15 @@ class UsersServices (
             if (usersRepository.getUserByEmail(email) != null)
                 throw ExistingEmailException()
 
-            if (usersRepository.existsByUsername(name))
+            if (usersRepository.existsByUsername(username))
                 throw ExistingUsernameException()
 
             val hashedPassword = domain.createHashedPassword(password)
 
-            when (val newUserID = usersRepository.register(name, email, hashedPassword)) {
+            when (val newUserID = usersRepository.register(name, username, email, hashedPassword)) {
                 is Int -> {
-                    val (accessToken, newRefreshToken) = createTokens(newUserID, name, usersRepository)
-                    return@run UserRegisterOutputModel(newUserID, name, newRefreshToken, accessToken)
+                    val (accessToken, newRefreshToken) = createTokens(newUserID, username, usersRepository)
+                    return@run UserRegisterOutputModel(newUserID, username, name, newRefreshToken, accessToken)
                 }
 
                 else ->
@@ -84,7 +93,7 @@ class UsersServices (
             if (username != null) {
                 return@run loginValidation(password, username, usersRepository)
             }
-            throw UserNotFoundException()
+            throw IncorrectLoginException()
         }
     }
 
@@ -107,7 +116,7 @@ class UsersServices (
      *
      * @param accessToken The user's access token.
      * @param refreshToken The user's refresh token.
-     * @return The result of the user login as [UserTokensResult].
+     * @return The result of the user login as [LogoutResult].
      */
     fun logout(accessToken: String, refreshToken: String): LogoutResult {
         return transactionManager.run {
@@ -117,6 +126,40 @@ class UsersServices (
                 usersRepository.getUserIDByToken(refreshTokenHash) ?: throw Exception("invalid token")
             usersRepository.deleteUserRefreshToken(userID, refreshTokenHash)
             return@run
+        }
+    }
+
+
+    /**
+     * Retrieves information about a user.
+     *
+     * @param userID The ID of the user to retrieve information for.
+     * @return The user's information as [GetUserResult].
+     */
+    fun getUser(userID: Int): GetUserResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            val user = usersRepository.getUser(userID) ?: throw UserNotFoundException()
+            val profilePicture =
+                byteArrayToMultipartFile(user.profilePicture, user.username+"_profile", user.profilePictureType)
+            return@run UserInfo(user.id, user.name, user.username, user.description, profilePicture)
+        }
+    }
+
+    /**
+     * Updates the user's profile picture.
+     *
+     * @param userID The ID of the user to update the profile picture for.
+     * @param profilePicture The new profile picture.
+     * @return The user's information as [UploadProfilePictureResult].
+     */
+    fun uploadProfilePicture(userID: Int, profilePicture: MultipartFile): UploadProfilePictureResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            val imageBytes = profilePicture.bytes ?: throw UnsupportedMediaTypeException()
+            val fileType = profilePicture.contentType ?: throw UnsupportedMediaTypeException()
+            usersRepository.uploadProfilePicture(userID, imageBytes, fileType) ?: throw UserNotFoundException()
+            return@run SuccessMessage("Profile picture uploaded successfully.")
         }
     }
 
@@ -147,5 +190,11 @@ class UsersServices (
             accessToken = accessToken,
             refreshToken = refreshToken,
         )
+    }
+
+
+    fun byteArrayToMultipartFile(imageBytes: ByteArray, fileName: String, fileType: String): MultipartFile {
+        val inputStream: InputStream = imageBytes.inputStream()
+        return MockMultipartFile(fileName, fileName, fileType, inputStream)
     }
 }

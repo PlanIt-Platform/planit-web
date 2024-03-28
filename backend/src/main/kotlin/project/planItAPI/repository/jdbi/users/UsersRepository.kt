@@ -1,7 +1,9 @@
-package project.planItAPI.repository
+package project.planItAPI.repository.jdbi.users
 
 import org.springframework.stereotype.Component
 import project.planItAPI.utils.RefreshTokenInfo
+import project.planItAPI.utils.UserInfo
+import project.planItAPI.utils.UserInfoRepo
 import project.planItAPI.utils.UserLogInValidation
 import java.sql.Timestamp
 
@@ -16,11 +18,12 @@ interface UsersRepository {
      * Registers a new user with the provided information.
      *
      * @param name The username of the new user.
+     * @param username The username of the new user.
      * @param email The email address of the new user.
      * @param password The hashed password of the new user.
      * @return The ID of the newly registered user, or null if registration fails.
      */
-    fun register(name: String, email: String, password: String): Int?
+    fun register(name: String, username: String, email: String, password: String): Int?
 
 
     /**
@@ -95,4 +98,14 @@ interface UsersRepository {
      */
     fun getUserIDByToken(refreshToken: String): Int?
 
+    /**
+     * Retrieves user information based on the provided user ID.
+     *
+     * @param id The user ID to retrieve information for.
+     * @return [UserInfo] containing user information, or null if not found.
+     */
+    fun getUser(id: Int): UserInfoRepo?
+
+
+    fun uploadProfilePicture(id: Int, picture: ByteArray, fileType: String): Int?
 }

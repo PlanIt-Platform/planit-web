@@ -1,5 +1,6 @@
 package project.planItAPI.utils
 
+import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
 
 /**
@@ -10,6 +11,7 @@ import java.time.Instant
  * @property password The password chosen by the user.
  */
 data class UserRegisterInputModel(
+    val username: String,
     val name: String,
     val email: String,
     val password: String,
@@ -26,6 +28,7 @@ data class UserRegisterInputModel(
 data class UserRegisterOutputModel(
     val id: Int,
     val username: String,
+    val name: String,
     val refreshToken: String,
     val accessToken: String
 )
@@ -65,6 +68,37 @@ data class UserLogInOutputModel(
     val id: Int,
     val accessToken: String,
     val refreshToken: String,
+)
+
+/**
+ * Model containing the user's information.
+ *
+ * @property id The unique identifier of the user.
+ * @property username The username of the user.
+ * @property email The email address of the user.
+ */
+data class UserInfoRepo(
+    val id: Int,
+    val name: String,
+    val username: String,
+    val description: String,
+    val profilePicture: ByteArray,
+    val profilePictureType: String
+)
+
+/**
+ * Model containing the user's information.
+ *
+ * @property id The unique identifier of the user.
+ * @property username The username of the user.
+ * @property email The email address of the user.
+ */
+data class UserInfo(
+    val id: Int,
+    val name: String,
+    val username: String,
+    val description: String,
+    val profilePicture: MultipartFile
 )
 
 /**
@@ -109,4 +143,8 @@ data class SystemInfo(
  */
 data class ExceptionReturn(
     val error: String
+)
+
+data class SuccessMessage(
+    val success: String
 )

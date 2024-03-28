@@ -3,19 +3,15 @@ package project.planItAPI.http.controllers
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import project.planItAPI.http.PathTemplates
 import project.planItAPI.utils.UserRegisterInputModel
 import project.planItAPI.services.UsersServices
-import project.planItAPI.utils.Either
-import project.planItAPI.utils.ExceptionReturn
 import project.planItAPI.utils.Failure
-import project.planItAPI.utils.HTTPCodeException
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.UserLoginInputModel
-import java.time.Duration
 import com.google.gson.Gson as GSon
 
 /**
@@ -36,14 +32,14 @@ class UserController(private val usersServices: UsersServices) {
      */
     @PostMapping(PathTemplates.REGISTER)
     fun register(@RequestBody s: UserRegisterInputModel, response: HttpServletResponse): ResponseEntity<*> {
-        return when (val res = usersServices.register(s.name, s.email, s.password)) {
+        return when (val res = usersServices.register(s.name, s.username, s.email, s.password)) {
             is Failure -> {
                 failureResponse(res)
             }
 
             is Success -> {
                 setTokenCookies(response, res.value.accessToken, res.value.refreshToken)
-                return responseHandler(201, GSon().toJson(res.value))
+                return responseHandler(201, res.value)
             }
         }
     }
@@ -64,7 +60,7 @@ class UserController(private val usersServices: UsersServices) {
 
             is Success -> {
                 setTokenCookies(response, res.value.accessToken, res.value.refreshToken)
-                return responseHandler(200, GSon().toJson(res.value))
+                return responseHandler(200, res.value)
             }
         }
     }
@@ -95,62 +91,42 @@ class UserController(private val usersServices: UsersServices) {
         }
     }
 
+    @GetMapping(PathTemplates.USER)
+    fun getUser(@PathVariable id: Int): ResponseEntity<*> {
+        return when (val res = usersServices.getUser(id)) {
+            is Failure -> {
+                failureResponse(res)
+            }
+
+            is Success -> {
+                return responseHandler(200, res)
+            }
+        }
+    }
+
+    @PostMapping(PathTemplates.UPLOAD_PROFILE_PICTURE)
+    fun uploadProfilePicture(@PathVariable id: Int, @RequestParam("image") image: MultipartFile?): ResponseEntity<*> {
+        if(image != null){
+            return when (val res = usersServices.uploadProfilePicture(id, image)) {
+                is Failure -> {
+                    failureResponse(res)
+                }
+
+                is Success -> {
+                    return responseHandler(200, res)
+                }
+            }
+        } else {
+            return responseHandler(400, "No image provided.")
+        }
+    }
+
     /**
      * Retrieves information about the application or service.
      *
      * @return Information about the application.
      */
     @GetMapping(PathTemplates.ABOUT)
-    fun about() = responseHandler(200, GSon().toJson(usersServices.about()))
-
-    /**
-     * Generic response handler method to construct a ResponseEntity.
-     *
-     * @param status The HTTP status code.
-     * @param body The response body.
-     * @return ResponseEntity with the specified status and response body.
-     */
-    private inline fun <reified T> responseHandler(status: Int, body: T) =
-        ResponseEntity.status(status)
-            .contentType(MediaType.APPLICATION_JSON).body(body)
-
-
-    /**
-     * Helper method to set access and refresh token cookies in the HTTP response.
-     *
-     * @param response The HttpServletResponse to set the response headers.
-     * @param accessToken The access token to be set as a cookie.
-     * @param refreshToken The refresh token to be set as a cookie.
-     */
-    private fun setTokenCookies(
-        response: HttpServletResponse,
-        accessToken: String,
-        refreshToken: String,
-    ) {
-        val accessTokenCookie = ResponseCookie.from("access_token", accessToken)
-            .httpOnly(true)
-            .path("/")
-            .maxAge(Duration.ofHours(1))
-            .sameSite("Strict")
-            .build()
-
-        val refreshTokenCookie = ResponseCookie.from("refresh_token", refreshToken)
-            .httpOnly(true)
-            .path("/")
-            .maxAge(Duration.ofDays(1))
-            .sameSite("Strict")
-            .build()
-
-        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-    }
-
-
-    private fun failureResponse(res: Either.Left<Exception>) =
-        if (res.value is HTTPCodeException) {
-            responseHandler(res.value.httpCode, GSon().toJson(ExceptionReturn(res.value.message)))
-        } else {
-            responseHandler(500, GSon().toJson(ExceptionReturn("Internal server error")))
-        }
+    fun about() = responseHandler(200, usersServices.about())
 
 }
