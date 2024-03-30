@@ -1,5 +1,7 @@
 package project.planItAPI.utils
 
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
 
@@ -14,7 +16,9 @@ data class UserRegisterInputModel(
     val username: String,
     val name: String,
     val email: String,
-    val password: String,
+    val description: String,
+    val interests: List<String>,
+    val password: String
 )
 
 /**
@@ -82,8 +86,8 @@ data class UserInfoRepo(
     val name: String,
     val username: String,
     val description: String,
-    val profilePicture: ByteArray,
-    val profilePictureType: String
+    val email: String,
+    val interests: String
 )
 
 /**
@@ -98,7 +102,8 @@ data class UserInfo(
     val name: String,
     val username: String,
     val description: String,
-    val profilePicture: MultipartFile
+    val email: String,
+    val interests: List<String>
 )
 
 /**

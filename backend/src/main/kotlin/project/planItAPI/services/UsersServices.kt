@@ -23,8 +23,6 @@ import project.planItAPI.utils.UserRegisterErrorException
 import java.io.InputStream
 import org.springframework.mock.web.MockMultipartFile
 
-
-
 /**
  * Service class providing user-related functionality.
  *
@@ -48,7 +46,14 @@ class UsersServices (
      * @param password The user's password.
      * @return The result of the user registration as [UserRegisterResult].
      */
-    fun register(name: String, username: String, email: String, password: String): UserRegisterResult {
+    fun register(
+        name: String,
+        username: String,
+        email: String,
+        description: String,
+        interests: String,
+        password: String
+    ): UserRegisterResult {
         return transactionManager.run {
             // Check if the password is safe, if not throw exception with problems
             domain.isPasswordSafe(password)
@@ -62,8 +67,14 @@ class UsersServices (
                 throw ExistingUsernameException()
 
             val hashedPassword = domain.createHashedPassword(password)
-
-            when (val newUserID = usersRepository.register(name, username, email, hashedPassword)) {
+            when (val newUserID = usersRepository.register(
+                name,
+                username,
+                email,
+                description,
+                interests,
+                hashedPassword
+            )) {
                 is Int -> {
                     val (accessToken, newRefreshToken) = createTokens(newUserID, username, usersRepository)
                     return@run UserRegisterOutputModel(newUserID, username, name, newRefreshToken, accessToken)
@@ -140,9 +151,7 @@ class UsersServices (
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val user = usersRepository.getUser(userID) ?: throw UserNotFoundException()
-            val profilePicture =
-                byteArrayToMultipartFile(user.profilePicture, user.username+"_profile", user.profilePictureType)
-            return@run UserInfo(user.id, user.name, user.username, user.description, profilePicture)
+            return@run UserInfo(user.id, user.name, user.username, user.description, user.email, user.interests.split(","))
         }
     }
 
@@ -153,7 +162,7 @@ class UsersServices (
      * @param profilePicture The new profile picture.
      * @return The user's information as [UploadProfilePictureResult].
      */
-    fun uploadProfilePicture(userID: Int, profilePicture: MultipartFile): UploadProfilePictureResult {
+   /* fun uploadProfilePicture(userID: Int, profilePicture: MultipartFile): UploadProfilePictureResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val imageBytes = profilePicture.bytes ?: throw UnsupportedMediaTypeException()
@@ -161,7 +170,7 @@ class UsersServices (
             usersRepository.uploadProfilePicture(userID, imageBytes, fileType) ?: throw UserNotFoundException()
             return@run SuccessMessage("Profile picture uploaded successfully.")
         }
-    }
+    }*/
 
     /**
      * Retrieves information about the application.

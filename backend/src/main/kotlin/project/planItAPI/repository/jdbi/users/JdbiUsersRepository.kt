@@ -9,15 +9,25 @@ import java.sql.Timestamp
 
 class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
-    override fun register(name: String, username: String, email: String, password: String): Int? =
+    override fun register(
+        name: String,
+        username: String,
+        email: String,
+        description: String,
+        interests: String,
+        hashed_password: String): Int? =
         handle.createUpdate(
-            "insert into dbo.users(name, username, hashed_password, email) " +
-                    "values (:name, :username, :password, :email)",
+            "insert into dbo.users(name, username, hashed_password, email, description, " +
+                    "interests) " +
+                    "values (:name, :username, :hashed_password, :email, " +
+                    ":description, :interests)",
         )
             .bind("name", name)
             .bind("username", username)
-            .bind("password", password)
+            .bind("hashed_password", hashed_password)
             .bind("email", email)
+            .bind("description", description)
+            .bind("interests", interests)
             .executeAndReturnGeneratedKeys()
             .mapTo(Int::class.java)
             .one()
@@ -101,14 +111,14 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
     override fun getUser(id: Int): UserInfoRepo? {
         return handle.createQuery(
-            "select id, name, username, description, profile_picture, profile_picture_type from dbo.Users where id = :id",
+            "select id, name, username, email, description, interests from dbo.Users where id = :id",
         )
             .bind("id", id)
             .mapTo(UserInfoRepo::class.java)
             .singleOrNull()
     }
 
-
+/*
     override fun uploadProfilePicture(id: Int, picture: ByteArray, fileType: String): Int? =
         handle.createUpdate(
             "update dbo.Users set profile_picture = :picture and profile_picture_type = :fileType where id = :id",
@@ -117,5 +127,6 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .bind("fileType", fileType)
             .bind("id", id)
             .execute()
+ */
 
 }

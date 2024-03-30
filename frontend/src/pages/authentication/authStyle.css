@@ -2,9 +2,18 @@
 
 .homeStyle {
     display: flex;
+    margin: 50px 125px 10px 115px;
+}
+
+.backStyle {
+    display: flex;
+    margin: -360px 290px 10px 5px;
+}
+
+.inline-field input,
+.inline-field label {
+    display: block;
     margin-bottom: 10px;
-    margin-left: 90px;
-    margin-right: 95px;
 }
 
 .form-content {
@@ -27,19 +36,27 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.form-container label {
-    display: block;
-    margin-bottom: 10px;
+.form-container h2 {
+    margin-bottom: 20px;
     color: #ffffff;
 }
 
-.form-container input {
+.form-container label {
+    color: #ffffff;
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.form-container input[type="password"],
+.form-container input[type="text"]{
     width: 90%;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #cccccc;
     border-radius: 5px;
 }
+
 
 .form-container button {
     width: 100%;
@@ -100,4 +117,48 @@
 .linkStyle:hover::before {
     transform-origin: left;
     transform: scaleX(1);
+}
+
+.checkbox-wrapper {
+    display: block;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.int-div {
+ margin-left: 10px;
+}
+
+.int-div button {
+    width: 70%;
+    margin-left: 40px;
+    padding: 10px;
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.desc-div h2 {
+    margin-top: 40px;
+    margin-left: 10px;
+}
+
+.desc-div textarea {
+    margin-left: 10px;
+    margin-bottom: 20px;
+}
+
+.desc-div button {
+    width: 70%;
+    margin-left: 40px;
+    padding: 10px;
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }

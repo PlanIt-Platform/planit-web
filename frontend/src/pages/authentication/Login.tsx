@@ -6,7 +6,7 @@ import './authStyle.css';
 import logo from "../../../images/logo.png";
 
 export default function Login(): React.ReactElement {
-    const [inputs, setInputs] = useState({email: "", password: ""})
+    const [inputs, setInputs] = useState({emailOrName: "", password: ""})
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
     const [redirect, setRedirect] = useState(false)
@@ -16,7 +16,7 @@ export default function Login(): React.ReactElement {
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
         setSubmitting(true)
-        const email = inputs.email
+        const email = inputs.emailOrName
         const password = inputs.password
         login(email, password)
             .then(res => {
@@ -43,11 +43,12 @@ export default function Login(): React.ReactElement {
                 <Link to="/" className={"linkStyle homeStyle"}>Home</Link>
                 <form onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="email">Email</label>
+                            <label htmlFor="emailOrName">Email Or Name</label>
                             <input
-                                id="email"
-                                name="email"
-                                value={inputs.email}
+                                id="emailOrName"
+                                type="text"
+                                name="emailOrName"
+                                value={inputs.emailOrName}
                                 onChange={handleChange}
                             />
                         </div>

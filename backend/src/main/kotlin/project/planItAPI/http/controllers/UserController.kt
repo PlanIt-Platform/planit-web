@@ -32,7 +32,8 @@ class UserController(private val usersServices: UsersServices) {
      */
     @PostMapping(PathTemplates.REGISTER)
     fun register(@RequestBody s: UserRegisterInputModel, response: HttpServletResponse): ResponseEntity<*> {
-        return when (val res = usersServices.register(s.name, s.username, s.email, s.password)) {
+        return when (val res = usersServices.register(s.name, s.username, s.email,
+            s.description, s.interests.joinToString(","), s.password)) {
             is Failure -> {
                 failureResponse(res)
             }
@@ -99,12 +100,12 @@ class UserController(private val usersServices: UsersServices) {
             }
 
             is Success -> {
-                return responseHandler(200, res)
+                return responseHandler(200, res.value)
             }
         }
     }
 
-    @PostMapping(PathTemplates.UPLOAD_PROFILE_PICTURE)
+   /* @PostMapping(PathTemplates.UPLOAD_PROFILE_PICTURE)
     fun uploadProfilePicture(@PathVariable id: Int, @RequestParam("image") image: MultipartFile?): ResponseEntity<*> {
         if(image != null){
             return when (val res = usersServices.uploadProfilePicture(id, image)) {
@@ -119,7 +120,7 @@ class UserController(private val usersServices: UsersServices) {
         } else {
             return responseHandler(400, "No image provided.")
         }
-    }
+    }*/
 
     /**
      * Retrieves information about the application or service.
