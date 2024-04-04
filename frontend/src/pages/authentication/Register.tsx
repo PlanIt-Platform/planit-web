@@ -31,7 +31,7 @@ export default function Register(): React.ReactElement {
                         setSubmitting(false)
                         return
                     }
-                    setSession(res.accessToken);
+                    setSession(res.accessToken, res.id);
                     setSubmitting(false)
                     setRedirect(true)
                 })

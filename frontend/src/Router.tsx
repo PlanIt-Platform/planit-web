@@ -5,6 +5,7 @@ import React from 'react'
 import Home from "./pages/home/Home";
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
+import UserProfile from "./pages/userProfile/UserProfile";
 
 const router = createBrowserRouter([
     {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
     {
         "path": "/planit/register",
         "element": <Register />,
+    },
+    {
+        "path": "/planit/user/:id",
+        "element": <UserProfile />,
     }
 ])
 

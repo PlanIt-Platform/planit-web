@@ -61,9 +61,9 @@ fun setTokenCookies(
  */
 fun failureResponse(res: Either.Left<Exception>) =
     if (res.value is HTTPCodeException) {
-        responseHandler(res.value.httpCode, turnToJson(ExceptionReturn(res.value.message)))
+        responseHandler(res.value.httpCode, ExceptionReturn(res.value.message))
     } else {
-        responseHandler(500, turnToJson(ExceptionReturn("Internal server error")))
+        responseHandler(500, ExceptionReturn("Internal server error"))
     }
 
 

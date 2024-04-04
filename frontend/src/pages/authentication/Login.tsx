@@ -25,7 +25,7 @@ export default function Login(): React.ReactElement {
                     setSubmitting(false)
                     return
                 }
-                setSession(res.accessToken);
+                setSession(res.accessToken, res.id);
                 setSubmitting(false)
                 setRedirect(true)
             })
@@ -43,7 +43,7 @@ export default function Login(): React.ReactElement {
                 <Link to="/" className={"linkStyle homeStyle"}>Home</Link>
                 <form onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="emailOrName">Email Or Name</label>
+                            <label htmlFor="emailOrName">Email Or Username</label>
                             <input
                                 id="emailOrName"
                                 type="text"

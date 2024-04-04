@@ -69,7 +69,7 @@ class UserController(private val usersServices: UsersServices) {
     /**
      * Handles user logout.
      *
-     * @return ResponseEntity with the appropriate status and response body.
+     * @return [ResponseEntity] with the appropriate status and response body.
      */
     @PostMapping(PathTemplates.LOGOUT)
     fun logout(
@@ -92,6 +92,12 @@ class UserController(private val usersServices: UsersServices) {
         }
     }
 
+    /**
+     * Handles user information retrieval.
+     *
+     * @param id The ID of the user to retrieve information for.
+     * @return [ResponseEntity] with the user information.
+     */
     @GetMapping(PathTemplates.USER)
     fun getUser(@PathVariable id: Int): ResponseEntity<*> {
         return when (val res = usersServices.getUser(id)) {
@@ -125,7 +131,7 @@ class UserController(private val usersServices: UsersServices) {
     /**
      * Retrieves information about the application or service.
      *
-     * @return Information about the application.
+     * @return [ResponseEntity] with information about the application.
      */
     @GetMapping(PathTemplates.ABOUT)
     fun about() = responseHandler(200, usersServices.about())
