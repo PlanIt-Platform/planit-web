@@ -5,6 +5,7 @@ import java.time.Instant
 /**
  * Input model for user registration.
  *
+ * @property username The username chosen by the user.
  * @property name The name of the user.
  * @property email The email address of the user.
  * @property password The password chosen by the user.
@@ -13,8 +14,6 @@ data class UserRegisterInputModel(
     val username: String,
     val name: String,
     val email: String,
-    val description: String,
-    val interests: List<String>,
     val password: String
 )
 
@@ -82,9 +81,9 @@ data class UserInfoRepo(
     val id: Int,
     val name: String,
     val username: String,
-    val description: String,
+    val description: String = "",
     val email: String,
-    val interests: String
+    val interests: String = ""
 )
 
 /**
@@ -93,13 +92,27 @@ data class UserInfoRepo(
  * @property id The unique identifier of the user.
  * @property username The username of the user.
  * @property email The email address of the user.
+ * @property description The description of the user.
+ * @property interests The interests of the user.
  */
 data class UserInfo(
     val id: Int,
     val name: String,
     val username: String,
-    val description: String,
     val email: String,
+    val description: String,
+    val interests: List<String>
+)
+
+/**
+ * Model containing the user's information.
+ * @property name The name of the user.
+ * @property description The description of the user.
+ * @property interests The interests of the user.
+ */
+data class UserEditModel(
+    val name: String,
+    val description: String,
     val interests: List<String>
 )
 

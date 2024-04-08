@@ -18,3 +18,7 @@ export function post(uri, body) {
 export function get(uri){
     return fetchData(uri, 'GET', undefined)
 }
+
+export function put(uri, body){
+    return fetchData(uri, 'PUT', body)
+}

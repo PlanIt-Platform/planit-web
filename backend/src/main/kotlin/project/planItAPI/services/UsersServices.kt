@@ -48,8 +48,6 @@ class UsersServices (
         name: String,
         username: String,
         email: String,
-        description: String,
-        interests: String,
         password: String
     ): UserRegisterResult {
         return transactionManager.run {
@@ -69,8 +67,6 @@ class UsersServices (
                 name,
                 username,
                 email,
-                description,
-                interests,
                 hashedPassword
             )) {
                 is Int -> {
@@ -119,7 +115,6 @@ class UsersServices (
         return UserLogInOutputModel(userEmail.id, accessToken, newRefreshToken)
     }
 
-
     /**
      * Logs out a user.
      *
@@ -138,7 +133,6 @@ class UsersServices (
         }
     }
 
-
     /**
      * Retrieves information about a user.
      *
@@ -149,7 +143,27 @@ class UsersServices (
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val user = usersRepository.getUser(userID) ?: throw UserNotFoundException()
-            return@run UserInfo(user.id, user.name, user.username, user.description, user.email, user.interests.split(","))
+            return@run UserInfo(user.id, user.name, user.username,  user.email, user.description, user.interests.split(","))
+        }
+    }
+
+    /**
+     * Edits a user's information.
+     *
+     * @param userID The ID of the user to edit.
+     * @param name The new name of the user.
+     * @param description The new description of the user.
+     * @param interests The new interests of the user.
+     * @return The result of the user edit as [EditUserResult].
+     */
+    fun editUser(userID: Int, name: String, description: String, interests: String): EditUserResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            if (usersRepository.getUser(userID) == null) {
+                throw UserNotFoundException()
+            }
+            usersRepository.editUser(userID, name, description, interests)
+            return@run SuccessMessage("User edited successfully.")
         }
     }
 
@@ -198,7 +212,6 @@ class UsersServices (
             refreshToken = refreshToken,
         )
     }
-
 
     fun byteArrayToMultipartFile(imageBytes: ByteArray, fileName: String, fileType: String): MultipartFile {
         val inputStream: InputStream = imageBytes.inputStream()
