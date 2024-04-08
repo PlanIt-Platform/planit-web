@@ -1,4 +1,4 @@
-package project.planItAPI.repository.jdbi.utils
+package project.planItAPI.repository.jdbi.utils.users
 
 /**
  * Data class representing configuration parameters for the user domain.

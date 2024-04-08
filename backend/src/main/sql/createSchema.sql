@@ -1,19 +1,21 @@
 DROP SCHEMA if exists dbo CASCADE;
 create schema dbo;
 
-drop table if exists dbo.Users;
-drop table if exists dbo.RefreshTokens;
-drop table if exists dbo.Event;
 drop table if exists dbo.Task;
 drop table if exists dbo.Message;
 drop table if exists dbo.Chat;
 drop table if exists dbo.UserParticipatesInEvent;
 drop table if exists dbo.UserParticipatesInEventChat;
+drop table if exists dbo.RefreshTokens;
+drop table if exists dbo.Users;
+drop table if exists dbo.Event;
+drop type if exists dbo.VisibilityType;
+drop type if exists dbo.Money;
 
 create table dbo.Users
 (
     id                  serial primary key,
-    name            VARCHAR(64)         not null,
+    name                VARCHAR(64)         not null,
     username            VARCHAR(64) unique  not null,
     hashed_password     VARCHAR(128)        not null,
     email               VARCHAR(128) unique not null,
@@ -30,22 +32,28 @@ create table dbo.RefreshTokens
     UNIQUE (user_id, token_validation)
 );
 
+CREATE TYPE dbo.VisibilityType AS ENUM ('Public', 'Private');
+CREATE TYPE dbo.Money AS (amount DECIMAL(10, 2), currency VARCHAR(3));
+
 CREATE TABLE dbo.Event (
-   id          serial primary key,
-   name        VARCHAR(64) NOT NULL,
-   description VARCHAR(512),
-   category    VARCHAR(64),
-   location    VARCHAR(255),
-   visibility  VARCHAR(64),
-   date        TIMESTAMP
+    id          serial primary key,
+    title       VARCHAR(64) NOT NULL,
+    description VARCHAR(512),
+    category    VARCHAR(64) NOT NULL,
+    subcategory VARCHAR(64),
+    location    VARCHAR(255) NOT NULL,
+    visibility  dbo.VisibilityType NOT NULL,
+    date        TIMESTAMP,
+    end_date    TIMESTAMP,
+    price       dbo.Money
 );
 
 CREATE TABLE dbo.Task (
   id          serial primary key,
   name        VARCHAR(255) NOT NULL,
   description VARCHAR(512),
-  event_id    INT not null,
-  user_id     INT,
+  event_id    INT NOT NULL,
+  user_id     INT NOT NULL,
   FOREIGN KEY (event_id) REFERENCES dbo.Event(id),
   FOREIGN KEY (user_id) REFERENCES dbo.Users(id)
 );
@@ -53,16 +61,16 @@ CREATE TABLE dbo.Task (
 CREATE TABLE dbo.Chat (
   id        serial primary key,
   name      VARCHAR(255) NOT NULL,
-  event_id  INT not null,
+  event_id  INT NOT NULL,
   FOREIGN KEY (event_id) REFERENCES dbo.Event(id)
 );
 
 CREATE TABLE dbo.Message (
-  id        serial primary key,
-  text      VARCHAR(512),
-  time      TIMESTAMP,
-  sender_id INT not null,
-  chat_id   INT not null,
+  id            serial primary key,
+  text          VARCHAR(512),
+  time          TIMESTAMP,
+  sender_id     INT NOT NULL,
+  chat_id       INT NOT NULL,
   FOREIGN KEY (sender_id) REFERENCES dbo.Users(id),
   FOREIGN KEY (chat_id) REFERENCES dbo.Chat(id)
 );

@@ -1,0 +1,46 @@
+{
+  "Technology":[
+    "Web Development",
+    "Mobile Development",
+    "Software Development",
+    "Networking and Security",
+    "Artificial Intelligence and Machine Learning",
+    "Tech Startups and Entrepreneurship",
+    "Emerging Technologies"
+  ],
+
+  "Arts and Culture":[
+    "Visual Arts and Exhibitions",
+    "Performing Arts (Theater, Dance, Music)",
+    "Literature and Writing",
+    "Cultural Festivals and Celebrations",
+    "Heritage and History Events"
+  ],
+
+  "Sports and Fitness":[
+    "Team Sports (Soccer, Basketball, Volleyball)",
+    "Individual Sports (Running, Swimming, Tennis)",
+    "Fitness Classes and Workouts",
+    "Outdoor Adventures (Hiking, Cycling, Camping)",
+    "Sports Tournaments and Competitions"
+  ],
+
+  "Business and Professional Development":[
+    "Networking Events and Mixers",
+    "Business Seminars and Conferences",
+    "Leadership and Management Workshops",
+    "Entrepreneurship and Startup Meetups",
+    "Career Fairs and Job Expos"
+  ],
+
+  "Food and Drink":[
+    "Food Festivals and Tastings",
+    "Cooking Classes and Culinary Workshops",
+    "Wine and Beer Tastings",
+    "Farmers Markets and Food Markets",
+    "Gastronomic Tours and Dining Experiences"
+  ],
+
+  "Simple Meeting": []
+}
+

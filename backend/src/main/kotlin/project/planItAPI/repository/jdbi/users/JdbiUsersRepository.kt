@@ -2,7 +2,6 @@ package project.planItAPI.repository.jdbi.users
 
 import org.jdbi.v3.core.Handle
 import project.planItAPI.utils.RefreshTokenInfo
-import project.planItAPI.utils.UserInfo
 import project.planItAPI.utils.UserInfoRepo
 import project.planItAPI.utils.UserLogInValidation
 import java.sql.Timestamp

@@ -1,8 +1,5 @@
 package project.planItAPI.utils
 
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RequestPart
-import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
 
 /**
@@ -150,6 +147,33 @@ data class ExceptionReturn(
     val error: String
 )
 
+/**
+ * Model for returning a success message.
+ *
+ * @property success The success message.
+ */
 data class SuccessMessage(
     val success: String
+)
+
+/**
+ * Model for returning a list of users.
+ *
+ * @property id The unique identifier of the user.
+ * @property name The name of the user.
+ * @property username The username of the user.
+ */
+data class UserInEvent(
+    val id: Int,
+    val name: String,
+    val username: String
+)
+
+/**
+ * Model for returning a list of users in an event.
+ *
+ * @property users The list of users.
+ */
+data class UsersInEventList(
+    val users: List<UserInEvent>
 )

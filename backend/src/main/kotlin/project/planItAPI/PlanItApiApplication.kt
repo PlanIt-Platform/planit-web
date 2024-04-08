@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import kotlinx.datetime.Clock
-import project.planItAPI.repository.jdbi.utils.UsersDomainConfig
+import project.planItAPI.repository.jdbi.utils.users.UsersDomainConfig
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.sql.Connection

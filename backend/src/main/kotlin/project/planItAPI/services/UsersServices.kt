@@ -5,8 +5,8 @@ import org.springframework.web.multipart.MultipartFile
 import project.planItAPI.utils.AccessRefreshTokensModel
 import project.planItAPI.utils.UserRegisterOutputModel
 import project.planItAPI.repository.jdbi.users.UsersRepository
-import project.planItAPI.repository.jdbi.utils.UsersDomain
-import project.planItAPI.repository.jdbi.utils.UsersDomainConfig
+import project.planItAPI.repository.jdbi.utils.users.UsersDomain
+import project.planItAPI.repository.jdbi.utils.users.UsersDomainConfig
 import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.utils.ExistingEmailException
 import project.planItAPI.utils.ExistingUsernameException
@@ -16,8 +16,6 @@ import project.planItAPI.utils.UserInfo
 import project.planItAPI.utils.UserLogInOutputModel
 import project.planItAPI.utils.UserLogInValidation
 import project.planItAPI.utils.IncorrectLoginException
-import project.planItAPI.utils.SuccessMessage
-import project.planItAPI.utils.UnsupportedMediaTypeException
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
 import java.io.InputStream

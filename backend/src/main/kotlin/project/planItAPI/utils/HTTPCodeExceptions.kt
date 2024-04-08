@@ -121,3 +121,29 @@ class UnsupportedMediaTypeException : HTTPCodeException(
     message = UNSUPPORTED_MEDIA_TYPE_MESSAGE,
     httpCode = UNSUPPORTED_MEDIA_TYPE
 )
+
+class InvalidTimestampFormatException (name: String) : HTTPCodeException(
+        message = "$name has invalid timestamp. The correct format is 'YYYY-MM-DD HH:MM'.",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidVisibilityException : HTTPCodeException(
+    message = "Invalid visibility value.",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidPriceFormatException : HTTPCodeException(
+    message = "Invalid price format. The correct format is 'amount currency'. Example: '10.00 USD'.",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidCategoryException : HTTPCodeException(
+    message = "Invalid category.",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidSubcategoryException : HTTPCodeException(
+    message = "Invalid subcategory.",
+    httpCode = BAD_REQUEST
+)
+
