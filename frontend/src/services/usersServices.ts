@@ -1,8 +1,8 @@
-import {get, post} from "./custom/useFetch";
+import {get, post, put} from "./custom/useFetch";
 import {GET_USER, LOGIN, LOGOUT, REGISTER} from "./navigation/URIS";
 
-export async function register(username, name, email, password, interests, description) {
-    return await post(REGISTER, JSON.stringify({username, name, email, password, interests, description}))
+export async function register(username, name, email, password) {
+    return await post(REGISTER, JSON.stringify({username, name, email, password}))
 }
 
 export async function login(emailOrName, password) {
@@ -15,4 +15,8 @@ export async function logout() {
 
 export async function getUser(userId) {
     return await get(GET_USER + userId)
+}
+
+export async function editUser(userId, name, interests, description) {
+    return await put(GET_USER + userId + "/edit", JSON.stringify({name, interests, description}))
 }

@@ -21,17 +21,13 @@ interface UsersRepository {
      * @param name The username of the new user.
      * @param username The username of the new user.
      * @param email The email address of the new user.
-     * @param description The description of the new user.
-     * @param interests The interests of the new user.
-     * @param password The hashed password of the new user.
+     * @param hashed_password The hashed password of the new user.
      * @return The ID of the newly registered user, or null if registration fails.
      */
     fun register(
         name: String,
         username: String,
         email: String,
-        description: String,
-        interests: String,
         hashed_password: String): Int?
 
     /**
@@ -113,6 +109,16 @@ interface UsersRepository {
      * @return [UserInfoRepo] containing user information, or null if not found.
      */
     fun getUser(id: Int): UserInfoRepo?
+
+    /**
+     * Updates user information based on the provided user ID.
+     * @param id The user ID to update information for.
+     * @param name The new name of the user.
+     * @param description The new description of the user.
+     * @param interests The new interests of the user.
+     * @return The ID of the updated user, or null if update fails.
+     */
+    fun editUser(id: Int, name: String, description: String, interests: String)
 
 
    // fun uploadProfilePicture(id: Int, picture: ByteArray, fileType: String): Int?

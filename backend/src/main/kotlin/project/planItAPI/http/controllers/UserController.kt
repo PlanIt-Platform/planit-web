@@ -11,6 +11,7 @@ import project.planItAPI.utils.UserRegisterInputModel
 import project.planItAPI.services.UsersServices
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
+import project.planItAPI.utils.UserEditModel
 import project.planItAPI.utils.UserLoginInputModel
 import com.google.gson.Gson as GSon
 
@@ -32,8 +33,7 @@ class UserController(private val usersServices: UsersServices) {
      */
     @PostMapping(PathTemplates.REGISTER)
     fun register(@RequestBody s: UserRegisterInputModel, response: HttpServletResponse): ResponseEntity<*> {
-        return when (val res = usersServices.register(s.name, s.username, s.email,
-            s.description, s.interests.joinToString(","), s.password)) {
+        return when (val res = usersServices.register(s.name, s.username, s.email, s.password)) {
             is Failure -> {
                 failureResponse(res)
             }
@@ -69,7 +69,7 @@ class UserController(private val usersServices: UsersServices) {
     /**
      * Handles user logout.
      *
-     * @return [ResponseEntity] with the appropriate status and response body.
+     * @return ResponseEntity with the appropriate status and response body.
      */
     @PostMapping(PathTemplates.LOGOUT)
     fun logout(
@@ -93,10 +93,10 @@ class UserController(private val usersServices: UsersServices) {
     }
 
     /**
-     * Handles user information retrieval.
+     * Retrieves information about a user.
+     * @param id The unique identifier of the user.
+     * @return ResponseEntity with the appropriate status and user information.
      *
-     * @param id The ID of the user to retrieve information for.
-     * @return [ResponseEntity] with the user information.
      */
     @GetMapping(PathTemplates.USER)
     fun getUser(@PathVariable id: Int): ResponseEntity<*> {
@@ -111,27 +111,45 @@ class UserController(private val usersServices: UsersServices) {
         }
     }
 
-   /* @PostMapping(PathTemplates.UPLOAD_PROFILE_PICTURE)
-    fun uploadProfilePicture(@PathVariable id: Int, @RequestParam("image") image: MultipartFile?): ResponseEntity<*> {
-        if(image != null){
-            return when (val res = usersServices.uploadProfilePicture(id, image)) {
-                is Failure -> {
-                    failureResponse(res)
-                }
-
-                is Success -> {
-                    return responseHandler(200, res)
-                }
+    /**
+     * Edits a user's information.
+     * @param id The unique identifier of the user.
+     * @param s The UserEditModel representing the user's new information.
+     */
+    @PutMapping(PathTemplates.EDIT_USER)
+    fun editUser(@PathVariable id: Int, @RequestBody s: UserEditModel): ResponseEntity<*> {
+        return when (val res = usersServices.editUser(id, s.name, s.description, s.interests.joinToString(","))) {
+            is Failure -> {
+                failureResponse(res)
             }
-        } else {
-            return responseHandler(400, "No image provided.")
+
+            is Success -> {
+                return responseHandler(200, res)
+            }
         }
-    }*/
+    }
+
+    /* @PostMapping(PathTemplates.UPLOAD_PROFILE_PICTURE)
+     fun uploadProfilePicture(@PathVariable id: Int, @RequestParam("image") image: MultipartFile?): ResponseEntity<*> {
+         if(image != null){
+             return when (val res = usersServices.uploadProfilePicture(id, image)) {
+                 is Failure -> {
+                     failureResponse(res)
+                 }
+
+                 is Success -> {
+                     return responseHandler(200, res)
+                 }
+             }
+         } else {
+             return responseHandler(400, "No image provided.")
+         }
+     }*/
 
     /**
      * Retrieves information about the application or service.
      *
-     * @return [ResponseEntity] with information about the application.
+     * @return Information about the application.
      */
     @GetMapping(PathTemplates.ABOUT)
     fun about() = responseHandler(200, usersServices.about())

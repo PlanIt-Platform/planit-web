@@ -8,7 +8,7 @@ object PathTemplates {
     const val LOGIN = "/login"
     const val LOGOUT = "/logout"
     const val USER = "/user/{id}"
-    //const val USER_BY_TOKEN = "/user/token"
+    const val EDIT_USER = "/user/{id}/edit"
     const val ABOUT = "/about"
     const val UPLOAD_PROFILE_PICTURE = "/user/{id}/upload-profile-picture"
 }

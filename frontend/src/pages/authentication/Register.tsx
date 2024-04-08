@@ -1,7 +1,7 @@
 import {Link, Navigate} from "react-router-dom";
 import React, {useState} from "react";
-import {setSession} from "./Session";
-import {register} from "../../services/usersServices";
+import {getUserId, setSession} from "./Session";
+import {editUser, register} from "../../services/usersServices";
 import './authStyle.css';
 import logo from "../../../images/logo.png";
 
@@ -23,8 +23,8 @@ export default function Register(): React.ReactElement {
         const username = inputs.username
         const name = inputs.name
         const password = inputs.password
-        if (step == 3) {
-            register(username, name, email, password, interests, description)
+        if (step == 1) {
+            register(username, name, email, password)
                 .then(res => {
                     if (res.error) {
                         setError(res.error)
@@ -32,9 +32,23 @@ export default function Register(): React.ReactElement {
                         return
                     }
                     setSession(res.accessToken, res.id);
+                    setStep(2)
                     setSubmitting(false)
-                    setRedirect(true)
                 })
+        }
+        if (step == 3){
+            const id = getUserId()
+            editUser(id, name, interests, description)
+                .then(res => {
+                        if (res.error) {
+                            setError(res.error)
+                            setSubmitting(false)
+                            return
+                        }
+                        setSubmitting(false)
+                        setRedirect(true)
+                    }
+                )
         }
     }
 
@@ -60,40 +74,40 @@ export default function Register(): React.ReactElement {
                             <img src={logo} alt="Image" className="image-overlay" />
                             <Link to="/" className={"linkStyle homeStyle"}>Home</Link>
                             <div className="inline-field">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                id="email"
-                                type="text"
-                                name="email"
-                                value={inputs.email}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="username">Username</label>
-                            <input
-                                id="username"
-                                type="text"
-                                name="username"
-                                value={inputs.username}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="name">Name</label>
-                            <input
-                                id="name"
-                                type="text"
-                                name="name"
-                                value={inputs.name}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="password">Password</label>
-                            <input
-                                id="password"
-                                type="password"
-                                name="password"
-                                value={inputs.password}
-                                onChange={handleChange}
-                            />
+                                <label htmlFor="email">Email</label>
+                                <input
+                                    id="email"
+                                    type="text"
+                                    name="email"
+                                    value={inputs.email}
+                                    onChange={handleChange}
+                                />
+                                <label htmlFor="username">Username</label>
+                                <input
+                                    id="username"
+                                    type="text"
+                                    name="username"
+                                    value={inputs.username}
+                                    onChange={handleChange}
+                                />
+                                <label htmlFor="name">Name</label>
+                                <input
+                                    id="name"
+                                    type="text"
+                                    name="name"
+                                    value={inputs.name}
+                                    onChange={handleChange}
+                                />
+                                <label htmlFor="password">Password</label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    value={inputs.password}
+                                    onChange={handleChange}
+                                />
                             </div>
-                            <button type="button" onClick={() => setStep(2)}>
+                            <button type="submit">
                                 {'Next'}
                             </button>
                         </div>
@@ -123,9 +137,9 @@ export default function Register(): React.ReactElement {
                                     <label htmlFor="entertainment">Entertainment</label>
                                 </div>
                                 <div>
-                                    <input type="checkbox" id="volunteering"
-                                           onChange={() => handleInterestSelect('volunteering')}/>
-                                    <label htmlFor="volunteering">Volunteering</label>
+                                    <input type="checkbox" id="charity"
+                                           onChange={() => handleInterestSelect('charity')}/>
+                                    <label htmlFor="charity">Charity</label>
                                 </div>
                             </div>
                             <button type="button" onClick={() => setStep(3)}>
@@ -136,7 +150,7 @@ export default function Register(): React.ReactElement {
                     {step === 3 && (
                         <div className={"desc-div"}>
                             <Link to="/planit/register" onClick={() => setStep(1)} className={"linkStyle backStyle"}>Back</Link>
-                            <h2>Description</h2>
+                            <h2>Almost there!</h2>
                             <textarea
                                 value={description}
                                 onChange={(ev) => setDescription(ev.target.value)}
@@ -147,9 +161,9 @@ export default function Register(): React.ReactElement {
                             </button>
                         </div>
                     )}
-                        <p>
-                            Already have an account? <Link to="/planit/login" className={"linkStyle"}>Log In</Link>
-                        </p>
+                    <p>
+                        Already have an account? <Link to="/planit/login" className={"linkStyle"}>Log In</Link>
+                    </p>
                 </form>
                 {error && <p>{error}</p>}
             </div>

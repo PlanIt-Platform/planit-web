@@ -2,32 +2,21 @@ package project.planItAPI.repository.jdbi.users
 
 import org.jdbi.v3.core.Handle
 import project.planItAPI.utils.RefreshTokenInfo
-import project.planItAPI.utils.UserInfo
 import project.planItAPI.utils.UserInfoRepo
 import project.planItAPI.utils.UserLogInValidation
 import java.sql.Timestamp
 
 class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
-    override fun register(
-        name: String,
-        username: String,
-        email: String,
-        description: String,
-        interests: String,
-        hashed_password: String): Int? =
+    override fun register(name: String, username: String, email: String, hashed_password: String): Int? =
         handle.createUpdate(
-            "insert into dbo.users(name, username, hashed_password, email, description, " +
-                    "interests) " +
-                    "values (:name, :username, :hashed_password, :email, " +
-                    ":description, :interests)",
+            "insert into dbo.users(name, username, hashed_password, email) " +
+                    "values (:name, :username, :hashed_password, :email)",
         )
             .bind("name", name)
             .bind("username", username)
             .bind("hashed_password", hashed_password)
             .bind("email", email)
-            .bind("description", description)
-            .bind("interests", interests)
             .executeAndReturnGeneratedKeys()
             .mapTo(Int::class.java)
             .one()
@@ -116,6 +105,17 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .bind("id", id)
             .mapTo(UserInfoRepo::class.java)
             .singleOrNull()
+    }
+
+    override fun editUser(id: Int, name: String, description: String, interests: String) {
+        handle.createUpdate(
+            "update dbo.Users set name = :name, description = :description, interests = :interests where id = :id",
+        )
+            .bind("name", name)
+            .bind("description", description)
+            .bind("interests", interests)
+            .bind("id", id)
+            .execute()
     }
 
 /*

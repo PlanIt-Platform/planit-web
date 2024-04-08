@@ -29,6 +29,11 @@ typealias LogoutResult = Either<Exception, Unit>
 typealias GetUserResult = Either<Exception, UserInfo>
 
 /**
+ * Type alias for the result of a user information update operation.
+ */
+typealias EditUserResult = Either<Exception, SuccessMessage>
+
+/**
  * Type alias for the result of a user profile picture upload operation.
  */
 typealias UploadProfilePictureResult = Either<Exception, SuccessMessage>
