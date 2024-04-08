@@ -20,6 +20,7 @@ import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
 import java.io.InputStream
 import org.springframework.mock.web.MockMultipartFile
+import project.planItAPI.utils.SuccessMessage
 
 /**
  * Service class providing user-related functionality.
