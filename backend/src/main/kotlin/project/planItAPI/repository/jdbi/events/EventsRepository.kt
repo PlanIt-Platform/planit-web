@@ -3,6 +3,7 @@ package project.planItAPI.repository.jdbi.events
 import org.springframework.stereotype.Component
 import project.planItAPI.utils.EventOutputModel
 import project.planItAPI.utils.Money
+import project.planItAPI.utils.SearchEventOutputModel
 import project.planItAPI.utils.UsersInEventList
 import java.sql.Timestamp
 
@@ -55,4 +56,13 @@ interface EventsRepository {
      * @return [UsersInEventList] containing the users participating in the event, or null if not found.
      */
     fun getUsersInEvent(id: Int): UsersInEventList?
+
+    /**
+     * Retrieves the events that match the given search criteria.
+     * @param category The category to search for.
+     * @param subcategory The subcategory to search for.
+     * @param price The price to search for.
+     * @return A list of [EventOutputModel] containing the events that match the search criteria.
+     */
+    fun searchEvents(category: String?, subcategory: String?, price: Money?): SearchEventOutputModel
 }

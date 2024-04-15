@@ -3,6 +3,7 @@ package project.planItAPI.repository.jdbi.events
 import org.jdbi.v3.core.Handle
 import project.planItAPI.utils.EventOutputModel
 import project.planItAPI.utils.Money
+import project.planItAPI.utils.SearchEventOutputModel
 import project.planItAPI.utils.UserInEvent
 import project.planItAPI.utils.UsersInEventList
 import java.sql.Timestamp
@@ -75,5 +76,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .let { UsersInEventList(it) }
     }
 
+    override fun searchEvents(category: String?, subcategory: String?, price: Money?): SearchEventOutputModel {
+        TODO("Not yet implemented")
+    }
 
 }

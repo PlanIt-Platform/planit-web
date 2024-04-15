@@ -97,8 +97,8 @@ class EventsServices(
                 subcategory,
                 locat,
                 vis,
-                if(date!=null) Timestamp.valueOf(date+":00") else null,
-                if(endDate!=null) Timestamp.valueOf(endDate+":00") else null,
+                if(date!=null) Timestamp.valueOf("$date:00") else null,
+                if(endDate!=null) Timestamp.valueOf("$endDate:00") else null,
                 if(priceValidation is Success) priceValidation.value else null,
                 userID
             )
@@ -114,18 +114,33 @@ class EventsServices(
      * @return [EventOutputModel] The event associated with the ID. If the event is not found, a [Failure] is thrown.
      */
     fun getEvent(id: Int): EventResult = transactionManager.run {
-        val event = it.eventsRepository.getEvent(id) ?: throw HTTPCodeException("Event not found.", 404)
-        return@run event
+        return@run it.eventsRepository.getEvent(id) ?: throw HTTPCodeException("Event not found.", 404)
     }
 
     /**
-     * Retrieves the users in the event associated with the given ID.
+     * Retrieves the users that are participating in the event with the given ID.
      * @param id The ID of the event to retrieve the users from.
-     * @return [List]<[UserInEvent]> The users in the event associated with the ID. If the event is not found, a [Failure] is thrown.
+     * @return [UsersInEventResult] The users participating in the event. If the event is not found, a [Failure] is thrown.
      */
     fun getUsersInEvent(id: Int): UsersInEventResult = transactionManager.run {
-        val users = it.eventsRepository.getUsersInEvent(id) ?: throw HTTPCodeException("Event not found.", 404)
-        return@run users
+        return@run it.eventsRepository.getUsersInEvent(id) ?: throw HTTPCodeException("Event not found.", 404)
+    }
+
+    /**
+     * Searches for events based on the provided filters.
+     * @param category The category to filter by.
+     * @param subcategory The subcategory to filter by.
+     * @param price The price to filter by.
+     * @return [SearchEventResult] The events that match the filters.
+     */
+    fun searchEvents(
+        category: String?,
+        subcategory: String?,
+        price: Money?
+    ): SearchEventResult = transactionManager.run {
+        // TODO: Validations
+        val eventsRepository = it.eventsRepository
+        return@run eventsRepository.searchEvents(category, subcategory, price)
     }
 
     /**
