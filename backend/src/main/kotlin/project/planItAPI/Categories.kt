@@ -35,7 +35,7 @@ fun isCategory(name: String): Boolean {
 fun isValidSubcategory(category: String, subcategory: String): Boolean? {
     val categories = getCategories()
     if (isCategory(category)) {
-        return categories[category]!!.contains(subcategory)
+        return categories[category]?.any { it.contains(subcategory) } ?: false
     }
     return null
 }

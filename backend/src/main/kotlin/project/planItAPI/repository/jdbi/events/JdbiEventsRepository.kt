@@ -3,6 +3,7 @@ package project.planItAPI.repository.jdbi.events
 import org.jdbi.v3.core.Handle
 import project.planItAPI.utils.EventOutputModel
 import project.planItAPI.utils.Money
+import project.planItAPI.utils.SearchEventOutputModel
 import project.planItAPI.utils.UserInEvent
 import project.planItAPI.utils.UsersInEventList
 import java.sql.Timestamp
@@ -49,6 +50,15 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                 .bind("event_id", eventId)
                 .execute()
 
+            handle.createUpdate(
+                "insert into dbo.Task(name, description, event_id, user_id)" +
+                        "values (:name, :description, :event_id, :user_id)"
+            )
+                .bind("name", "Organizer")
+                .bind("description", "User that organizated/created the event")
+                .bind("event_id", eventId)
+                .bind("user_id", userID)
+                .execute()
             eventId
         }
     }
@@ -77,5 +87,93 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .let { UsersInEventList(it) }
     }
 
+    override fun searchEvents(searchInput: String): SearchEventOutputModel {
+        return handle.createQuery(
+            """
+        SELECT *
+        FROM dbo.Event
+        WHERE title LIKE :searchInput
+        OR category LIKE :searchInput
+        OR subcategory LIKE :searchInput
+        """
+        )
+            .bind("searchInput", "%$searchInput%")
+            .mapTo(EventOutputModel::class.java)
+            .list()
+            .let { SearchEventOutputModel(it) }
+    }
 
+    override fun joinEvent(userId: Int, eventId: Int) {
+        handle.createUpdate(
+            "insert into dbo.UserParticipatesInEvent(user_id, event_id) " +
+                    "values (:user_id, :event_id)"
+        )
+            .bind("user_id", userId)
+            .bind("event_id", eventId)
+            .execute()
+    }
+
+    override fun leaveEvent(userId: Int, eventId: Int) {
+        handle.createUpdate(
+            "delete from dbo.UserParticipatesInEvent where user_id = :user_id and event_id = :event_id"
+        )
+            .bind("user_id", userId)
+            .bind("event_id", eventId)
+            .execute()
+    }
+
+    override fun deleteEvent(eventId: Int) {
+        handle.createUpdate(
+            "delete from dbo.Event where id = :eventId"
+        )
+            .bind("eventId", eventId)
+            .execute()
+    }
+
+    override fun editEvent(
+        eventId: Int,
+        title: String?,
+        description: String?,
+        category: String?,
+        subcategory: String?,
+        location: String?,
+        visibility: String?,
+        date: Timestamp?,
+        end_date: Timestamp?,
+        price: Money?
+    ) {
+        handle.createUpdate(
+            "update dbo.Event set " +
+                    "title = :title, " +
+                    "description = :description, " +
+                    "category = :category, " +
+                    "subcategory = :subcategory, " +
+                    "location = :location, " +
+                    "visibility = CAST(:visibility AS dbo.visibilitytype), " +
+                    "date = :date, " +
+                    "end_date = :end_date, " +
+                    "price = :price " +
+                    "where id = :eventId"
+        )
+            .bind("title", title)
+            .bind("description", description)
+            .bind("category", category)
+            .bind("subcategory", subcategory)
+            .bind("location", location)
+            .bind("visibility", visibility)
+            .bind("date", date)
+            .bind("end_date", end_date)
+            .bind("price", price)
+            .bind("eventId", eventId)
+            .execute()
+    }
+
+    override fun getEventOrganizer(eventId: Int): Int {
+        return handle.createQuery(
+            "select user_id from dbo.Task where event_id = :eventId and name = 'Organizer'"
+        )
+            .bind("eventId", eventId)
+            .mapTo(Int::class.java)
+            .one()
+    }
 }

@@ -17,9 +17,4 @@ interface Transaction {
      * The repository for managing event-related data.
      */
     val eventsRepository: EventsRepository
-
-    /**
-     * Rolls back the changes made during the transaction if exceptions occur
-     */
-    fun rollback()
 }

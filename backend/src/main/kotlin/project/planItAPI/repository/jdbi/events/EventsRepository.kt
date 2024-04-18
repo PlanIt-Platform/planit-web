@@ -3,6 +3,7 @@ package project.planItAPI.repository.jdbi.events
 import org.springframework.stereotype.Component
 import project.planItAPI.utils.EventOutputModel
 import project.planItAPI.utils.Money
+import project.planItAPI.utils.SearchEventOutputModel
 import project.planItAPI.utils.UsersInEventList
 import java.sql.Timestamp
 
@@ -55,4 +56,51 @@ interface EventsRepository {
      * @return [UsersInEventList] containing the users participating in the event, or null if not found.
      */
     fun getUsersInEvent(id: Int): UsersInEventList?
+
+    /**
+     * Retrieves the events that match the given search criteria.
+     * @param searchInput The search criteria to match events against.
+     * @return A list of [EventOutputModel] containing the events that match the search criteria.
+     */
+    fun searchEvents(searchInput: String): SearchEventOutputModel
+
+    /**
+     * Adds a user to the event with the given ID.
+     * @param userId The ID of the user to add to the event.
+     * @param eventId The ID of the event to add the user to.
+     */
+    fun joinEvent(userId: Int, eventId: Int)
+
+    /**
+     * Removes a user from the event with the given ID.
+     * @param userId The ID of the user to remove from the event.
+     * @param eventId The ID of the event to remove the user from.
+     */
+    fun leaveEvent(userId: Int, eventId: Int)
+
+    /**
+     * Deletes the event with the given ID.
+     * @param eventId The ID of the event to delete.
+     */
+    fun deleteEvent(eventId: Int)
+
+    fun editEvent(
+        eventId: Int,
+        title: String?,
+        description: String?,
+        category: String?,
+        subcategory: String?,
+        location: String?,
+        visibility: String?,
+        date: Timestamp?,
+        end_date: Timestamp?,
+        price: Money?
+    )
+
+    /**
+     * Retrieves the ID of the user that organized the event with the given ID.
+     * @param eventId The ID of the event to retrieve the organizer for.
+     * @return The ID of the user that organized the event.
+     */
+    fun getEventOrganizer(eventId: Int): Int
 }

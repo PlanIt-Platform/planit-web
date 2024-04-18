@@ -1,19 +1,20 @@
 package project.planItAPI.http.controllers
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import project.planItAPI.http.PathTemplates
+import project.planItAPI.http.PathTemplates.EDIT_USER
+import project.planItAPI.http.PathTemplates.USER
 import project.planItAPI.utils.UserRegisterInputModel
 import project.planItAPI.services.UsersServices
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.UserEditModel
 import project.planItAPI.utils.UserLoginInputModel
-import com.google.gson.Gson as GSon
 
 /**
  * Controller class for handling user-related operations in a RESTful manner.
@@ -32,7 +33,7 @@ class UserController(private val usersServices: UsersServices) {
      * @return ResponseEntity with the appropriate status and/or the created user tokens.
      */
     @PostMapping(PathTemplates.REGISTER)
-    fun register(@RequestBody s: UserRegisterInputModel, response: HttpServletResponse): ResponseEntity<*> {
+    fun register(@RequestBody s: UserRegisterInputModel, response: HttpServletResponse, request: HttpServletRequest): ResponseEntity<*> {
         return when (val res = usersServices.register(s.name, s.username, s.email, s.password)) {
             is Failure -> {
                 failureResponse(res)
@@ -40,6 +41,7 @@ class UserController(private val usersServices: UsersServices) {
 
             is Success -> {
                 setTokenCookies(response, res.value.accessToken, res.value.refreshToken)
+                request.setAttribute("userId", res.value.id)
                 return responseHandler(201, res.value)
             }
         }
@@ -53,7 +55,7 @@ class UserController(private val usersServices: UsersServices) {
      * @return ResponseEntity with the appropriate status and/or the new user tokens.
      */
     @PostMapping(PathTemplates.LOGIN)
-    fun login(@RequestBody s: UserLoginInputModel, response: HttpServletResponse): ResponseEntity<*> {
+    fun login(@RequestBody s: UserLoginInputModel, response: HttpServletResponse, request: HttpServletRequest): ResponseEntity<*> {
         return when (val res = usersServices.login(s.emailOrName, s.password)) {
             is Failure -> {
                 failureResponse(res)
@@ -61,6 +63,7 @@ class UserController(private val usersServices: UsersServices) {
 
             is Success -> {
                 setTokenCookies(response, res.value.accessToken, res.value.refreshToken)
+                request.setAttribute("userId", res.value.id)
                 return responseHandler(200, res.value)
             }
         }
@@ -94,13 +97,13 @@ class UserController(private val usersServices: UsersServices) {
 
     /**
      * Retrieves information about a user.
-     * @param id The unique identifier of the user.
+     * @param pathId The unique identifier of the user.
      * @return ResponseEntity with the appropriate status and user information.
      *
      */
-    @GetMapping(PathTemplates.USER)
-    fun getUser(@PathVariable id: Int): ResponseEntity<*> {
-        return when (val res = usersServices.getUser(id)) {
+    @GetMapping(USER)
+    fun getUser(@PathVariable pathId: Int): ResponseEntity<*> {
+        return when (val res = usersServices.getUser(pathId)) {
             is Failure -> {
                 failureResponse(res)
             }
@@ -113,12 +116,20 @@ class UserController(private val usersServices: UsersServices) {
 
     /**
      * Edits a user's information.
-     * @param id The unique identifier of the user.
+     * @param pathId The unique identifier of the user.
      * @param s The UserEditModel representing the user's new information.
      */
-    @PutMapping(PathTemplates.EDIT_USER)
-    fun editUser(@PathVariable id: Int, @RequestBody s: UserEditModel): ResponseEntity<*> {
-        return when (val res = usersServices.editUser(id, s.name, s.description, s.interests.joinToString(","))) {
+    @PutMapping(EDIT_USER)
+    fun editUser(@PathVariable pathId: Int, @RequestBody s: UserEditModel, @RequestAttribute("userId") userId: String): ResponseEntity<*> {
+        return when (
+            val res = usersServices.editUser(
+                pathId,
+                userId.toInt(),
+                s.name,
+                s.description,
+                s.interests.joinToString(",")
+            )
+        ) {
             is Failure -> {
                 failureResponse(res)
             }

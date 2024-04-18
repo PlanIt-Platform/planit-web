@@ -152,15 +152,19 @@ class UsersServices (
     /**
      * Edits a user's information.
      *
+     * @param pathID The user ID present in the path.
      * @param userID The ID of the user to edit.
      * @param name The new name of the user.
      * @param description The new description of the user.
      * @param interests The new interests of the user.
      * @return The result of the user edit as [EditUserResult].
      */
-    fun editUser(userID: Int, name: String, description: String, interests: String): EditUserResult {
+    fun editUser(pathID: Int, userID: Int, name: String, description: String, interests: String): EditUserResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
+            if (pathID != userID) {
+                throw UserNotFoundException()
+            }
             if (usersRepository.getUser(userID) == null) {
                 throw UserNotFoundException()
             }
