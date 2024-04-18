@@ -28,7 +28,8 @@ data class EventOutputModel(
     val visibility: String?,
     val date: String?,
     val endDate: String?,
-    val price: String?,
+    val priceAmount: Double?,
+    val priceCurrency: String?,
 )
 
 data class Money(

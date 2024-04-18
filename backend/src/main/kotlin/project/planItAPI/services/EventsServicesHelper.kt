@@ -12,6 +12,7 @@ import project.planItAPI.utils.InvalidTimestampFormatException
 import project.planItAPI.utils.InvalidVisibilityException
 import project.planItAPI.utils.Money
 import project.planItAPI.utils.Success
+import project.planItAPI.utils.UserIDParameterMissing
 
 /**
  * Checks if the given timestamp is in the correct format.
@@ -58,7 +59,8 @@ fun validateEventInputs(
     visibility: String?,
     date: String?,
     endDate: String?,
-    price: Either<Boolean, Money?>
+    price: Either<Boolean, Money?>,
+    userID: Int
 ): List<HTTPCodeException> {
     val errorList = mutableListOf<HTTPCodeException>()
     if (subcategory != null) {
@@ -72,5 +74,6 @@ fun validateEventInputs(
     if (date != null && !isValidTimestampFormat(date)) errorList.add(InvalidTimestampFormatException("date"))
     if (endDate != null && !isValidTimestampFormat(endDate)) errorList.add(InvalidTimestampFormatException("endDate"))
     if (price is Failure) errorList.add(InvalidPriceFormatException())
+    if (userID == 0) errorList.add(UserIDParameterMissing())
     return errorList
 }

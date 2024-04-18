@@ -3,6 +3,8 @@ package project.planItAPI.services
 import org.springframework.stereotype.Service
 import project.planItAPI.isCategory
 import project.planItAPI.isValidSubcategory
+import project.planItAPI.repository.jdbi.events.EventsRepository
+import project.planItAPI.repository.transaction.Transaction
 import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.utils.CreateEventOutputModel
 import project.planItAPI.utils.Either
@@ -57,10 +59,8 @@ class EventsServices(
         userID: Int
     ): CreateEventResult =
         transactionManager.run {
-            val priceValidation = parsePriceParameter(price)
-            val errorList = validateEventInputs(subcategory, category, visibility, date, endDate, priceValidation)
-            if (errorList.isNotEmpty()) throw HTTPCodeException(errorList.joinToString { err -> err.message }, 400)
-            val eventsRepository = it.eventsRepository
+            val (priceValidation, eventsRepository) =
+                validationsAndRepository(price, subcategory, category, visibility, date, endDate, userID, it)
             val eventID = eventsRepository.createEvent(
                 title,
                 description ?: "",
@@ -75,6 +75,7 @@ class EventsServices(
             ) ?: throw FailedToCreateEventException()
             return@run CreateEventOutputModel(eventID, title, "Created with success.")
         }
+
 
     /**
      * Retrieves the event associated with the given ID.
@@ -180,10 +181,8 @@ class EventsServices(
         endDate: String?,
         price: String?
     ): EditEventResult = transactionManager.run {
-        val priceValidation = parsePriceParameter(price)
-        val errorList = validateEventInputs(subcategory, category, visibility, date, endDate, priceValidation)
-        if (errorList.isNotEmpty()) throw HTTPCodeException(errorList.joinToString { err -> err.message }, 400)
-        val eventsRepository = it.eventsRepository
+        val (priceValidation, eventsRepository) =
+            validationsAndRepository(price, subcategory, category, visibility, date, endDate, userId, it)
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
         if (eventsRepository.getEventOrganizer(eventId) != userId) throw UserIsNotOrganizerException()
         eventsRepository.editEvent(
@@ -200,4 +199,23 @@ class EventsServices(
         )
         return@run SuccessMessage("Event edited with success.")
     }
+
+
+    private fun validationsAndRepository(
+        price: String?,
+        subcategory: String?,
+        category: String,
+        visibility: String?,
+        date: String?,
+        endDate: String?,
+        userID: Int,
+        it: Transaction
+    ): Pair<Either<Boolean, Money?>, EventsRepository> {
+        val priceValidation = parsePriceParameter(price)
+        val errorList = validateEventInputs(subcategory, category, visibility, date, endDate, priceValidation, userID)
+        if (errorList.isNotEmpty()) throw HTTPCodeException(errorList.joinToString { err -> err.message }, 400)
+        val eventsRepository = it.eventsRepository
+        return Pair(priceValidation, eventsRepository)
+    }
+
 }

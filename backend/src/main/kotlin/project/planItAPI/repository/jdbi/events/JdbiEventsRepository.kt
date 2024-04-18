@@ -152,7 +152,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                     "visibility = CAST(:visibility AS dbo.visibilitytype), " +
                     "date = :date, " +
                     "end_date = :end_date, " +
-                    "price = :price " +
+                    "priceAmount = :priceAmount, " +
+                    "priceCurrency = :priceCurrency " +
                     "where id = :eventId"
         )
             .bind("title", title)
@@ -163,7 +164,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("visibility", visibility)
             .bind("date", date)
             .bind("end_date", end_date)
-            .bind("price", price)
+            .bind("priceAmount", price?.amount)
+            .bind("priceCurrency", price?.currency)
             .bind("eventId", eventId)
             .execute()
     }
