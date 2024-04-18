@@ -10,7 +10,6 @@ drop table if exists dbo.RefreshTokens;
 drop table if exists dbo.Users;
 drop table if exists dbo.Event;
 drop type if exists dbo.VisibilityType;
-drop type if exists dbo.Money;
 
 create table dbo.Users
 (
@@ -33,7 +32,6 @@ create table dbo.RefreshTokens
 );
 
 CREATE TYPE dbo.VisibilityType AS ENUM ('Public', 'Private');
-CREATE TYPE dbo.Money AS (amount DECIMAL(10, 2), currency VARCHAR(3));
 
 CREATE TABLE dbo.Event (
     id          serial primary key,
@@ -45,7 +43,8 @@ CREATE TABLE dbo.Event (
     visibility  dbo.VisibilityType NOT NULL,
     date        TIMESTAMP,
     end_date    TIMESTAMP,
-    price       dbo.Money
+    priceAmount DECIMAL(10, 2),
+    priceCurrency VARCHAR(3)
 );
 
 CREATE TABLE dbo.Task (

@@ -5,11 +5,11 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import kotlinx.datetime.Clock
 import project.planItAPI.repository.jdbi.utils.users.UsersDomainConfig
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.sql.Connection
-import java.sql.DriverManager
 import java.time.Duration
+
+val jdbcUrl: String = System.getenv("JDBC_DATABASE_URL")
+
+private const val createSchemaScriptPath = "backend/src/main/sql/createSchema.sql"
 
 @SpringBootApplication
 class PlanItApiApplication{
@@ -23,25 +23,10 @@ class PlanItApiApplication{
 
 	@Bean
 	fun clock() = Clock.System
-
-	fun executeSQLScript() {
-		val jdbcUrl = "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=123"
-
-		val connection: Connection = DriverManager.getConnection(jdbcUrl)
-
-		val script = String(Files.readAllBytes(Paths.get("backend/src/main/sql/createSchema.sql")))
-		val statements = script.split(";")
-
-		for (statement in statements) {
-			connection.createStatement().execute(statement)
-		}
-
-		connection.close()
-	}
 }
 
 fun main(args: Array<String>) {
-	val application = PlanItApiApplication()
-	application.executeSQLScript()
+	PlanItApiApplication()
+	executeSQLScript(jdbcUrl, createSchemaScriptPath)
 	runApplication<PlanItApiApplication>(*args)
 }

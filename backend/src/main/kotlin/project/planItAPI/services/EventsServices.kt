@@ -15,6 +15,7 @@ import project.planItAPI.utils.InvalidSubcategoryException
 import project.planItAPI.utils.InvalidTimestampFormatException
 import project.planItAPI.utils.InvalidVisibilityException
 import project.planItAPI.utils.Money
+import project.planItAPI.utils.UserIDParameterMissing
 import java.sql.Timestamp
 
 @Service
@@ -78,6 +79,10 @@ class EventsServices(
             val priceValidation = parsePriceParameter(price)
             if(priceValidation is Failure) {
                 errorList.add(InvalidPriceFormatException())
+            }
+
+            if(userID == 0){
+                errorList.add(UserIDParameterMissing())
             }
 
             if(errorList.isNotEmpty()) {

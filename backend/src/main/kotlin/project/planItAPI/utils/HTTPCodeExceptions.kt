@@ -147,3 +147,8 @@ class InvalidSubcategoryException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
+class UserIDParameterMissing : HTTPCodeException(
+    message = "UserID parameter missing.",
+    httpCode = BAD_REQUEST
+)
+

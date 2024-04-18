@@ -1,7 +1,6 @@
 package project.planItAPI.services
 
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 import project.planItAPI.utils.AccessRefreshTokensModel
 import project.planItAPI.utils.UserRegisterOutputModel
 import project.planItAPI.repository.jdbi.users.UsersRepository
@@ -18,8 +17,6 @@ import project.planItAPI.utils.UserLogInValidation
 import project.planItAPI.utils.IncorrectLoginException
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
-import java.io.InputStream
-import org.springframework.mock.web.MockMultipartFile
 import project.planItAPI.utils.SuccessMessage
 
 /**
@@ -35,6 +32,10 @@ class UsersServices (
     private val domain: UsersDomain,
     private val usersConfig: UsersDomainConfig
 ) {
+
+    val APPLICATION_NAME = "PlanIt"
+    val APP_VERSION = "0.0.1"
+    val CONTRIBUTORS_LIST = listOf("Tiago Neutel - 49510", "Daniel Pojega - 49521")
 
     /**
      * Registers a new user.
@@ -191,9 +192,9 @@ class UsersServices (
      * @return [SystemInfo] containing application version and contributors.
      */
     fun about() = SystemInfo(
-        "PlanIt",
-        "0.0.1",
-        listOf("Tiago Neutel - 49510", "Daniel Pojega - 49521"),
+        APPLICATION_NAME,
+        APP_VERSION,
+        CONTRIBUTORS_LIST,
     )
 
     // Private helper function to create access and refresh tokens for a user.
@@ -214,8 +215,10 @@ class UsersServices (
         )
     }
 
+    /*
     fun byteArrayToMultipartFile(imageBytes: ByteArray, fileName: String, fileType: String): MultipartFile {
         val inputStream: InputStream = imageBytes.inputStream()
         return MockMultipartFile(fileName, fileName, fileType, inputStream)
     }
+    */
 }

@@ -50,6 +50,18 @@ dependencies {
 
 	implementation("org.springframework:spring-test:6.1.4")
 
+	/*
+	 * Mockito
+	 * Mockito is a lib that allows you to create and configure mock objets.
+	 * In this project it it especially used for mocking the database
+	 */
+	testImplementation 'org.mockito:mockito-core:3.12.4'
+
+	/*
+	 * H2
+	 */
+	testImplementation("com.h2database:h2:1.4.200")
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'

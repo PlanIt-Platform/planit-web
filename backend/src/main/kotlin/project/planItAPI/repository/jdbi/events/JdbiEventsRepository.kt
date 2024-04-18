@@ -23,8 +23,9 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
     ): Int? {
         return handle.inTransaction<Int?, Exception> { handle ->
             val eventId = handle.createUpdate(
-                "insert into dbo.event(title, description, category, subcategory, location, visibility, date, end_date, price) " +
-                        "values (:title, :description, :category, :subcategory, :location, CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :price)"
+                "insert into dbo.event(title, description, category, subcategory, location, visibility, date," +
+                        " end_date, priceAmount, priceCurrency) values (:title, :description, :category, :subcategory, :location, " +
+                        "CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, :priceCurrency)"
             )
                 .bind("title", title)
                 .bind("description", description)
@@ -34,7 +35,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                 .bind("visibility", visibility)
                 .bind("date", date)
                 .bind("end_date", end_date)
-                .bind("price", price)
+                .bind("priceAmount", price?.amount)
+                .bind("priceCurrency", price?.currency)
                 .executeAndReturnGeneratedKeys()
                 .mapTo(Int::class.java)
                 .one()
