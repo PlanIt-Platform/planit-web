@@ -59,10 +59,48 @@ interface EventsRepository {
 
     /**
      * Retrieves the events that match the given search criteria.
-     * @param category The category to search for.
-     * @param subcategory The subcategory to search for.
-     * @param price The price to search for.
+     * @param searchInput The search criteria to match events against.
      * @return A list of [EventOutputModel] containing the events that match the search criteria.
      */
-    fun searchEvents(category: String?, subcategory: String?, price: Money?): SearchEventOutputModel
+    fun searchEvents(searchInput: String): SearchEventOutputModel
+
+    /**
+     * Adds a user to the event with the given ID.
+     * @param userId The ID of the user to add to the event.
+     * @param eventId The ID of the event to add the user to.
+     */
+    fun joinEvent(userId: Int, eventId: Int)
+
+    /**
+     * Removes a user from the event with the given ID.
+     * @param userId The ID of the user to remove from the event.
+     * @param eventId The ID of the event to remove the user from.
+     */
+    fun leaveEvent(userId: Int, eventId: Int)
+
+    /**
+     * Deletes the event with the given ID.
+     * @param eventId The ID of the event to delete.
+     */
+    fun deleteEvent(eventId: Int)
+
+    fun editEvent(
+        eventId: Int,
+        title: String?,
+        description: String?,
+        category: String?,
+        subcategory: String?,
+        location: String?,
+        visibility: String?,
+        date: Timestamp?,
+        end_date: Timestamp?,
+        price: Money?
+    )
+
+    /**
+     * Retrieves the ID of the user that organized the event with the given ID.
+     * @param eventId The ID of the event to retrieve the organizer for.
+     * @return The ID of the user that organized the event.
+     */
+    fun getEventOrganizer(eventId: Int): Int
 }

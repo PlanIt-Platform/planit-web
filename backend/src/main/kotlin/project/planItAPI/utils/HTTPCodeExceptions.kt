@@ -147,3 +147,27 @@ class InvalidSubcategoryException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
+class EventNotFoundException : HTTPCodeException(
+    message = "Event not found.",
+    httpCode = NOT_FOUND
+)
+
+class UserNotInEventException : HTTPCodeException(
+    message = "User is not in the event.",
+    httpCode = BAD_REQUEST
+)
+
+class UserAlreadyInEventException : HTTPCodeException(
+    message = "User is already in the event.",
+    httpCode = BAD_REQUEST
+)
+
+class FailedToCreateEventException : HTTPCodeException(
+    message = "Failed to create event.",
+    httpCode = INTERNAL_SERVER_ERROR
+)
+
+class UserIsNotOrganizerException : HTTPCodeException(
+    message = "User is not the organizer of the event.",
+    httpCode = BAD_REQUEST
+)

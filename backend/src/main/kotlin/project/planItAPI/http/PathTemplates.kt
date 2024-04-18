@@ -21,9 +21,9 @@ object PathTemplates {
     const val CREATE_EVENT = "/event"
     const val GET_EVENT = "/event/{id}"
     const val USERS_IN_EVENT = "/event/{id}/users"
-    const val EDIT_EVENT = "/event/{id}/edit"
-    const val DELETE_EVENT = "/event/{id}/delete"
-    const val JOIN_EVENT = "/event/{id}/join"
-    const val LEAVE_EVENT = "/event/{id}/leave"
+    const val EDIT_EVENT = "/event/{eventId}/edit"
+    const val DELETE_EVENT = "/event/{eventId}/delete"
+    const val JOIN_EVENT = "/event/{eventId}/join"
+    const val LEAVE_EVENT = "/event/{eventId}/leave"
     const val SEARCH_EVENTS = "/events"
 }

@@ -4,7 +4,7 @@ data class EventInputModel(
     val title: String,
     val description: String?,
     val category: String,
-    val subcategory: String?,
+    val subCategory: String?,
     val location: String?,
     val visibility: String?,
     val date: String?,
@@ -34,12 +34,6 @@ data class EventOutputModel(
 data class Money(
     val amount: Double,
     val currency: String
-)
-
-data class SearchEventInputModel(
-    val category: String?,
-    val subcategory: String?,
-    val price: Money?
 )
 
 data class SearchEventOutputModel(
