@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import project.planItAPI.http.PathTemplates.CATEGORIES
 import project.planItAPI.http.PathTemplates.CREATE_EVENT
 import project.planItAPI.http.PathTemplates.DELETE_EVENT
 import project.planItAPI.http.PathTemplates.EDIT_EVENT
@@ -19,6 +20,7 @@ import project.planItAPI.http.PathTemplates.JOIN_EVENT
 import project.planItAPI.http.PathTemplates.LEAVE_EVENT
 import project.planItAPI.http.PathTemplates.PREFIX
 import project.planItAPI.http.PathTemplates.SEARCH_EVENTS
+import project.planItAPI.http.PathTemplates.SUBCATEGORIES
 import project.planItAPI.http.PathTemplates.USERS_IN_EVENT
 import project.planItAPI.services.EventsServices
 import project.planItAPI.utils.EventInputModel
@@ -152,6 +154,40 @@ class EventsController(private val eventsServices: EventsServices) {
             }
 
             is Success -> {
+                return responseHandler(200, res.value)
+            }
+        }
+    }
+
+    @GetMapping(CATEGORIES)
+    fun getCategories(
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) offset: Int?): ResponseEntity<*> {
+        return when (val res = eventsServices.getCategories(limit, offset)) {
+            is Failure -> {
+                failureResponse(res)
+            }
+
+            is Success -> {
+                return responseHandler(200, res.value)
+            }
+        }
+    }
+
+    @GetMapping(SUBCATEGORIES)
+    fun getSubcategories(
+        @PathVariable category: String,
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) offset: Int?): ResponseEntity<*> {
+        return when (val res = eventsServices.getSubcategories(category, limit, offset)) {
+            is Failure -> {
+                failureResponse(res)
+            }
+
+            is Success -> {
+                if (res.value.isEmpty()) {
+                    return responseHandler(200, "No subcategories found for category $category.")
+                }
                 return responseHandler(200, res.value)
             }
         }

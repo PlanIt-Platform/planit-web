@@ -9,7 +9,7 @@
     "Emerging Technologies"
   ],
 
-  "Arts and Culture":[
+  "Arts-and-Culture":[
     "Visual Arts and Exhibitions",
     "Performing Arts (Theater, Dance, Music)",
     "Literature and Writing",
@@ -17,7 +17,7 @@
     "Heritage and History Events"
   ],
 
-  "Sports and Fitness":[
+  "Sports-and-Fitness":[
     "Team Sports (Football, Basketball, Volleyball)",
     "Individual Sports (Running, Swimming, Tennis)",
     "Fitness Classes and Workouts",
@@ -25,7 +25,7 @@
     "Sports Tournaments and Competitions"
   ],
 
-  "Business and Professional Development":[
+  "Business-and-Professional-Development":[
     "Networking Events and Mixers",
     "Business Seminars and Conferences",
     "Leadership and Management Workshops",
@@ -33,7 +33,7 @@
     "Career Fairs and Job Expos"
   ],
 
-  "Food and Drink":[
+  "Food-and-Drink":[
     "Food Festivals and Tastings",
     "Cooking Classes and Culinary Workshops",
     "Wine and Beer Tastings",
@@ -41,6 +41,6 @@
     "Gastronomic Tours and Dining Experiences"
   ],
 
-  "Simple Meeting": []
+  "Simple-Meeting": []
 }
 

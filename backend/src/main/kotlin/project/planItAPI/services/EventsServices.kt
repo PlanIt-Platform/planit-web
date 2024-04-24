@@ -1,8 +1,7 @@
 package project.planItAPI.services
 
 import org.springframework.stereotype.Service
-import project.planItAPI.isCategory
-import project.planItAPI.isValidSubcategory
+import project.planItAPI.getSubCategoriesLowerCase
 import project.planItAPI.repository.jdbi.events.EventsRepository
 import project.planItAPI.repository.transaction.Transaction
 import project.planItAPI.repository.transaction.TransactionManager
@@ -14,12 +13,7 @@ import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.HTTPCodeException
 import project.planItAPI.utils.InvalidCategoryException
-import project.planItAPI.utils.InvalidPriceFormatException
-import project.planItAPI.utils.InvalidSubcategoryException
-import project.planItAPI.utils.InvalidTimestampFormatException
-import project.planItAPI.utils.InvalidVisibilityException
 import project.planItAPI.utils.Money
-import project.planItAPI.utils.UserIDParameterMissing
 import project.planItAPI.utils.SuccessMessage
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -217,5 +211,31 @@ class EventsServices(
         val eventsRepository = it.eventsRepository
         return Pair(priceValidation, eventsRepository)
     }
+
+    /**
+     * Retrieves the list of event categories.
+     * @param limit The maximum number of categories to retrieve.
+     * @param offset The number of categories to skip.
+     * @return [CategoriesResult] The list of event categories.
+     * If the categories are not found, a [Failure] is thrown.
+     */
+    fun getCategories(
+        limit: Int?,
+        offset: Int?
+    ): CategoriesResult = transactionManager.run {
+        val categories = project.planItAPI.getCategories().keys.drop(offset?:0)
+        return@run if(limit != 0 && limit != null) categories.take(limit) else categories
+    }
+
+    fun getSubcategories(
+        category: String,
+        limit: Int?,
+        offset: Int?
+    ): SubcategoriesResult = transactionManager.run {
+        val categories = getSubCategoriesLowerCase(category) ?: throw InvalidCategoryException()
+        return@run if(limit != 0 && limit != null) categories.drop(offset?:0).take(limit)
+            else categories.drop(offset?:0)
+    }
+
 
 }

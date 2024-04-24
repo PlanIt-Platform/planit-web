@@ -26,4 +26,6 @@ object PathTemplates {
     const val JOIN_EVENT = "/event/{eventId}/join"
     const val LEAVE_EVENT = "/event/{eventId}/leave"
     const val SEARCH_EVENTS = "/events"
+    const val CATEGORIES = "/events/categories"
+    const val SUBCATEGORIES = "/events/categories/{category}/subcategories"
 }
