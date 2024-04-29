@@ -3,6 +3,7 @@ package project.planItAPI
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
+import java.util.Locale
 
 const val CATEGORIES_FILE_PATH = "backend/src/main/kotlin/project/planItAPI/categories.json"
 
