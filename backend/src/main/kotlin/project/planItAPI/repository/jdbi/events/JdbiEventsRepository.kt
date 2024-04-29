@@ -20,13 +20,15 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         date: Timestamp?,
         end_date: Timestamp?,
         price: Money?,
-        userID: Int
+        userID: Int,
+        password: String
     ): Int? {
         return handle.inTransaction<Int?, Exception> { handle ->
             val eventId = handle.createUpdate(
                 "insert into dbo.event(title, description, category, subcategory, location, visibility, date," +
-                        " end_date, priceAmount, priceCurrency) values (:title, :description, :category, :subcategory, :location, " +
-                        "CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, :priceCurrency)"
+                        " end_date, priceAmount, priceCurrency, password) values (:title, :description, :category," +
+                        " :subcategory, :location, CAST(:visibility AS dbo.visibilitytype), :date, :end_date," +
+                        " :priceAmount, :priceCurrency, :password)"
             )
                 .bind("title", title)
                 .bind("description", description)
@@ -38,6 +40,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                 .bind("end_date", end_date)
                 .bind("priceAmount", price?.amount)
                 .bind("priceCurrency", price?.currency)
+                .bind("password", password)
                 .executeAndReturnGeneratedKeys()
                 .mapTo(Int::class.java)
                 .one()
@@ -98,6 +101,15 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         """
         )
             .bind("searchInput", "%$searchInput%")
+            .mapTo(EventOutputModel::class.java)
+            .list()
+            .let { SearchEventOutputModel(it) }
+    }
+
+    override fun getAllEvents(): SearchEventOutputModel {
+        return handle.createQuery(
+            "select * from dbo.Event"
+        )
             .mapTo(EventOutputModel::class.java)
             .list()
             .let { SearchEventOutputModel(it) }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import {getUser} from "../../services/usersServices";
 import {getUserId} from "../authentication/Session";
 import "./UserProfile.css"
@@ -18,7 +18,6 @@ export default function UserDetails(): React.ReactElement {
                 if(data.error) setError(data.error);
             })
             .catch((error: string) => {
-                console.error(error);
                 setError(error);
             })
             .finally(() => {
@@ -37,7 +36,6 @@ export default function UserDetails(): React.ReactElement {
     return (
         <div className="body_userProfile">
             <div className="card-container">
-                {/*<span className="pro">PRO</span>*/}
                 <img className="round" src="https://randomuser.me/api/portraits/men/69.jpg" alt="user"/> {/*29*/}
                 <h3 className="h3_userProfile">{userData?.name}</h3>
                 <h6 className="h6_userProfile">@{userData?.username}</h6>

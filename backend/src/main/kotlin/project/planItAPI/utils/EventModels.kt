@@ -9,7 +9,8 @@ data class EventInputModel(
     val visibility: String?,
     val date: String?,
     val endDate: String?,
-    val price: String?
+    val price: String?,
+    val password: String
 )
 
 data class CreateEventOutputModel(
@@ -30,6 +31,7 @@ data class EventOutputModel(
     val endDate: String?,
     val priceAmount: Double?,
     val priceCurrency: String?,
+    val password: String
 )
 
 data class Money(
@@ -39,4 +41,8 @@ data class Money(
 
 data class SearchEventOutputModel(
     val events: List<EventOutputModel>
+)
+
+data class EventPasswordModel(
+    val password: String
 )

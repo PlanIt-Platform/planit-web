@@ -14,10 +14,12 @@ class SecurityFilter : HttpFilter() {
 
     override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val uri = request.requestURI
-        val isAuthEndpoint = uri.endsWith("/register") || uri.endsWith("/login")
+        val isAuthEndpoint = uri.endsWith("/register") || uri.endsWith("/login") || uri.endsWith("/refresh-token")
+        val accessToken = request.cookies?.find { it.name == "access_token" }?.value
+
+        if(uri.endsWith("/logout")) tokenCache.remove(accessToken)
 
         if (!isAuthEndpoint) {
-            val accessToken = request.cookies?.find { it.name == "access_token" }?.value
             if(accessToken == null){
                 throwException(response)
                 return
@@ -27,7 +29,7 @@ class SecurityFilter : HttpFilter() {
             if (cachedUserId == null) {
                 throwException(response)
                 return
-            }else {
+            } else {
                 request.setAttribute("userId", cachedUserId)
             }
         }
@@ -35,13 +37,16 @@ class SecurityFilter : HttpFilter() {
         chain.doFilter(request, response)
 
         if (isAuthEndpoint) {
+            val userId = request.getAttribute("userId").toString()
+            if (uri.endsWith("/refresh-token")) {
+                val existingToken = tokenCache.entries.find { it.value == userId }?.key
+                if (existingToken != null) {
+                    tokenCache.remove(existingToken)
+                }
+            }
             val cookie = response.getHeader("Set-Cookie")
             val token = extractValue(tokenPattern, cookie)
-            val userId = request.getAttribute("userId").toString()
-
-            if (token != null) {
-                tokenCache[token] = userId
-            }
+            if (token != null) tokenCache[token] = userId
         }
         return
     }
@@ -54,6 +59,6 @@ class SecurityFilter : HttpFilter() {
     fun throwException(response: HttpServletResponse){
         response.status = 401
         response.contentType = "application/json"
-        response.writer.write("""{"message": "Unauthorized"}""")
+        response.writer.write("""{"status": 401, "message": "Unauthorized"}""")
     }
 }

@@ -190,3 +190,16 @@ data class UserInEvent(
 data class UsersInEventList(
     val users: List<UserInEvent>
 )
+
+/**
+ * Data class representing information about user tokens.
+ *
+ * @property userID The ID of the user.
+ * @property accessToken The access token.
+ * @property refreshToken The refresh token.
+ */
+data class RefreshTokensOutputModel(
+    val userID: Int,
+    val accessToken: String,
+    val refreshToken: String
+    )

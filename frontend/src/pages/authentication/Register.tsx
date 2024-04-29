@@ -1,44 +1,62 @@
 import {Link, Navigate} from "react-router-dom";
-import React, {useState} from "react";
-import {getUserId, setSession} from "./Session";
+import React, {useContext, useEffect, useState} from "react";
+import {setSession} from "./Session";
 import {editUser, register} from "../../services/usersServices";
 import './authStyle.css';
-import logo from "../../../images/logo.png";
+import {PlanItContext} from "../../PlanItProvider";
+import {getCategories} from "../../services/eventsServices";
+
+const FormField = ({label, type, name, value, onChange}) => (
+    <div className="inline-field">
+        <label htmlFor={name}>{label}</label>
+        <input id={name} type={type} name={name} value={value} onChange={onChange} />
+    </div>
+);
 
 export default function Register(): React.ReactElement {
+    const { setUserId } = useContext(PlanItContext);
     const [inputs, setInputs] = useState({email: "", username: "", password: "", name: ""})
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
     const [redirect, setRedirect] = useState(false)
     const [step, setStep] = useState(1); // Step 1: Registration details, Step 2: Interests, Step 3: Description
     const [interests, setInterests] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [description, setDescription] = useState('');
 
-    if (redirect) return <Navigate to="/" replace={true}/>;
+    if (redirect) return <Navigate to="/planit/events" replace={true}/>;
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
         setSubmitting(true)
-        const email = inputs.email
-        const username = inputs.username
-        const name = inputs.name
-        const password = inputs.password
         if (step == 1) {
-            register(username, name, email, password)
+            register(inputs)
                 .then(res => {
                     if (res.error) {
                         setError(res.error)
                         setSubmitting(false)
                         return
                     }
-                    setSession(res.accessToken, res.id);
+                    setSession(res.id, setUserId);
                     setStep(2)
+                    setError('')
                     setSubmitting(false)
+                })
+                .then(() => {
+                    getCategories()
+                        .then((res) => {
+                            if (res.error) {
+                                setError(res.error);
+                                return
+                            } else {
+                                const filteredCategories = res.filter(category => category !== 'Simple Meeting');
+                                setCategories(filteredCategories);
+                            }
+                        });
                 })
         }
         if (step == 3){
-            const id = getUserId()
-            editUser(id, name, interests, description)
+            editUser(inputs.name, description, interests)
                 .then(res => {
                         if (res.error) {
                             setError(res.error)
@@ -67,96 +85,49 @@ export default function Register(): React.ReactElement {
 
     return (
         <div className="form-container fadeIn">
-            <div className="form-content">
+            <div className="form-content" style={{marginBottom: "110px"}}>
                 <form onSubmit={handleSubmit}>
                     {step === 1 && (
                         <div>
-                            <img src={logo} alt="Image" className="image-overlay" />
-                            <Link to="/" className={"linkStyle homeStyle"}>Home</Link>
-                            <div className="inline-field">
-                                <label htmlFor="email">Email</label>
-                                <input
-                                    id="email"
-                                    type="text"
-                                    name="email"
-                                    value={inputs.email}
-                                    onChange={handleChange}
-                                />
-                                <label htmlFor="username">Username</label>
-                                <input
-                                    id="username"
-                                    type="text"
-                                    name="username"
-                                    value={inputs.username}
-                                    onChange={handleChange}
-                                />
-                                <label htmlFor="name">Name</label>
-                                <input
-                                    id="name"
-                                    type="text"
-                                    name="name"
-                                    value={inputs.name}
-                                    onChange={handleChange}
-                                />
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    value={inputs.password}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                            <button type="submit">
+                            <Link to="/" className={"linkStyle homeStyle"}
+                                  style={{marginLeft: "145px", width: "14%"}}>Home</Link>
+                            <FormField label="Email" type="text" name="email" value={inputs.email} onChange={handleChange} />
+                            <FormField label="Username" type="text" name="username" value={inputs.username} onChange={handleChange} />
+                            <FormField label="Name" type="text" name="name" value={inputs.name} onChange={handleChange} />
+                            <FormField label="Password" type="password" name="password" value={inputs.password} onChange={handleChange} />
+                            <button type="submit" style={{marginRight: "220px"}}>
                                 {'Next'}
                             </button>
                         </div>
                     )}
                     {step === 2 && (
-                        <div className={"int-div"}>
+                        <div className={"int-div"} style={{marginTop: "190px"}}>
                             <Link to="/planit/register" onClick={() => setStep(1)} className={"linkStyle backStyle"}>Back</Link>
                             <h2>Interests</h2>
                             <div className="checkbox-wrapper">
-                                <div>
-                                    <input type="checkbox" id="sports" onChange={() => handleInterestSelect('sports')}/>
-                                    <label htmlFor="sports">Sports and Outdoor</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="culture"
-                                           onChange={() => handleInterestSelect('culture')}/>
-                                    <label htmlFor="culture">Culture</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="education"
-                                           onChange={() => handleInterestSelect('education')}/>
-                                    <label htmlFor="education">Education</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="entertainment"
-                                           onChange={() => handleInterestSelect('entertainment')}/>
-                                    <label htmlFor="entertainment">Entertainment</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="charity"
-                                           onChange={() => handleInterestSelect('charity')}/>
-                                    <label htmlFor="charity">Charity</label>
-                                </div>
+                                {categories.map(interest => (
+                                    <div key={interest}>
+                                        <input type="checkbox" id={interest} onChange={() => handleInterestSelect(interest)}/>
+                                        <label htmlFor={interest}>{interest}</label>
+                                    </div>
+                                ))}
                             </div>
-                            <button type="button" onClick={() => setStep(3)}>
+                            <button type="button" onClick={() => setStep(3)} style={{marginRight: "10px"}}>
                                 {'Next'}
                             </button>
                         </div>
                     )}
                     {step === 3 && (
-                        <div className={"desc-div"}>
-                            <Link to="/planit/register" onClick={() => setStep(1)} className={"linkStyle backStyle"}>Back</Link>
+                        <div className={"desc-div"} style={{marginTop: "150px"}}>
+                            <Link to="/planit/register" onClick={() => setStep(1)} className={"linkStyle backStyle"}
+                            style={{marginLeft: "10px"}}>Back</Link>
                             <h2>Almost there!</h2>
                             <textarea
                                 value={description}
                                 onChange={(ev) => setDescription(ev.target.value)}
                                 placeholder="Tell us about yourself..."
                             />
-                            <button type="submit">
+                            <button type="submit" style={{marginRight: "10px"}}>
                                 {submitting ? 'Registering...' : 'Register'}
                             </button>
                         </div>

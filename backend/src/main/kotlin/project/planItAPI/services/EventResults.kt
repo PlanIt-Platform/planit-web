@@ -47,3 +47,13 @@ typealias DeleteEventResult = Either<Exception, SuccessMessage>
  * Represents the result of editing an event.
  */
 typealias EditEventResult = Either<Exception, SuccessMessage>
+
+/**
+ * Represents the result of retrieving a list of event categories.
+ */
+typealias CategoriesResult = Either<Exception, List<String>>
+
+/**
+ * Represents the result of retrieving a list of event subcategories.
+ */
+typealias SubcategoriesResult = Either<Exception, List<String>>

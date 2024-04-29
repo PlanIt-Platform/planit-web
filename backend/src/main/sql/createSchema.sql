@@ -44,7 +44,8 @@ CREATE TABLE dbo.Event (
     date        TIMESTAMP,
     end_date    TIMESTAMP,
     priceAmount DECIMAL(10, 2),
-    priceCurrency VARCHAR(3)
+    priceCurrency VARCHAR(3),
+    password    VARCHAR(64)
 );
 
 CREATE TABLE dbo.Task (

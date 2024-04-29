@@ -1,8 +1,7 @@
 package project.planItAPI.services
 
 import org.springframework.stereotype.Service
-import project.planItAPI.isCategory
-import project.planItAPI.isValidSubcategory
+import project.planItAPI.getSubCategoriesLowerCase
 import project.planItAPI.repository.jdbi.events.EventsRepository
 import project.planItAPI.repository.transaction.Transaction
 import project.planItAPI.repository.transaction.TransactionManager
@@ -13,13 +12,9 @@ import project.planItAPI.utils.FailedToCreateEventException
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.HTTPCodeException
+import project.planItAPI.utils.IncorrectPasswordException
 import project.planItAPI.utils.InvalidCategoryException
-import project.planItAPI.utils.InvalidPriceFormatException
-import project.planItAPI.utils.InvalidSubcategoryException
-import project.planItAPI.utils.InvalidTimestampFormatException
-import project.planItAPI.utils.InvalidVisibilityException
 import project.planItAPI.utils.Money
-import project.planItAPI.utils.UserIDParameterMissing
 import project.planItAPI.utils.SuccessMessage
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -56,7 +51,8 @@ class EventsServices(
         date: String?,
         endDate: String?,
         price: String?,
-        userID: Int
+        userID: Int,
+        password: String
     ): CreateEventResult =
         transactionManager.run {
             val (priceValidation, eventsRepository) =
@@ -71,7 +67,8 @@ class EventsServices(
                 if(date!=null) Timestamp.valueOf("$date:00") else null,
                 if(endDate!=null) Timestamp.valueOf("$endDate:00") else null,
                 if(priceValidation is Success) priceValidation.value else null,
-                userID
+                userID,
+                password
             ) ?: throw FailedToCreateEventException()
             return@run CreateEventOutputModel(eventID, title, "Created with success.")
         }
@@ -102,6 +99,9 @@ class EventsServices(
      */
     fun searchEvents(searchInput: String): SearchEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
+        if (searchInput.isBlank() || searchInput == "All") {
+            return@run eventsRepository.getAllEvents()
+        }
         return@run eventsRepository.searchEvents(searchInput)
     }
 
@@ -109,13 +109,15 @@ class EventsServices(
      * Allows a user to join an event.
      * @param userId The ID of the user joining the event.
      * @param eventId The ID of the event to join.
+     * @param password The password of the event.
      * @return [JoinEventResult] A message indicating the success of the operation. If the event is not found, a [Failure] is thrown.
      */
-    fun joinEvent(userId: Int, eventId: Int): JoinEventResult = transactionManager.run {
+    fun joinEvent(userId: Int, eventId: Int, password: String): JoinEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+        if (event.password != password) throw IncorrectPasswordException()
         val usersInEvent = eventsRepository.getUsersInEvent(event.id)
-        if(usersInEvent != null && usersInEvent.users.any { user -> user.id == userId }) {
+        if (usersInEvent != null && usersInEvent.users.any { user -> user.id == userId }) {
             throw UserAlreadyInEventException()
         }
         eventsRepository.joinEvent(userId, event.id)
@@ -200,22 +202,22 @@ class EventsServices(
         return@run SuccessMessage("Event edited with success.")
     }
 
-
-    private fun validationsAndRepository(
-        price: String?,
-        subcategory: String?,
-        category: String,
-        visibility: String?,
-        date: String?,
-        endDate: String?,
-        userID: Int,
-        it: Transaction
-    ): Pair<Either<Boolean, Money?>, EventsRepository> {
-        val priceValidation = parsePriceParameter(price)
-        val errorList = validateEventInputs(subcategory, category, visibility, date, endDate, priceValidation, userID)
-        if (errorList.isNotEmpty()) throw HTTPCodeException(errorList.joinToString { err -> err.message }, 400)
-        val eventsRepository = it.eventsRepository
-        return Pair(priceValidation, eventsRepository)
+    /**
+     * Retrieves the list of event categories.
+     * @return [CategoriesResult] The list of event categories.
+     * If the categories are not found, a [Failure] is thrown.
+     */
+    fun getCategories(): CategoriesResult = transactionManager.run {
+        return@run project.planItAPI.getCategories().keys.toList()
     }
 
+    fun getSubcategories(
+        category: String,
+        limit: Int?,
+        offset: Int?
+    ): SubcategoriesResult = transactionManager.run {
+        val categories = getSubCategoriesLowerCase(category) ?: throw InvalidCategoryException()
+        return@run if(limit != 0 && limit != null) categories.drop(offset?:0).take(limit)
+        else categories.drop(offset?:0)
+    }
 }

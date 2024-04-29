@@ -2,6 +2,8 @@ package project.planItAPI.services
 
 import project.planItAPI.isCategory
 import project.planItAPI.isValidSubcategory
+import project.planItAPI.repository.jdbi.events.EventsRepository
+import project.planItAPI.repository.transaction.Transaction
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.HTTPCodeException
@@ -41,6 +43,23 @@ fun parsePriceParameter(priceString: String?): Either<Boolean, Money?> {
     }
 
     return Failure(false)
+}
+
+fun validationsAndRepository(
+    price: String?,
+    subcategory: String?,
+    category: String,
+    visibility: String?,
+    date: String?,
+    endDate: String?,
+    userID: Int,
+    it: Transaction
+): Pair<Either<Boolean, Money?>, EventsRepository> {
+    val priceValidation = parsePriceParameter(price)
+    val errorList = validateEventInputs(subcategory, category, visibility, date, endDate, priceValidation, userID)
+    if (errorList.isNotEmpty()) throw HTTPCodeException(errorList.joinToString { err -> err.message }, 400)
+    val eventsRepository = it.eventsRepository
+    return Pair(priceValidation, eventsRepository)
 }
 
 /**

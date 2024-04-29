@@ -15,6 +15,7 @@ import project.planItAPI.utils.UserInfo
 import project.planItAPI.utils.UserLogInOutputModel
 import project.planItAPI.utils.UserLogInValidation
 import project.planItAPI.utils.IncorrectLoginException
+import project.planItAPI.utils.RefreshTokensOutputModel
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
 import project.planItAPI.utils.SuccessMessage
@@ -152,24 +153,46 @@ class UsersServices (
     /**
      * Edits a user's information.
      *
-     * @param pathID The user ID present in the path.
      * @param userID The ID of the user to edit.
      * @param name The new name of the user.
      * @param description The new description of the user.
      * @param interests The new interests of the user.
      * @return The result of the user edit as [EditUserResult].
      */
-    fun editUser(pathID: Int, userID: Int, name: String, description: String, interests: String): EditUserResult {
+    fun editUser(userID: Int, name: String, description: String, interests: String): EditUserResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
-            if (pathID != userID) {
-                throw UserNotFoundException()
-            }
             if (usersRepository.getUser(userID) == null) {
                 throw UserNotFoundException()
             }
+            if (name.isEmpty()) {
+                throw Exception("Please fill in the name field.")
+            }
             usersRepository.editUser(userID, name, description, interests)
             return@run SuccessMessage("User edited successfully.")
+        }
+    }
+
+    /**
+     * Refreshes the user's access and refresh tokens.
+     *
+     * @param refreshToken The refresh token.
+     * @return The result of the token refresh as [UserTokensResult].
+     */
+    fun refreshToken(refreshToken: String): UserTokensResult {
+        return transactionManager.run {
+            val refreshTokenHash = domain.createTokenValidation(token = refreshToken)
+            val usersRepository = it.usersRepository
+            if (!domain.checkRefreshToken(refreshToken)) throw Exception("Invalid refresh token")
+            val userID = usersRepository.getUserIDByToken(refreshTokenHash)
+                ?: throw Exception("Invalid refresh token")
+            val user = usersRepository.getUser(userID) ?: throw Exception("Invalid refresh token")
+
+            usersRepository.deleteUserRefreshToken(userID, refreshTokenHash)
+
+            val (accessToken, newRefreshToken) = createTokens(userID, user.username, usersRepository)
+
+            return@run RefreshTokensOutputModel(userID, accessToken, newRefreshToken)
         }
     }
 

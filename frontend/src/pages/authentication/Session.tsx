@@ -1,29 +1,22 @@
-import React from "react";
+import React, {useContext} from "react";
 import {Navigate} from "react-router-dom";
+import {PlanItContext} from "../../PlanItProvider";
 
-export function getSessionToken(): string | null {
-    return localStorage.getItem('access_token');
+export function isLogged(userId: number | undefined): boolean {
+    return userId !== undefined && userId !== null && userId > 0;
 }
 
-export function isLogged(): boolean {
-    const token = getSessionToken();
-    return token !== null && token !== undefined && token !== 'undefined';
-}
-
-export function clearSession(): void {
-    localStorage.removeItem('access_token');
+export function clearSession(setUserId: (v: number | undefined) => void): void {
     localStorage.removeItem('user_id');
+    setUserId(undefined);
 }
 
-export function setSession(token: string, userId: string): void {
-    localStorage.setItem('access_token', token);
+export function setSession(userId: string, setUserId: (v: number | undefined) => void): void {
     localStorage.setItem('user_id', userId);
+    setUserId(Number(userId));
 }
 
-export function getUserId(): string | null {
-    return localStorage.getItem('user_id');
-}
-
-export function AuthRequired({ children }: { children: () => React.ReactNode }) {
-    return isLogged() ? <div>{children()}</div> : <Navigate to="/planit/login" replace={true} />;
+export function getUserId(): number | undefined {
+    const { userId } = useContext(PlanItContext);
+    return userId;
 }

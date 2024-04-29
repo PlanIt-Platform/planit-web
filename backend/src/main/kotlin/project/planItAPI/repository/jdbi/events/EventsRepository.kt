@@ -26,6 +26,7 @@ interface EventsRepository {
      * @param end_date The end date of the new event.
      * @param price The price of the new event.
      * @param userID The ID of the user creating the event.
+     * @param password The password of the event.
      * @return The ID of the newly created event, or null if creation fails.
      */
     fun createEvent(
@@ -38,7 +39,8 @@ interface EventsRepository {
         date: Timestamp?,
         end_date: Timestamp?,
         price: Money?,
-        userID: Int
+        userID: Int,
+        password: String
     ): Int?
 
     /**
@@ -63,6 +65,12 @@ interface EventsRepository {
      * @return A list of [EventOutputModel] containing the events that match the search criteria.
      */
     fun searchEvents(searchInput: String): SearchEventOutputModel
+
+    /**
+     * Retrieves all events.
+     * @return A list of [EventOutputModel] containing all events.
+     */
+    fun getAllEvents(): SearchEventOutputModel
 
     /**
      * Adds a user to the event with the given ID.

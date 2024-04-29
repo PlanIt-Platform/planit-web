@@ -21,8 +21,8 @@ fun getCategories(): Map<String, List<String>> {
  * @return True if the category is valid, false if it is not.
  */
 fun isCategory(name: String): Boolean {
-    val categories = getCategories()
-    return categories.containsKey(name)
+    val categories = getCategories().keys.filter { it.lowercase() == name.lowercase() }
+    return categories.size == 1
 }
 
 /**
@@ -40,3 +40,16 @@ fun isValidSubcategory(category: String, subcategory: String): Boolean? {
     return null
 }
 
+fun getSubCategories(category: String): List<String>? {
+    if (!isCategory(category)) {
+        return null
+    }
+    return getCategories()[category]
+}
+
+fun getSubCategoriesLowerCase(category: String): List<String>? {
+    if (!isCategory(category)) {
+        return null
+    }
+    return getCategories().filter{ it.key.lowercase() == category.lowercase() }.values.first()
+}

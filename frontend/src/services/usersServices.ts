@@ -1,22 +1,42 @@
 import {get, post, put} from "./custom/useFetch";
-import {GET_USER, LOGIN, LOGOUT, REGISTER} from "./navigation/URIS";
+import {LOGIN, LOGOUT, REGISTER, USER} from "./navigation/URIS";
+import {executeRequestAndRefreshToken} from "./requestUtils";
 
-export async function register(username, name, email, password) {
-    return await post(REGISTER, JSON.stringify({username, name, email, password}))
+export async function register({username, name, email, password}) {
+    return await executeRequestAndRefreshToken(
+        post,
+        REGISTER,
+        JSON.stringify({username, name, email, password})
+    )
 }
 
 export async function login(emailOrName, password) {
-    return await post(LOGIN, JSON.stringify({emailOrName, password}))
+    return await executeRequestAndRefreshToken(
+        post,
+        LOGIN,
+        JSON.stringify({emailOrName, password})
+    )
 }
 
 export async function logout() {
-    return await post(LOGOUT, undefined)
+    return await executeRequestAndRefreshToken(
+        post,
+        LOGOUT,
+        undefined
+    )
 }
 
 export async function getUser(userId) {
-    return await get(GET_USER + userId)
+    return await executeRequestAndRefreshToken(
+        get,
+        USER + '/' + userId,
+    )
 }
 
-export async function editUser(userId, name, interests, description) {
-    return await put(GET_USER + userId + "/edit", JSON.stringify({name, interests, description}))
+export async function editUser(name, description, interests) {
+    return await executeRequestAndRefreshToken(
+        put,
+        USER,
+        JSON.stringify({name, interests, description})
+    )
 }

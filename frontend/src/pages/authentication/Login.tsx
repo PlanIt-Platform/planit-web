@@ -1,17 +1,19 @@
 import {Link, Navigate} from "react-router-dom";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {setSession} from "./Session";
 import {login} from "../../services/usersServices";
 import './authStyle.css';
 import logo from "../../../images/logo.png";
+import {PlanItContext} from "../../PlanItProvider";
 
 export default function Login(): React.ReactElement {
+    const { setUserId } = useContext(PlanItContext);
     const [inputs, setInputs] = useState({emailOrName: "", password: ""})
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
     const [redirect, setRedirect] = useState(false)
 
-    if (redirect) return <Navigate to="/" replace={true}/>;
+    if (redirect) return <Navigate to="/planit/events" replace={true}/>;
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
@@ -25,7 +27,7 @@ export default function Login(): React.ReactElement {
                     setSubmitting(false)
                     return
                 }
-                setSession(res.accessToken, res.id);
+                setSession(res.id, setUserId);
                 setSubmitting(false)
                 setRedirect(true)
             })
@@ -40,7 +42,7 @@ export default function Login(): React.ReactElement {
         <div className="form-container fadeIn">
             <img src={logo} alt="Image" className="image-overlay" />
             <div className="form-content">
-                <Link to="/" className={"linkStyle homeStyle"}>Home</Link>
+                <Link to="/" className={"linkStyle homeStyle"} style={{ width: "14%"}}>Home</Link>
                 <form onSubmit={handleSubmit}>
                         <div>
                             <label htmlFor="emailOrName">Email Or Username</label>

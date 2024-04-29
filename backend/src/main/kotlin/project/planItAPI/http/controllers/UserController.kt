@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import project.planItAPI.http.PathTemplates
 import project.planItAPI.http.PathTemplates.EDIT_USER
+import project.planItAPI.http.PathTemplates.REFRESH_TOKEN
 import project.planItAPI.http.PathTemplates.USER
 import project.planItAPI.utils.UserRegisterInputModel
 import project.planItAPI.services.UsersServices
@@ -116,14 +117,13 @@ class UserController(private val usersServices: UsersServices) {
 
     /**
      * Edits a user's information.
-     * @param pathId The unique identifier of the user.
+     * @param userId The unique identifier of the user.
      * @param s The UserEditModel representing the user's new information.
      */
     @PutMapping(EDIT_USER)
-    fun editUser(@PathVariable pathId: Int, @RequestBody s: UserEditModel, @RequestAttribute("userId") userId: String): ResponseEntity<*> {
+    fun editUser(@RequestBody s: UserEditModel, @RequestAttribute("userId") userId: String): ResponseEntity<*> {
         return when (
             val res = usersServices.editUser(
-                pathId,
                 userId.toInt(),
                 s.name,
                 s.description,
@@ -136,6 +136,29 @@ class UserController(private val usersServices: UsersServices) {
 
             is Success -> {
                 return responseHandler(200, res)
+            }
+        }
+    }
+
+    /**
+     * Handles refreshing the access token using the refresh token.
+     *
+     * @param refreshToken The refresh token obtained from the cookies.
+     * @param response The HttpServletResponse to set the response headers.
+     * @return ResponseEntity with the appropriate status and/or the new user tokens.
+     */
+    @PostMapping(REFRESH_TOKEN)
+    fun refreshToken(
+        @CookieValue("refresh_token", required = true) refreshToken: String,
+        response: HttpServletResponse,
+        request: HttpServletRequest
+    ): ResponseEntity<*> {
+        return when (val res = usersServices.refreshToken(refreshToken)) {
+            is Failure -> responseHandler(400, res.value.message)
+            is Success -> {
+                setTokenCookies(response, res.value.accessToken, res.value.refreshToken)
+                request.setAttribute("userId", res.value.userID)
+                return responseHandler(201, res.value)
             }
         }
     }

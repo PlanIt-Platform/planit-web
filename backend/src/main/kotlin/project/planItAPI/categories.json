@@ -25,7 +25,7 @@
     "Sports Tournaments and Competitions"
   ],
 
-  "Business and Professional Development":[
+  "Business":[
     "Networking Events and Mixers",
     "Business Seminars and Conferences",
     "Leadership and Management Workshops",
@@ -33,12 +33,30 @@
     "Career Fairs and Job Expos"
   ],
 
-  "Food and Drink":[
+  "Food and Drinks":[
     "Food Festivals and Tastings",
     "Cooking Classes and Culinary Workshops",
     "Wine and Beer Tastings",
     "Farmers Markets and Food Markets",
     "Gastronomic Tours and Dining Experiences"
+  ],
+
+  "Education": [
+    "School Events and Activities",
+    "Educational Workshops and Seminars",
+    "Training and Certification Programs",
+    "Academic Conferences",
+    "Educational Tours and Field Trips",
+    "Online Learning and Webinars",
+    "Reunions and Alumni Events"
+  ],
+
+  "Charity": [
+    "Fundraising Events",
+    "Volunteer Opportunities",
+    "Community Service Projects",
+    "Charity Auctions and Raffles",
+    "Awareness Campaigns and Drives"
   ],
 
   "Simple Meeting": []

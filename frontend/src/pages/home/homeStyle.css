@@ -1,46 +1,20 @@
 .containerStyle {
+    top: 70px;
     display: flex;
     flex-direction: column;
     justify-content: center; /* Center items vertically */
     align-items: center; /* Center items horizontally */
-    height: 80vh;
+    height: calc(100vh - 70px);
+    position: relative;
+    overflow: hidden;
 }
 
 .headerStyle {
-    padding: 20px;
-    font-Size: 50px;
+    padding-bottom: 80px;
+    padding-top: 0px;
+    font-Size: 33px;
+    font-family: "Avenir Next", "Avenir", sans-serif;
     color: white;
-}
-
-.contentStyle {
-    color: #ffffff;
-    position: relative;
-    text-decoration: none;
-    padding: 10px;
-    font-size: 20px;
-    margin-right: 50px;
-    margin-left: 50px;
-    transition: color 0.5s;
-}
-
-.contentStyle::before {
-    background: white;
-    content: "";
-    inset: 0;
-    position: absolute;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.5s ease-in-out;
-    z-index: -1;
-}
-
-.contentStyle:hover::before {
-    transform: scaleX(1);
-    transform-origin: left;
-}
-
-.contentStyle:hover {
-    color: #000000;
 }
 
 .errorStyle {
@@ -48,11 +22,10 @@
 }
 
 .image-overlay {
-    position: absolute;
-    top: 0;
-    left: 600px;
+    left: 620px;
+    top: 50px; /* Adjust the value to move the image lower */
     z-index: 2; /* Ensure the image appears above the text */
     width: 21%; /* Adjust width as needed */
-    height: 40%; /* Adjust height as needed */
+    height: 100%; /* Adjust height as needed */
     pointer-events: none; /* Ensures that the image doesn't interfere with clicking on the text */
 }

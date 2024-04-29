@@ -10,10 +10,10 @@ object PathTemplates {
     const val LOGIN = "/login"
     const val LOGOUT = "/logout"
     const val USER = "/user/{pathId}"
-    const val EDIT_USER = "/user/{pathId}/edit"
+    const val EDIT_USER = "/user"
     const val ABOUT = "/about"
+    const val REFRESH_TOKEN = "/refresh-token"
     //const val UPLOAD_PROFILE_PICTURE = "/user/{id}/upload-profile-picture"
-
 
     /**
      * Event paths
@@ -26,4 +26,6 @@ object PathTemplates {
     const val JOIN_EVENT = "/event/{eventId}/join"
     const val LEAVE_EVENT = "/event/{eventId}/leave"
     const val SEARCH_EVENTS = "/events"
+    const val CATEGORIES = "/event/categories"
+    const val SUBCATEGORIES = "/event/categories/{category}/subcategories"
 }

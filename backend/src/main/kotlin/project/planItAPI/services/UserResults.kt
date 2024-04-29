@@ -2,7 +2,7 @@ package project.planItAPI.services
 
 import project.planItAPI.utils.UserRegisterOutputModel
 import project.planItAPI.utils.Either
-import project.planItAPI.utils.Success
+import project.planItAPI.utils.RefreshTokensOutputModel
 import project.planItAPI.utils.SuccessMessage
 import project.planItAPI.utils.UserInfo
 import project.planItAPI.utils.UserLogInOutputModel
@@ -37,3 +37,8 @@ typealias EditUserResult = Either<Exception, SuccessMessage>
  * Type alias for the result of a user profile picture upload operation.
  */
 typealias UploadProfilePictureResult = Either<Exception, SuccessMessage>
+
+/**
+ * Type alias for the result of a user token retrieval operation.
+ */
+typealias UserTokensResult = Either<Exception, RefreshTokensOutputModel>
