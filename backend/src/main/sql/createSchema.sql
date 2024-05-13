@@ -82,3 +82,31 @@ CREATE TABLE dbo.UserParticipatesInEvent (
   FOREIGN KEY (user_id) REFERENCES dbo.Users(id),
   FOREIGN KEY (event_id) REFERENCES dbo.Event(id)
 );
+
+CREATE TABLE dbo.Polls (
+    id serial PRIMARY KEY,
+    title VARCHAR(255),
+    duration INT,
+    organizer_id INT,
+    event_id INT,
+    FOREIGN KEY (organizer_id) REFERENCES dbo.Users(id),
+    FOREIGN KEY (event_id) REFERENCES dbo.Event(id)
+);
+
+CREATE TABLE dbo.Options (
+    id serial PRIMARY KEY,
+    text VARCHAR(255),
+    votes INT,
+    poll_id INT,
+    FOREIGN KEY (poll_id) REFERENCES dbo.Polls(id)
+);
+
+CREATE TABLE dbo.UserVotes (
+   user_id INT,
+   option_id INT,
+   poll_id INT,
+   PRIMARY KEY (user_id, option_id, poll_id),
+   FOREIGN KEY (user_id) REFERENCES dbo.Users(id),
+   FOREIGN KEY (option_id) REFERENCES dbo.Options(id),
+    FOREIGN KEY (poll_id) REFERENCES dbo.Polls(id)
+);

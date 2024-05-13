@@ -56,6 +56,7 @@ dependencies {
 	 * In this project it it especially used for mocking the database
 	 */
 	testImplementation 'org.mockito:mockito-core:3.12.4'
+	testImplementation 'org.mockito.kotlin:mockito-kotlin:3.2.0'
 
 	/*
 	 * H2

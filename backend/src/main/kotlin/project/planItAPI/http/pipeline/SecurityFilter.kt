@@ -14,10 +14,14 @@ class SecurityFilter : HttpFilter() {
 
     override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val uri = request.requestURI
-        val isAuthEndpoint = uri.endsWith("/register") || uri.endsWith("/login") || uri.endsWith("/refresh-token")
+        val isAuthEndpoint =
+            uri.endsWith("/register")
+            || uri.endsWith("/login")
+            || uri.endsWith("/refresh-token")
+            || uri.endsWith("/logout")
         val accessToken = request.cookies?.find { it.name == "access_token" }?.value
 
-        if(uri.endsWith("/logout")) tokenCache.remove(accessToken)
+        if(uri.endsWith("/logout") && accessToken != null) tokenCache.remove(accessToken)
 
         if (!isAuthEndpoint) {
             if(accessToken == null){
@@ -36,8 +40,8 @@ class SecurityFilter : HttpFilter() {
 
         chain.doFilter(request, response)
 
-        if (isAuthEndpoint) {
-            val userId = request.getAttribute("userId").toString()
+        if (isAuthEndpoint && (response.status == 201 || response.status == 200)) {
+            val userId = request.getAttribute("userId")
             if (uri.endsWith("/refresh-token")) {
                 val existingToken = tokenCache.entries.find { it.value == userId }?.key
                 if (existingToken != null) {
@@ -46,7 +50,7 @@ class SecurityFilter : HttpFilter() {
             }
             val cookie = response.getHeader("Set-Cookie")
             val token = extractValue(tokenPattern, cookie)
-            if (token != null) tokenCache[token] = userId
+            if (token != null && userId != null) tokenCache[token] = userId.toString()
         }
         return
     }
@@ -59,6 +63,6 @@ class SecurityFilter : HttpFilter() {
     fun throwException(response: HttpServletResponse){
         response.status = 401
         response.contentType = "application/json"
-        response.writer.write("""{"status": 401, "message": "Unauthorized"}""")
+        response.writer.write("""{"status": 401, "error": "Unauthorized"}""")
     }
 }

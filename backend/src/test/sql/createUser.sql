@@ -1,9 +1,6 @@
 DROP SCHEMA if exists dbo CASCADE;
 create schema dbo;
 
-drop table if exists dbo.Users;
-drop table if exists dbo.RefreshTokens;
-
 create table dbo.Users
 (
     id                  serial primary key,

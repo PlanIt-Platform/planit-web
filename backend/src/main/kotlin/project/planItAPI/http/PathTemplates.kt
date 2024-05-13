@@ -28,4 +28,13 @@ object PathTemplates {
     const val SEARCH_EVENTS = "/events"
     const val CATEGORIES = "/event/categories"
     const val SUBCATEGORIES = "/event/categories/{category}/subcategories"
+
+    /**
+     * Poll paths
+     */
+    const val CREATE_POLL = "/event/{eventId}/poll"
+    const val GET_POLL = "/event/{eventId}/poll/{pollId}"
+    const val DELETE_POLL = "/event/{eventId}/poll/{pollId}/delete"
+    const val VOTE_POLL = "/event/{eventId}/poll/{pollId}/vote/{optionId}"
+
 }

@@ -59,7 +59,7 @@ class PasswordHasNoSpecialChar : PasswordException (message = PASSWORD_NO_SPECIA
  * @param exceptions The list of exceptions that the password has.
  */
 class MultiplePasswordExceptions (
-    val exceptions: List<PasswordException>
+    private val exceptions: List<PasswordException>
 ) : HTTPCodeException(
     message = MULTIPLE_PASSWORD_MESSAGE + exceptions.joinToString(", ") { it.message },
     httpCode = BAD_REQUEST
@@ -91,7 +91,7 @@ class UserRegisterErrorException : HTTPCodeException(
  * The HTTP code is 400, because it is a bad request.
  */
 class IncorrectPasswordException : HTTPCodeException(
-    message = "Incorrect password.",
+    message = "Incorrect password",
     httpCode = BAD_REQUEST
 )
 
@@ -123,58 +123,131 @@ class UnsupportedMediaTypeException : HTTPCodeException(
 )
 
 class InvalidTimestampFormatException (name: String) : HTTPCodeException(
-        message = "$name has invalid timestamp. The correct format is 'YYYY-MM-DD HH:MM'.",
+        message = "$name has invalid timestamp. The correct format is 'YYYY-MM-DD HH:MM'",
     httpCode = BAD_REQUEST
 )
 
 class InvalidVisibilityException : HTTPCodeException(
-    message = "Invalid visibility value.",
+    message = "Invalid visibility value",
     httpCode = BAD_REQUEST
 )
 
 class InvalidPriceFormatException : HTTPCodeException(
-    message = "Invalid price format. The correct format is 'amount currency'. Example: '10.00 USD'.",
+    message = "Invalid price format. The correct format is 'amount currency'. Example: '10.00 USD'",
     httpCode = BAD_REQUEST
 )
 
 class InvalidCategoryException : HTTPCodeException(
-    message = "Invalid category.",
+    message = "Invalid category",
     httpCode = BAD_REQUEST
 )
 
 class InvalidSubcategoryException : HTTPCodeException(
-    message = "Invalid subcategory.",
+    message = "Invalid subcategory",
     httpCode = BAD_REQUEST
 )
 
 class UserIDParameterMissing : HTTPCodeException(
-    message = "UserID parameter missing.",
+    message = "UserID parameter missing",
     httpCode = BAD_REQUEST
 )
 
 class EventNotFoundException : HTTPCodeException(
-    message = "Event not found.",
+    message = "Event not found",
     httpCode = NOT_FOUND
 )
 
 class UserNotInEventException : HTTPCodeException(
-    message = "User is not in the event.",
+    message = "User is not in the event",
     httpCode = BAD_REQUEST
 )
 
 class UserAlreadyInEventException : HTTPCodeException(
-    message = "User is already in the event.",
+    message = "User is already in the event",
     httpCode = BAD_REQUEST
 )
 
 class FailedToCreateEventException : HTTPCodeException(
-    message = "Failed to create event.",
-    httpCode = INTERNAL_SERVER_ERROR
-)
-
-class UserIsNotOrganizerException : HTTPCodeException(
-    message = "User is not the organizer of the event.",
+    message = "Failed to create event",
     httpCode = BAD_REQUEST
 )
 
+class UserIsNotOrganizerException : HTTPCodeException(
+    message = "User is not the organizer of the event",
+    httpCode = BAD_REQUEST
+)
 
+class InvalidIdException : HTTPCodeException(
+    message = "Invalid ID",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidVisibilityValueException : HTTPCodeException(
+    message = "Invalid visibility value",
+    httpCode = BAD_REQUEST
+)
+
+class UsernameIsBlankException : HTTPCodeException(
+    message = "Username is blank",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidUsernameLengthException : HTTPCodeException(
+    message = "Invalid username length",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidEmailException : HTTPCodeException(
+    message = "Invalid email format",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidUsernameException : HTTPCodeException(
+    message = "Invalid username",
+    httpCode = BAD_REQUEST
+)
+
+class OptionIsBlankException : HTTPCodeException(
+    message = "Option is blank",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidOptionLengthException : HTTPCodeException(
+    message = "Invalid option length",
+    httpCode = BAD_REQUEST
+)
+
+class DurationIsBlankException : HTTPCodeException(
+    message = "Duration is blank",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidDurationException : HTTPCodeException(
+    message = "Invalid duration, must be one of the following values: 1 hour, 4 hours, 8 hours, 12 hours, 24 hours or 72 hours",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidNumberOfOptionsException : HTTPCodeException(
+    message = "Invalid number of options, must be between 2 and 5",
+    httpCode = BAD_REQUEST
+)
+
+class FailedToCreatePollException : HTTPCodeException(
+    message = "Failed to create poll",
+    httpCode = BAD_REQUEST
+)
+
+class PollNotFoundException : HTTPCodeException(
+    message = "Poll not found",
+    httpCode = NOT_FOUND
+)
+
+class OptionNotFoundException : HTTPCodeException(
+    message = "Option not found",
+    httpCode = NOT_FOUND
+)
+
+class UserAlreadyVotedException : HTTPCodeException(
+    message = "User already voted",
+    httpCode = BAD_REQUEST
+)

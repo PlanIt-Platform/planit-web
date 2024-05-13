@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import kotlinx.datetime.Clock
-import project.planItAPI.repository.jdbi.utils.users.UsersDomainConfig
+import project.planItAPI.services.user.utils.UsersDomainConfig
 import java.time.Duration
 
 val jdbcUrl: String = System.getenv("JDBC_DATABASE_URL")

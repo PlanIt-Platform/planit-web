@@ -21,6 +21,12 @@ sealed class Either<out L, out R> {
      * @param value The value of the right component.
      */
     data class Right<out R>(val value: R) : Either<Nothing, R>()
+
+    inline fun <U> map(transform: (R) -> U): Either<L, U> =
+        when (this) {
+            is Failure -> this
+            is Success -> Success(transform(value))
+        }
 }
 
 /**

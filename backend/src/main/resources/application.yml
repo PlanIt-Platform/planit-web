@@ -17,8 +17,4 @@ spring:
     username: postgres
     password: 123
 
-  test_datasource:
-    url: jdbc:postgresql://localhost:5432/PlanItTestDatabase?user=postgres&password=123
-    username: postgres
-    password: 123
 
