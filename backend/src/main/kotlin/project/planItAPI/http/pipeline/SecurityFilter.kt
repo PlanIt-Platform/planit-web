@@ -12,19 +12,32 @@ class SecurityFilter : HttpFilter() {
     private val tokenCache = ConcurrentHashMap<String, String>()
     private val tokenPattern = "access_token=([^;]*);".toRegex()
 
+    private val unauthenticatedEndpoints = listOf(
+        "/register",
+        "/login",
+        "/refresh-token",
+        "/about",
+        "/categories",
+        "/subcategories"
+    )
+
+    private val authenticationEndpoints = listOf(
+        "/register",
+        "/login",
+        "/refresh-token",
+        "/logout"
+    )
+
+
     override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val uri = request.requestURI
-        val isAuthEndpoint =
-            uri.endsWith("/register")
-            || uri.endsWith("/login")
-            || uri.endsWith("/refresh-token")
-            || uri.endsWith("/logout")
+
         val accessToken = request.cookies?.find { it.name == "access_token" }?.value
 
         if(uri.endsWith("/logout") && accessToken != null) tokenCache.remove(accessToken)
 
-        if (!isAuthEndpoint) {
-            if(accessToken == null){
+        if (!unauthenticatedEndpoints.any{ ae -> uri.endsWith(ae) }) {
+            if (accessToken == null) {
                 throwException(response)
                 return
             }
@@ -40,7 +53,7 @@ class SecurityFilter : HttpFilter() {
 
         chain.doFilter(request, response)
 
-        if (isAuthEndpoint && (response.status == 201 || response.status == 200)) {
+        if (authenticationEndpoints.any{ ae -> uri.endsWith(ae) } && (response.status == 201 || response.status == 200)) {
             val userId = request.getAttribute("userId")
             if (uri.endsWith("/refresh-token")) {
                 val existingToken = tokenCache.entries.find { it.value == userId }?.key

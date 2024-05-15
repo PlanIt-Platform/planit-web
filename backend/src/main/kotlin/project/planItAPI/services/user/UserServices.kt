@@ -168,7 +168,7 @@ class UserServices (
             if (usersRepository.getUser(userID) == null) {
                 throw UserNotFoundException()
             }
-            usersRepository.editUser(userID, name.value, description, interests.toString())
+            usersRepository.editUser(userID, name.value, description, interests.joinToString(","){el -> el.name})
             return@run SuccessMessage("User edited successfully.")
         }
     }
