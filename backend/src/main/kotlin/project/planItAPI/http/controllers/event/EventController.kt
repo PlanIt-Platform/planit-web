@@ -31,6 +31,7 @@ import project.planItAPI.models.EventInputModel
 import project.planItAPI.models.EventPasswordModel
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
+import project.planItAPI.domain.event.transformURIToCategory
 
 /**
  * Controller class for handling event-related operations in a RESTful manner.
@@ -224,10 +225,10 @@ class EventController(private val eventServices: EventServices) {
 
     @GetMapping(SUBCATEGORIES)
     fun getSubcategories(@PathVariable category: String): ResponseEntity<*> {
-        return when (val categoryResult = Category(category)) {
+        return when (val categoryResult = transformURIToCategory(category)) {
             is Failure -> failureResponse(categoryResult)
             is Success -> {
-                when (val res = eventServices.getSubcategories(category)) {
+                when (val res = eventServices.getSubcategories(categoryResult.value.name)) {
                     is Failure -> {
                         failureResponse(res)
                     }

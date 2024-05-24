@@ -9,6 +9,7 @@ import project.planItAPI.utils.InvalidCategoryException
 import project.planItAPI.utils.Success
 import java.io.File
 import java.lang.Exception
+import java.util.Locale
 
 const val CATEGORIES_FILE_PATH = "categories.json"
 
@@ -19,10 +20,11 @@ class Category private constructor(val name: String) {
         private val categories = readCategories().keys
 
         operator fun invoke(name: String): CategoryResult {
-            if (!categories.contains(name)) {
+            val matchedCategory = categories.find { it.lowercase() == name.lowercase() }
+            if (matchedCategory == null) {
                 return Failure(InvalidCategoryException())
             }
-            return Success(Category(name))
+            return Success(Category(matchedCategory))
         }
     }
 }
@@ -50,4 +52,9 @@ fun readCategories(): Map<String, List<String>> {
 fun isCategory(name: String): Boolean {
     val categories = readCategories().keys.filter { it.lowercase() == name.lowercase() }
     return categories.size == 1
+}
+
+fun transformURIToCategory(name: String): CategoryResult {
+    val category = name.replace("-", " ")
+    return Category(category)
 }
