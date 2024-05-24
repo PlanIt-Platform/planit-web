@@ -16,10 +16,14 @@ import project.planItAPI.models.SuccessMessage
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
 import project.planItAPI.domain.event.readSubCategories
+import project.planItAPI.utils.EndDateBeforeDateException
+import project.planItAPI.utils.PastDateException
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
 import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class EventServices(
@@ -57,15 +61,18 @@ class EventServices(
         transactionManager.run {
             val eventsRepository = it.eventsRepository
             if (visibility == Visibility.Private && password.isBlank()) throw FailedToCreateEventException()
+            val now = getNowTime()
+            if (date.value < now) throw PastDateException()
+            if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
             val eventID = eventsRepository.createEvent(
                 title,
-                description ?: "",
+                description ?: "No description yet!",
                 category.name,
                 subcategory.name,
                 location ?: "To be Determined",
                 visibility.name,
                 Timestamp.valueOf("${date.value}:00"),
-                Timestamp.valueOf("${endDate.value}:00"),
+                if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
                 price,
                 userID,
                 password
@@ -182,11 +189,15 @@ class EventServices(
         visibility: Visibility,
         date: DateFormat,
         endDate: DateFormat,
-        price: Money
+        price: Money,
+        password: String
     ): EditEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
         if (eventsRepository.getEventOrganizer(eventId) != userId) throw UserIsNotOrganizerException()
+        val now = getNowTime()
+        if (date.value < now) throw PastDateException()
+        if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
         eventsRepository.editEvent(
             eventId,
             title,
@@ -196,8 +207,9 @@ class EventServices(
             location ?: "To be Determined",
             visibility.name,
             Timestamp.valueOf("${date.value}:00"),
-            Timestamp.valueOf("${endDate.value}:00"),
-            price
+            if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
+            price,
+            password
         )
         return@run SuccessMessage("Event edited with success.")
     }
@@ -218,5 +230,10 @@ class EventServices(
      */
     fun getSubcategories(category: String): SubcategoriesResult = transactionManager.run {
         return@run readSubCategories(category) ?: throw InvalidCategoryException()
+    }
+
+    fun getNowTime(): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        return LocalDateTime.now().format(formatter)
     }
 }

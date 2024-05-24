@@ -172,6 +172,16 @@ class FailedToCreateEventException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
+class PastDateException : HTTPCodeException(
+    message = "Date not available, must be later than the current date",
+    httpCode = BAD_REQUEST
+)
+
+class EndDateBeforeDateException : HTTPCodeException(
+    message = "End date must be later than the date chosen",
+    httpCode = BAD_REQUEST
+)
+
 class UserIsNotOrganizerException : HTTPCodeException(
     message = "User is not the organizer of the event",
     httpCode = BAD_REQUEST
@@ -249,5 +259,15 @@ class OptionNotFoundException : HTTPCodeException(
 
 class UserAlreadyVotedException : HTTPCodeException(
     message = "User already voted",
+    httpCode = BAD_REQUEST
+)
+
+class InterestsAreDuplicatedException : HTTPCodeException(
+    message = "Interests cannot contain duplicate categories",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidRefreshTokenException : HTTPCodeException(
+    message = "Invalid refresh token",
     httpCode = BAD_REQUEST
 )

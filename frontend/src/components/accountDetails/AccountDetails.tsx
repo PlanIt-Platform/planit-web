@@ -18,18 +18,18 @@ export default function AccountDetails(): React.ReactElement {
     useEffect(() => {
         getUser(userId)
             .then((res) => {
-                if (res.error) {
-                    setError(res.error)
+                if (res.data.error) {
+                    setError(res.data.error)
                     return
                 }
-                setUserData(res);
+                setUserData(res.data);
             })
         getCategories()
             .then((res) => {
-                if (res.error) {
-                    setError(res.error);
+                if (res.data.error) {
+                    setError(res.data.error);
                 } else {
-                    const filteredInterests = res.filter(interest => interest !== 'Simple Meeting');
+                    const filteredInterests = res.data.filter(interest => interest !== 'Simple Meeting');
                     setInterests(filteredInterests);
                 }
             })
@@ -44,8 +44,8 @@ export default function AccountDetails(): React.ReactElement {
     const handleSave = () => {
         editUser(userData.name, userData.description, userData.interests)
             .then((res) => {
-                if (res.error) {
-                    setError(res.error)
+                if (res.data.error) {
+                    setError(res.data.error)
                     return
                 }
                 setIsEditing(false);

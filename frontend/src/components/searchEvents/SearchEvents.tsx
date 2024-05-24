@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {searchEvents} from "../../services/eventsServices";
+import {getUsersInEvent, searchEvents} from "../../services/eventsServices";
 import './SearchEvents.css'
 import sports_icon from "../../../images/sports_icon.png"
 import globe_icon from "../../../images/globe_icon.png"
@@ -17,9 +17,13 @@ import charitybg from "../../../images/caridadebg.png";
 import technologybg from "../../../images/technologybg.png";
 import businessbg from "../../../images/businessbg.png";
 import simplemeetingbg from "../../../images/simplemeeting.png";
-import EventForm from "./EventForm";
-import {Link} from "react-router-dom";
+import EventForm from "./createEvent/EventForm";
+import JoinPopup from "./joinPopup/JoinPopup";
+import {Link, Navigate} from "react-router-dom";
 import {PlanItContext} from "../../PlanItProvider";
+import location from "../../../images/location.png";
+import date from "../../../images/date.png";
+import {getUserId} from "../authentication/Session";
 
 const categoryIcons = {
     'All': globe_icon,
@@ -43,11 +47,29 @@ const categoryBackgrounds = {
     'Business': businessbg
 }
 
+function formatDate(dateString) {
+    // Remove the seconds from the date string
+    const dateWithoutSeconds = dateString.slice(0, 16);
+
+    const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return new Date(dateWithoutSeconds).toLocaleDateString(undefined, options);
+}
+
 export default function SearchEvents(): React.ReactElement {
     const { eventsSearched } = useContext(PlanItContext);
+    const userId = getUserId()
     const [events, setEvents] = useState(eventsSearched)
     const [error, setError] = useState('')
     const [isEventFormOpen, setIsEventFormOpen] = useState(false);
+    const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isParticipant, setIsParticipant] = useState(false);
 
     useEffect(() => {
         setEvents(eventsSearched);
@@ -56,11 +78,11 @@ export default function SearchEvents(): React.ReactElement {
     useEffect(() => {
         searchEvents("All")
             .then((res) => {
-                if (res.error) {
-                    setError(res.error);
+                if (res.data.error) {
+                    setError(res.data.error);
                     return;
                 }
-                setEvents(res.events);
+                setEvents(res.data.events);
                 setError('')
             });
     }, [isEventFormOpen])
@@ -68,14 +90,33 @@ export default function SearchEvents(): React.ReactElement {
     const handleCategoryClick = (category: string) => {
         searchEvents(category)
             .then((res) => {
-                if (res.error) {
-                    setError(res.error);
+                if (res.data.error) {
+                    setError(res.data.error);
                     return;
                 }
-                setEvents(res.events);
+                setEvents(res.data.events);
                 setError('')
             });
     }
+
+    const handleEventClick = (event) => {
+        setSelectedEvent(event);
+        getUsersInEvent(event.id)
+            .then((res) => {
+                if (res.data.error) {
+                    setError(res.data.error);
+                    return;
+                }
+                const users = res.data.users;
+                if (users.some(user => user.id === userId)) {
+                    setIsParticipant(true);
+                } else {
+                    setIsJoinPopupOpen(true);
+                }
+            });
+    };
+
+    if (isParticipant) return <Navigate to={`/planit/event/${selectedEvent.id}`} replace={true}/>
 
     return (
         <div>
@@ -87,17 +128,27 @@ export default function SearchEvents(): React.ReactElement {
                 ))}
             </div>
             <div className="events-grid">
+                {events.length === 0 && <h1>No events found.</h1>}
                 {events.map((event: any) => (
-                    <Link to={`/event/${event.id}`} key={event.id} className="event-card">
-                        <img src={categoryBackgrounds[event.category]} alt={event.category}/>
+                    <div key={event.id} className="event-card" onClick={() => handleEventClick(event)}>
+                        <img src={categoryBackgrounds[event.category]} alt={event.category} className={"event-card-img"}/>
                         <p style={{fontSize: 30, fontWeight: "bold"}}>{event.title}</p>
-                        <p>{event.location}</p>
-                        <p>{event.date}</p>
-                    </Link>
+                        <div>
+                            <div className="info-container">
+                                <img src={date} alt="date" className={"info_img"}/>
+                                <p style={{fontSize: 15}}>{formatDate(event.date)}</p>
+                            </div>
+                            <div className="info-container">
+                                <img src={location} alt="location" className={"info_img"}/>
+                                <p>{event.location}</p>
+                            </div>
+                        </div>
+                    </div>
                 ))}
                 {error && <p>{error}</p>}
             </div>
             <button className="floating-button" onClick={() => setIsEventFormOpen(true)}>+</button>
+            {isJoinPopupOpen && !isParticipant && <JoinPopup event={selectedEvent} onClose={() => setIsJoinPopupOpen(false)} />}
             {isEventFormOpen && <EventForm onClose={() => setIsEventFormOpen(false)} />}
         </div>
     )

@@ -22,12 +22,12 @@ export default function Login(): React.ReactElement {
         const password = inputs.password
         login(email, password)
             .then(res => {
-                if (res.error){
-                    setError(res.error)
+                if (res.data.error){
+                    setError(res.data.error)
                     setSubmitting(false)
                     return
                 }
-                setSession(res.id, setUserId);
+                setSession(res.data.id, setUserId);
                 setSubmitting(false)
                 setRedirect(true)
             })

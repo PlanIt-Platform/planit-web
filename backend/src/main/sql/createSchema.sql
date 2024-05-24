@@ -96,7 +96,6 @@ CREATE TABLE dbo.Polls (
 CREATE TABLE dbo.Options (
     id serial PRIMARY KEY,
     text VARCHAR(255),
-    votes INT,
     poll_id INT,
     FOREIGN KEY (poll_id) REFERENCES dbo.Polls(id)
 );

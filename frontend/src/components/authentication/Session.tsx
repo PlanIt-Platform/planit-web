@@ -1,8 +1,8 @@
 import React, {useContext} from "react";
-import {Navigate} from "react-router-dom";
 import {PlanItContext} from "../../PlanItProvider";
 
-export function isLogged(userId: number | undefined): boolean {
+export function isLogged(): boolean {
+    let userId = Number(localStorage.getItem('user_id'));
     return userId !== undefined && userId !== null && userId > 0;
 }
 

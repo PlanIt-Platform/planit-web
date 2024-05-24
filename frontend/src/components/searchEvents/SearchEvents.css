@@ -5,6 +5,13 @@
     padding: 50px 250px 20px 260px;
 }
 
+.events-grid h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: White;
+    grid-column: 1 / -1;
+}
+
 .event-card {
     border-radius: 20px;
     width: 300px;
@@ -13,6 +20,7 @@
     background: #1f4359;
     transition: transform 0.3s ease;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .event-card:hover {
@@ -20,7 +28,7 @@
     transition: transform 0.3s ease; /* Animate the transformation */
 }
 
-.event-card img {
+.event-card-img {
     width: 100%;
     height: 110px;
     object-fit: cover;
@@ -56,6 +64,11 @@
 
 .images{
     width: 70px;
+    transition: transform 0.3s ease;
+}
+
+.images:hover {
+    transform: scale(1.15); /* Increase the size of the card */
 }
 
 
@@ -73,4 +86,15 @@
     color: #ffffff;
     border: none;
     cursor: pointer;
+}
+
+.info-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.info_img {
+    width: 45px;
+    margin-right: 5px;
 }

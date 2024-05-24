@@ -183,7 +183,7 @@ data class SuccessMessage(
  */
 data class UserInEvent(
     val id: Int,
-    val name: String,
+    val taskName: String?,
     val username: String
 )
 

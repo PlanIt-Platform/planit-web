@@ -8,7 +8,8 @@ async function fetchData(uri, method, body) {
         body: body
     }
     const response = await fetch(uri, options)
-    return await response.json();
+    const data = await response.json();
+    return { status: response.status, data };
 }
 
 export function post(uri, body) {

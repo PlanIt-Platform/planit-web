@@ -21,6 +21,11 @@ data class PollOutputModel(
     val options: List<OptionVotesModel>
 )
 
+data class CreatePollOutputModel(
+    val id: Int,
+    val title: String
+)
+
 data class OptionVotesModel(
     val option: String,
     val votes: Int

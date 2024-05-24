@@ -59,7 +59,7 @@ fun setTokenCookies(
  * @param res The result of the operation.
  * @return ResponseEntity with the appropriate status and response body.
  */
-fun failureResponse(res: Either.Left<Exception>) =
+fun     failureResponse(res: Either.Left<Exception>) =
     if (res.value is HTTPCodeException) {
         responseHandler(res.value.httpCode, ExceptionReturn(res.value.message))
     } else {

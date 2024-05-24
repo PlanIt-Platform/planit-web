@@ -13,10 +13,12 @@ class TimeFormat private constructor(val value: String) {
     companion object {
         private val allowed_durations = listOf("1","4","8","12","24","72")
 
-        operator fun invoke(value: String): TimeFormatResult = when {
-            value.isBlank() -> Failure(DurationIsBlankException())
-            value !in allowed_durations -> Failure(InvalidDurationException())
-            else -> Success(TimeFormat(value))
+        operator fun invoke(value: String): TimeFormatResult {
+            return when {
+                value.isBlank() -> Failure(DurationIsBlankException())
+                value !in allowed_durations -> Failure(InvalidDurationException())
+                else -> Success(TimeFormat(value))
+            }
         }
     }
 }

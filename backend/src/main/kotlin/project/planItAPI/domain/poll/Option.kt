@@ -14,9 +14,9 @@ class Option private constructor(val value: String) {
     companion object {
         private const val maxLength = 50
         operator fun invoke(value: String): OptionResult = when {
-            value.isBlank() -> Failure(OptionIsBlankException())
-            value.length <= maxLength -> Failure(InvalidOptionLengthException())
-            else -> Success(Option(value))
+                value.isBlank() -> Failure(OptionIsBlankException())
+                value.length >= maxLength -> Failure(InvalidOptionLengthException())
+                else -> Success(Option(value))
         }
     }
 }

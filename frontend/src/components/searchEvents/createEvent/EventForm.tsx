@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {createEvent, getCategories} from "../../services/eventsServices";
+import {createEvent, getCategories, getSubCategories} from "../../../services/eventsServices";
 import './EventForm.css';
 
 export default function EventForm({onClose}) {
@@ -7,27 +7,43 @@ export default function EventForm({onClose}) {
         {title: "",
             description: "",
             category: "Technology",
-            subCategory: "",
+            subCategory: "Web Development",
             location: "",
             visibility: "Public",
             date: "",
             endDate: "",
-            price: "",
+            price: "0",
             password: ""
         })
     const [categories, setCategories] = useState([]);
-    const [submitting, setSubmitting] = useState(false)
+    const [subCategories, setSubCategories] = useState([]);
     const [error, setError] = useState('')
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         getCategories().then((res) => {
-            if (res.error) {
-                setError(res.error);
-            } else {
-                setCategories(res);
+            if (res.data.error) {
+                setError(res.data.error);
+                return
             }
+            setCategories(res.data);
         });
     }, []);
+
+    useEffect(() => {
+        if (inputs.category) {
+            getSubCategories(inputs.category)
+                .then((res) => {
+                    if (res.data.error) {
+                        setError(res.data.error);
+                        return
+                    }
+                    setSubCategories(res.data);
+                    const defaultSubCategory = res.data[0];
+                    setInputs(inputs => ({ ...inputs, subCategory: defaultSubCategory }));
+                });
+        }
+    }, [inputs.category]);
 
     function formatDateTime(datetime) {
         const [datePart, timePart] = datetime.split('T');
@@ -36,16 +52,13 @@ export default function EventForm({onClose}) {
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
-        setSubmitting(true)
         createEvent(inputs)
             .then(res => {
-                if (res.error) {
-                    setError(res.error)
-                    setSubmitting(false)
+                if (res.data.error) {
+                    setError(res.data.error)
                     return
                 }
                 setError("")
-                setSubmitting(false)
                 onClose()
             })
     }
@@ -80,7 +93,12 @@ export default function EventForm({onClose}) {
                     </label>
                     <label>
                         Description:
-                        <input type="text" name="description" value={inputs.description} onChange={handleChange} />
+                        <textarea
+                            name="description"
+                            value={inputs.description}
+                            onChange={handleChange}
+                            placeholder="Add some information about your event..."
+                        />
                     </label>
                     <label>
                         Category*:
@@ -91,15 +109,19 @@ export default function EventForm({onClose}) {
                         </select>
                     </label>
                     <label>
-                        Subcategory:
-                        <input type="text" name="subCategory" value={inputs.subCategory} onChange={handleChange} />
+                        Subcategory*:
+                        <select name="subCategory" value={inputs.subCategory} onChange={handleChange} required>
+                            {subCategories.map(subCategory => (
+                                <option key={subCategory} value={subCategory}>{subCategory}</option>
+                            ))}
+                        </select>
                     </label>
                     <label>
                         Location:
                         <input type="text" name="location" value={inputs.location} onChange={handleChange} />
                     </label>
                     <label>
-                        Visibility:
+                        Visibility*:
                         <select name="visibility" value={inputs.visibility} onChange={handleChange}>
                             <option value="Public">Public</option>
                             <option value="Private">Private</option>
@@ -113,16 +135,16 @@ export default function EventForm({onClose}) {
                     )}
                     <label>
                         Date*:
-                        <input type="datetime-local" name="date" value={inputs.date} onChange={handleChange} required/>
+                        <input type="datetime-local" name="date" value={inputs.date} min={today} onChange={handleChange} required/>
                     </label>
                     <label>
                         End Date:
-                        <input type="datetime-local" name="endDate" value={inputs.endDate} onChange={handleChange}/>
+                        <input type="datetime-local" name="endDate" value={inputs.endDate} min={inputs.date} onChange={handleChange}/>
                     </label>
                     <label>
-                        Price:
+                        Price*:
                         <input type="number" name="price" value={inputs.price} onChange={handleChange}
-                               onKeyDown={handleKeyPress} step="0.01" min="0"/>
+                               onKeyDown={handleKeyPress} step="0.01" min="0" />
                         <span> €</span>
                     </label>
                     <button type="submit">Create Event</button>

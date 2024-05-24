@@ -3,6 +3,7 @@ package project.planItAPI.services.poll
 import org.springframework.stereotype.Service
 import project.planItAPI.domain.poll.Option
 import project.planItAPI.domain.poll.TimeFormat
+import project.planItAPI.models.CreatePollOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.utils.EventNotFoundException
@@ -28,15 +29,17 @@ class PollServices(
         transactionManager.run {
             val pollRepository = it.pollRepository
             val eventsRepository = it.eventsRepository
-            if (options.size in 2..5) throw InvalidNumberOfOptionsException()
+            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
             if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
-            return@run pollRepository.createPoll(
+            val pollId = pollRepository.createPoll(
                 title,
                 options.map { opt -> opt.value },
                 duration.value.toInt(),
                 eventId,
                 organizerId
             ) ?: throw FailedToCreatePollException()
+
+            return@run CreatePollOutputModel(pollId, title)
         }
 
     fun getPoll(pollId: Int, eventId: Int): GetPollResult =
@@ -58,9 +61,11 @@ class PollServices(
             return@run SuccessMessage("Poll deleted successfully")
         }
 
-    fun votePoll(userId: Int, pollId: Int, optionId: Int): VoteResult =
+    fun votePoll(userId: Int, pollId: Int, optionId: Int, eventId: Int): VoteResult =
         transactionManager.run {
             val pollRepository = it.pollRepository
+            val eventsRepository = it.eventsRepository
+            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
             pollRepository.getPoll(pollId) ?: throw PollNotFoundException()
             pollRepository.getOption(optionId) ?: throw OptionNotFoundException()
             val userVoteExists = it.pollRepository.checkIfUserVoted(userId, pollId)

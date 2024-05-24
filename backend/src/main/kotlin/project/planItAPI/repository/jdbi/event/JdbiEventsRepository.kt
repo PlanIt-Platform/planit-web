@@ -78,9 +78,10 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
     override fun getUsersInEvent(id: Int): UsersInEventList? {
         return handle.createQuery(
             """
-        SELECT u.id, u.name, u.username
+        SELECT u.id, u.username, t.name as taskName
         FROM dbo.UserParticipatesInEvent up
         JOIN dbo.Users u ON up.user_id = u.id
+        LEFT JOIN dbo.Task t ON t.user_id = u.id AND t.event_id = up.event_id
         WHERE up.event_id = :id
         """
         )
@@ -165,7 +166,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         visibility: String?,
         date: Timestamp?,
         end_date: Timestamp?,
-        price: Money?
+        price: Money?,
+        password: String
     ) {
         handle.createUpdate(
             "update dbo.Event set " +
@@ -178,7 +180,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                     "date = :date, " +
                     "end_date = :end_date, " +
                     "priceAmount = :priceAmount, " +
-                    "priceCurrency = :priceCurrency " +
+                    "priceCurrency = :priceCurrency, " +
+                    "password = :password " +
                     "where id = :eventId"
         )
             .bind("title", title)
@@ -191,6 +194,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("end_date", end_date)
             .bind("priceAmount", price?.amount)
             .bind("priceCurrency", price?.currency)
+            .bind("password", password)
             .bind("eventId", eventId)
             .execute()
     }

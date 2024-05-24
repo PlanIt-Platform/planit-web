@@ -1,16 +1,17 @@
 package project.planItAPI.http.controllers.poll
 
-import project.planItAPI.domain.Id
 import project.planItAPI.domain.poll.Option
 import project.planItAPI.domain.poll.TimeFormat
 import project.planItAPI.models.PollInputModel
 import project.planItAPI.models.ValidatedPollInputModel
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
+import project.planItAPI.utils.InvalidNumberOfOptionsException
 import project.planItAPI.utils.Success
 
 
 fun validatePollInput(input: PollInputModel): Either<Exception, ValidatedPollInputModel> {
+    if (input.options.size  !in 2..5) return Failure(InvalidNumberOfOptionsException())
     for (option in input.options) {
         val result = Option(option)
         if (result is Failure) return Failure(result.value)

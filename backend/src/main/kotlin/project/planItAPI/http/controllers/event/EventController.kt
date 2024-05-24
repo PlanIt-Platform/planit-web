@@ -199,7 +199,8 @@ class EventController(private val eventServices: EventServices) {
                     validatedInputs.visibility,
                     validatedInputs.date,
                     validatedInputs.endDate,
-                    validatedInputs.price
+                    validatedInputs.price,
+                    input.password
                 )) {
                     is Failure -> failureResponse(res)
                     is Success -> responseHandler(200, res.value)

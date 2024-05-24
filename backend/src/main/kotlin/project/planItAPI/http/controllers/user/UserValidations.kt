@@ -14,6 +14,7 @@ import project.planItAPI.models.ValidatedUserRegisterInputsModel
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.HTTPCodeException
+import project.planItAPI.utils.InterestsAreDuplicatedException
 import project.planItAPI.utils.Success
 
 fun validateUserRegisterInput(input: UserRegisterInputModel): Either<Exception, ValidatedUserRegisterInputsModel> {
@@ -66,6 +67,10 @@ fun validateUserLoginInput(input: UserLoginInputModel): Either<Exception, Valida
 }
 
 fun validateUserEditInput(input: UserEditModel): Either<Exception, ValidatedUserEditInputsModel> {
+    if(input.interests.size != input.interests.distinct().size) {
+        return Failure(InterestsAreDuplicatedException())
+    }
+
     val name = Name(input.name)
     if (name is Failure) return Failure(name.value)
 

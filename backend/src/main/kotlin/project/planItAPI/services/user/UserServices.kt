@@ -24,6 +24,7 @@ import project.planItAPI.models.RefreshTokensOutputModel
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
 import project.planItAPI.models.SuccessMessage
+import project.planItAPI.utils.InvalidRefreshTokenException
 
 /**
  * Service class providing user-related functionality.
@@ -183,15 +184,14 @@ class UserServices (
         return transactionManager.run {
             val refreshTokenHash = domain.createTokenValidation(token = refreshToken)
             val usersRepository = it.usersRepository
-            if (!domain.checkRefreshToken(refreshToken)) throw Exception("Invalid refresh token")
+            if (!domain.checkRefreshToken(refreshToken)) throw InvalidRefreshTokenException()
             val userID = usersRepository.getUserIDByToken(refreshTokenHash)
-                ?: throw Exception("Invalid refresh token")
-            val user = usersRepository.getUser(userID) ?: throw Exception("Invalid refresh token")
+                ?: throw InvalidRefreshTokenException()
+            val user = usersRepository.getUser(userID) ?: throw InvalidRefreshTokenException()
 
             usersRepository.deleteUserRefreshToken(userID, refreshTokenHash)
 
             val (accessToken, newRefreshToken) = createTokens(userID, user.username, usersRepository)
-
             return@run RefreshTokensOutputModel(userID, accessToken, newRefreshToken)
         }
     }
@@ -203,15 +203,15 @@ class UserServices (
      * @param profilePicture The new profile picture.
      * @return The user's information as [UploadProfilePictureResult].
      */
-   /* fun uploadProfilePicture(userID: Int, profilePicture: MultipartFile): UploadProfilePictureResult {
-        return transactionManager.run {
-            val usersRepository = it.usersRepository
-            val imageBytes = profilePicture.bytes ?: throw UnsupportedMediaTypeException()
-            val fileType = profilePicture.contentType ?: throw UnsupportedMediaTypeException()
-            usersRepository.uploadProfilePicture(userID, imageBytes, fileType) ?: throw UserNotFoundException()
-            return@run SuccessMessage("Profile picture uploaded successfully.")
-        }
-    }*/
+    /* fun uploadProfilePicture(userID: Int, profilePicture: MultipartFile): UploadProfilePictureResult {
+         return transactionManager.run {
+             val usersRepository = it.usersRepository
+             val imageBytes = profilePicture.bytes ?: throw UnsupportedMediaTypeException()
+             val fileType = profilePicture.contentType ?: throw UnsupportedMediaTypeException()
+             usersRepository.uploadProfilePicture(userID, imageBytes, fileType) ?: throw UserNotFoundException()
+             return@run SuccessMessage("Profile picture uploaded successfully.")
+         }
+     }*/
 
     /**
      * Retrieves information about the application.

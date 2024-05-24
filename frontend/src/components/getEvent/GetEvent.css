@@ -1,0 +1,281 @@
+.event-title {
+    text-align: center;
+    margin-top: 55px;
+    height: 40px;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    height: 73vh;
+}
+
+.left {
+    flex: 1;
+    background-color: #6893ad;
+    margin: 5px 10px 20px 50px;
+    border-radius: 30px;
+}
+
+.left h2 {
+    text-align: center;
+    margin: 15px 0;
+    color: white;
+}
+
+.left h3 {
+    margin-left: 15px;
+    color: white;
+}
+
+.left p {
+    margin-left: 15px;
+    color: black;
+}
+
+.right {
+    flex: 1;
+    background-color: #6893ad;
+    margin: 5px 50px 20px 10px;
+    border-radius: 30px;
+    overflow: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.right h2 {
+    text-align: center;
+    margin: 15px 0;
+    color: white;
+}
+
+.right ul {
+    list-style-type: none; /* Add this line to remove the dots */
+    color: #f2f2f2;
+    padding-left: 0;
+}
+
+.middle {
+    flex: 2;
+    background-color: #6893ad;
+    margin: 5px 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.middle h2 {
+    text-align: center;
+    margin: 10px 0;
+    color: white;
+}
+
+.info-pair {
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    color: white;
+    align-items: center;
+}
+
+.info-header {
+    font-weight: bold;
+    margin-right: 1px;
+}
+
+.info-value {
+    margin-left: 5px;
+}
+
+.participant-item {
+    border: 1px solid transparent; /* Make the border transparent by default */
+    border-radius: 10px;
+    padding: 10px;
+    margin: 5px 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    text-align: left; /* Align text to the left */
+    font-weight: bold;
+}
+
+.participant-item:hover {
+    background-color: #f5f5f5;
+    color: #074160;
+    border-color: #424141; /* Show the border when hovering */
+    transform: scale(1.05); /* Increase the size of the card */
+}
+
+.arrow {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 55px;
+    top: -5px;
+    left: -15px;
+    position: relative;
+    transform: scaleX(-1);
+}
+
+.date-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-pairs {
+    position: relative;
+    left: -20px;
+}
+
+.date-pairs-endDate {
+    position: relative;
+    left: -40px;
+}
+
+.join-button {
+    align-items: center;
+    appearance: none;
+    background-color: #FCFCFD;
+    border-radius: 4px;
+    border-width: 0;
+    box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,rgba(45, 35, 66, 0.3) 0 7px 13px -3px,#D6D6E7 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #36395A;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono",monospace;
+    height: 48px;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding-left: 50px;
+    padding-right: 50px;
+    position: relative;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s,transform .25s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow,transform;
+    font-size: 18px;
+}
+
+.join-button:focus {
+    box-shadow: #D6D6E7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
+}
+
+.join-button:hover {
+    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
+    transform: translateY(-4px);
+}
+
+.join-button:active {
+    box-shadow: #D6D6E7 0 3px 7px inset;
+    transform: translateY(4px);
+}
+
+.del-button {
+    align-items: center;
+    appearance: none;
+    background-color: #ec6868;
+    border-radius: 4px;
+    border-width: 0;
+    box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #6e0808 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono",monospace;
+    height: 48px;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding-left: 50px;
+    padding-right: 50px;
+    top: 450px;
+    position: fixed;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s,transform .25s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow,transform;
+    font-size: 18px;
+    margin-top: 90px;
+}
+
+.del-button:focus {
+    box-shadow: #e10000 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #e10000 0 -3px 0 inset;
+}
+
+.del-button:hover {
+    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #e10000 0 -3px 0 inset;
+    transform: translateY(-4px);
+}
+
+.del-button:active {
+    box-shadow: #e10000 0 3px 7px inset;
+    transform: translateY(4px);
+}
+
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.chat-container {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 55vh;
+    width: 85%;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.chat-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex-grow: 1;
+    border: 2px solid #368fc5;
+    padding: 10px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #0b4669;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pencil_img {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    position: fixed;
+    top: 114px;
+    left: 350px;
+}

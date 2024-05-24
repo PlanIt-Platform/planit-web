@@ -1,6 +1,7 @@
 package project.planItAPI.services.poll
 
 import project.planItAPI.models.CreateEventOutputModel
+import project.planItAPI.models.CreatePollOutputModel
 import project.planItAPI.models.PollOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.utils.Either
@@ -9,7 +10,7 @@ import project.planItAPI.utils.Either
  * The result of creating a poll.
 
  */
-typealias CreatePollResult = Either<Exception, Int>
+typealias CreatePollResult = Either<Exception, CreatePollOutputModel>
 
 /**
  * The result of getting a poll.

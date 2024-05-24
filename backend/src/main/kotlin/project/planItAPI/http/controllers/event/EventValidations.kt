@@ -38,7 +38,7 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
             date = (results[3] as Success).value as DateFormat,
             endDate = (results[4] as Success).value as DateFormat,
             price = (results[5] as Success).value as Money
-        )
+            )
         )
     } else {
         Failure(HTTPCodeException(errors.joinToString { it.message }, 400))

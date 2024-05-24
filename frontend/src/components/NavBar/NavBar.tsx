@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import './NavBar.css';
 import {Link, useLocation} from "react-router-dom";
-import {clearSession, isLogged} from "../pages/authentication/Session";
-import {PlanItContext} from "../PlanItProvider";
-import user_icon from "../..//images/profile-icon.png";
-import {getUser, logout} from "../services/usersServices";
-import {searchEvents} from "../services/eventsServices";
+import {clearSession, isLogged} from "../authentication/Session";
+import {PlanItContext} from "../../PlanItProvider";
+import user_icon from "../../../images/profile-icon.png";
+import {getUser, logout} from "../../services/usersServices";
+import {searchEvents} from "../../services/eventsServices";
 
 export function NavBar() {
     const { userId, setUserId, setEventsSearched } = useContext(PlanItContext);
@@ -16,12 +16,11 @@ export function NavBar() {
     const location = useLocation();
     const [searchInput, setSearchInput] = useState('');
 
-    const handleLogout = async (ev: React.FormEvent<HTMLFormElement>): Promise<boolean> => {
-        ev.preventDefault();
+    const handleLogout = async (): Promise<void> => {
         logout()
             .then((res) => {
-                if (res.error) {
-                    setError(res.error)
+                if (res.data.error) {
+                    setError(res.data.error)
                     return
                 }
                 clearSession(setUserId)
@@ -37,25 +36,25 @@ export function NavBar() {
         if (event.key === 'Enter') {
             searchEvents(searchInput)
                 .then((res) => {
-                    if (res.error) {
-                        setError(res.error);
+                    if (res.data.error) {
+                        setError(res.data.error);
                         return;
                     }
-                    setEventsSearched(res.events);
+                    setEventsSearched(res.data.events);
                     setError('');
                 });
         }
     };
 
     useEffect(() => {
-        if (isLogged(userId)) {
+        if (isLogged()) {
             getUser(userId)
                 .then((res) => {
-                    if (res.error) {
-                        setError(res.error);
+                    if (res.data.error) {
+                        setError(res.data.error);
                         return
                     }
-                    setUsername(res.name);
+                    setUsername(res.data.name);
                 })
         }
 
@@ -72,7 +71,8 @@ export function NavBar() {
             // Unbind the event listener on clean up
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [navRef, isLogged(userId)]);
+    }, [navRef, isLogged()]);
+
 
     return (
         <div className="header" ref={navRef}>
@@ -83,7 +83,7 @@ export function NavBar() {
                     <span></span>
                     <span></span>
                     <ul id="menu">
-                        {isLogged(userId) ? (
+                        {isLogged() ? (
                             <div>
                                 <div className={"menuText"}>
                                     <strong>{username}</strong>
@@ -94,7 +94,7 @@ export function NavBar() {
                                 <Link to="/planit/events" className={"menuOption"}>All Events</Link>
                                     <Link to="/planit/myEvents" className={"menuOption"}>My Events</Link>
                                     <Link to="/planit/schedule" className={"menuOption"}>Schedule</Link>
-                                    <button type="button" onClick={() => handleLogout}>Logout</button>
+                                    <button type="button" onClick={handleLogout}>Logout</button>
                                 </div>
                             </div>
                         ) : (
@@ -112,7 +112,7 @@ export function NavBar() {
                                 Plan<strong>It</strong>
                         </Link>
                     </div>
-                    {isLogged(userId) ? (
+                    {isLogged() ? (
                         <div className={"loggedInElements"}>
                             {location.pathname === '/planit/events' && (
                                 <div className="search-container">

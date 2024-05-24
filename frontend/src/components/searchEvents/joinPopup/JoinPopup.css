@@ -1,0 +1,41 @@
+.join-event-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 25%;
+    max-width: 350px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    color: #000000;
+}
+
+.join-event-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.join-event-container button {
+    border-radius: 10px;
+    border: none;
+    text-align: center;
+    padding: 10px 20px;
+    background: #1c2a33;
+    color: White;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.join-event-container input {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}

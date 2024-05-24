@@ -97,18 +97,24 @@ class PollController(private val pollServices: PollServices) {
     fun votePoll(
         @RequestAttribute("userId") userId: String,
         @PathVariable pollId: Int,
-        @PathVariable optionId: Int
+        @PathVariable optionId: Int,
+        @PathVariable eventId: Int
     ): ResponseEntity<*> {
-        return when (val pollIdResult = Id(pollId)) {
-            is Failure -> failureResponse(pollIdResult)
+        return when (val eventIdResult = Id(eventId)) {
+            is Failure -> failureResponse(eventIdResult)
             is Success -> {
-                when (val optionIdResult = Id(optionId)) {
-                    is Failure -> failureResponse(optionIdResult)
+                when (val pollIdResult = Id(pollId)) {
+                    is Failure -> failureResponse(pollIdResult)
                     is Success -> {
-                        when (val res = pollServices.votePoll(userId.toInt(), pollId, optionId)) {
-                            is Failure -> failureResponse(res)
+                        when (val optionIdResult = Id(optionId)) {
+                            is Failure -> failureResponse(optionIdResult)
                             is Success -> {
-                                return responseHandler(200, res.value)
+                                when (val res = pollServices.votePoll(userId.toInt(), pollId, optionId, eventId)) {
+                                    is Failure -> failureResponse(res)
+                                    is Success -> {
+                                        return responseHandler(200, res.value)
+                                    }
+                                }
                             }
                         }
                     }

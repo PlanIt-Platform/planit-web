@@ -1,13 +1,12 @@
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import './homeStyle.css';
 import logo from "../../../images/logo.png";
 import {isLogged} from "../authentication/Session";
 import {Navigate} from "react-router-dom";
-import {PlanItContext} from "../../PlanItProvider";
 
 export default function Home() {
-    const { userId } = useContext(PlanItContext);
-    const [loggedIn] = useState<boolean>(isLogged(userId));
+    const [loggedIn] = useState<boolean>(isLogged());
+
     if (loggedIn) return <Navigate to="/planit/events" replace={true}/>;
 
     return (

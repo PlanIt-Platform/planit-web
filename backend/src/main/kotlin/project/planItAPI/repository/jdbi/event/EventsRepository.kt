@@ -102,7 +102,8 @@ interface EventsRepository {
         visibility: String?,
         date: Timestamp?,
         end_date: Timestamp?,
-        price: Money?
+        price: Money?,
+        password: String
     )
 
     /**

@@ -189,7 +189,7 @@ class UserController(private val userServices: UserServices) {
         request: HttpServletRequest
     ): ResponseEntity<*> {
         return when (val res = userServices.refreshToken(refreshToken)) {
-            is Failure -> responseHandler(400, res)
+            is Failure -> failureResponse(res)
             is Success -> {
                 setTokenCookies(response, res.value.accessToken, res.value.refreshToken)
                 request.setAttribute("userId", res.value.userID)

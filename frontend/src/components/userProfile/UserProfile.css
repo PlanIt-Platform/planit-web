@@ -1,28 +1,10 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat');
-
-* {
-    box-sizing: border-box;
-}
-
-.body_userProfile {
-    font-family: Montserrat, sans-serif;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    min-height: 100vh;
-    margin: 0;
-}
-
 .h3_userProfile {
     margin: 10px 0;
     font-size: 32px;
     font-weight: bold;
 }
 
-.h6_userProfile {
+.h5_userProfile {
     margin: 5px 0;
     text-transform: lowercase;
     color: rgba(151, 146, 185, 0.64);
@@ -34,16 +16,21 @@
 }
 
 .card-container {
-    background-color: #231E39;
+    background-color: #074365;
     border-radius: 20px;
     box-shadow: 0px 10px 20px -10px rgba(0,0,0,0.75);
     color: #B3B8CD;
     padding-top: 30px;
     padding-bottom: 20px;
-    position: relative;
+    position: fixed;
     width: 350px;
     max-width: 100%;
     text-align: center;
+    font-family: Montserrat, sans-serif;
+    z-index: 9999;
+    top: 50%; /* Center the element vertically */
+    left: 50%; /* Center the element horizontally */
+    transform: translate(-50%, -50%);
 }
 
 .card-container .pro {
@@ -80,7 +67,7 @@ button.primary.ghost {
 }
 
 .skills {
-    background-color: #1F1A36;
+    background-color: #05324b;
     text-align: left;
     padding: 1px 10px 10px 10px;
     margin-top: 30px;
@@ -93,10 +80,16 @@ button.primary.ghost {
 }
 
 .skills ul li {
-    border: 1px solid #2D2747;
+    border: 1px solid #07293d;
     border-radius: 2px;
     display: inline-block;
     font-size: 12px;
     margin: 0 0 7px 0;
     padding: 5px;
+}
+
+.profile_buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
 }

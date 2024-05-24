@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, {createContext, useState} from 'react';
 
 type ContextType = {
     userToken: string | undefined;

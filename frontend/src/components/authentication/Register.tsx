@@ -1,5 +1,5 @@
 import {Link, Navigate} from "react-router-dom";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useState} from "react";
 import {setSession} from "./Session";
 import {editUser, register} from "../../services/usersServices";
 import './authStyle.css';
@@ -16,7 +16,6 @@ const FormField = ({label, type, name, value, onChange}) => (
 export default function Register(): React.ReactElement {
     const { setUserId } = useContext(PlanItContext);
     const [inputs, setInputs] = useState({email: "", username: "", password: "", name: ""})
-    const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
     const [redirect, setRedirect] = useState(false)
     const [step, setStep] = useState(1); // Step 1: Registration details, Step 2: Interests, Step 3: Description
@@ -28,42 +27,37 @@ export default function Register(): React.ReactElement {
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
-        setSubmitting(true)
         if (step == 1) {
             register(inputs)
                 .then(res => {
-                    if (res.error) {
-                        setError(res.error)
-                        setSubmitting(false)
+                    if (res.data.error) {
+                        setError(res.data.error)
                         return
                     }
-                    setSession(res.id, setUserId);
+                    setSession(res.data.id, setUserId);
                     setStep(2)
                     setError('')
-                    setSubmitting(false)
-                })
-                .then(() => {
+
                     getCategories()
                         .then((res) => {
-                            if (res.error) {
-                                setError(res.error);
+                            if (res.data.error) {
+                                setError(res.data.error);
                                 return
                             } else {
-                                const filteredCategories = res.filter(category => category !== 'Simple Meeting');
+                                const filteredCategories = res.data.filter(category => category !== 'Simple Meeting');
                                 setCategories(filteredCategories);
                             }
                         });
+
                 })
         }
         if (step == 3){
             editUser(inputs.name, description, interests)
                 .then(res => {
-                        if (res.error) {
-                            setError(res.error)
-                            setSubmitting(false)
+                        if (res.data.error) {
+                            setError(res.data.error)
                             return
                         }
-                        setSubmitting(false)
                         setRedirect(true)
                     }
                 )
@@ -128,7 +122,7 @@ export default function Register(): React.ReactElement {
                                 placeholder="Tell us about yourself..."
                             />
                             <button type="submit" style={{marginRight: "10px"}}>
-                                {submitting ? 'Registering...' : 'Register'}
+                                {'Register'}
                             </button>
                         </div>
                     )}

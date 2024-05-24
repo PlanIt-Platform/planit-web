@@ -16,7 +16,7 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
     ): Int {
         return handle.inTransaction<Int?, Exception> { handle ->
             val pollId = handle.createUpdate(
-                "INSERT INTO polls (title, duration, organizer_id, event_id)" +
+                "INSERT INTO dbo.Polls (title, duration, organizer_id, event_id)" +
                         " VALUES (:title, :duration,:organizerId, :eventId)"
             )
                 .bind("title", title)
@@ -30,8 +30,8 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
 
             options.forEach { option ->
                 handle.createUpdate(
-                    "INSERT INTO Options (text, votes, poll_id)" +
-                            " VALUES (:text, 0, :pollId)"
+                    "INSERT INTO dbo.Options (text, poll_id)" +
+                            " VALUES (:text, :pollId)"
                 )
                     .bind("text", option)
                     .bind("pollId", pollId)
@@ -46,7 +46,7 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
         val pollDetails = handle.createQuery(
             """
         SELECT title, duration
-        FROM Polls
+        FROM dbo.Polls
         WHERE id = :pollId
         """
         )
@@ -56,9 +56,11 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
 
         val options = handle.createQuery(
             """
-        SELECT text, votes
-        FROM Options
-        WHERE poll_id = :pollId
+        SELECT o.text, COUNT(uv.user_id) as votes
+        FROM dbo.Options o
+        LEFT JOIN dbo.UserVotes uv ON o.id = uv.option_id
+        WHERE o.poll_id = :pollId
+        GROUP BY o.text
         """
         )
             .bind("pollId", pollId)
@@ -92,7 +94,7 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
         return handle.createQuery(
             """
         SELECT text
-        FROM Options
+        FROM dbo.Options
         WHERE id = :optionId
         """
         )
@@ -105,7 +107,7 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
         return handle.createQuery(
             """
         SELECT COUNT(*)
-        FROM UserVotes
+        FROM dbo.UserVotes
         WHERE user_id = :userId AND poll_id = :pollId
         """
         )
@@ -118,22 +120,12 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
     override fun vote(pollId: Int, userId: Int, optionId: Int) {
         handle.createUpdate(
             """
-        INSERT INTO UserVotes (user_id, poll_id, option_id)
+        INSERT INTO dbo.UserVotes (user_id, poll_id, option_id)
         VALUES (:userId, :pollId, :optionId)
         """
         )
             .bind("userId", userId)
             .bind("pollId", pollId)
-            .bind("optionId", optionId)
-            .execute()
-
-        handle.createUpdate(
-            """
-        UPDATE Options
-        SET votes = votes + 1
-        WHERE id = :optionId
-        """
-        )
             .bind("optionId", optionId)
             .execute()
     }
