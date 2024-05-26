@@ -14,32 +14,30 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
         eventId: Int,
         organizerId: Int
     ): Int {
-        return handle.inTransaction<Int?, Exception> { handle ->
-            val pollId = handle.createUpdate(
-                "INSERT INTO dbo.Polls (title, duration, organizer_id, event_id)" +
-                        " VALUES (:title, :duration,:organizerId, :eventId)"
+        val pollId = handle.createUpdate(
+            "INSERT INTO dbo.Polls (title, duration, organizer_id, event_id)" +
+                    " VALUES (:title, :duration,:organizerId, :eventId)"
+        )
+            .bind("title", title)
+            .bind("duration", duration)
+            .bind("organizerId", organizerId)
+            .bind("eventId", eventId)
+            .executeAndReturnGeneratedKeys()
+            .mapTo(Int::class.java)
+            .one()
+
+
+        options.forEach { option ->
+            handle.createUpdate(
+                "INSERT INTO dbo.Options (text, poll_id)" +
+                        " VALUES (:text, :pollId)"
             )
-                .bind("title", title)
-                .bind("duration", duration)
-                .bind("organizerId", organizerId)
-                .bind("eventId", eventId)
-                .executeAndReturnGeneratedKeys()
-                .mapTo(Int::class.java)
-                .one()
-
-
-            options.forEach { option ->
-                handle.createUpdate(
-                    "INSERT INTO dbo.Options (text, poll_id)" +
-                            " VALUES (:text, :pollId)"
-                )
-                    .bind("text", option)
-                    .bind("pollId", pollId)
-                    .execute()
-            }
-
-            pollId
+                .bind("text", option)
+                .bind("pollId", pollId)
+                .execute()
         }
+
+        return pollId
     }
 
     override fun getPoll(pollId: Int): PollOutputModel? {

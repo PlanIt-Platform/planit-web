@@ -57,3 +57,8 @@ typealias CategoriesResult = Either<Exception, List<String>>
  * Represents the result of retrieving a list of event subcategories.
  */
 typealias SubcategoriesResult = Either<Exception, List<String>>
+
+/**
+ * Represents the result of kicking a user from an event.
+ */
+typealias KickUserResult = Either<Exception, SuccessMessage>

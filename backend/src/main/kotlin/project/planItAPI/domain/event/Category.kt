@@ -21,9 +21,7 @@ class Category private constructor(val name: String) {
 
         operator fun invoke(name: String): CategoryResult {
             val matchedCategory = categories.find { it.lowercase() == name.lowercase() }
-            if (matchedCategory == null) {
-                return Failure(InvalidCategoryException())
-            }
+                ?: return Failure(InvalidCategoryException())
             return Success(Category(matchedCategory))
         }
     }

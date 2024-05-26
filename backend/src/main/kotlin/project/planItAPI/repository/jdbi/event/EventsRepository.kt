@@ -92,6 +92,10 @@ interface EventsRepository {
      */
     fun deleteEvent(eventId: Int)
 
+    /**
+     * Edits the event with the given ID.
+     * @param eventId The ID of the event to edit.
+     */
     fun editEvent(
         eventId: Int,
         title: String?,
@@ -112,4 +116,11 @@ interface EventsRepository {
      * @return The ID of the user that organized the event.
      */
     fun getEventOrganizer(eventId: Int): Int
+
+    /**
+     * Kicks a user from the event with the given ID.
+     * @param eventId The ID of the event to kick the user from.
+     * @param userId The ID of the user to kick from the event.
+     */
+    fun kickUser(userId: Int, eventId: Int)
 }

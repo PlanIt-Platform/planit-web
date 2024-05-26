@@ -10,7 +10,7 @@ data class EventInputModel(
     val title: String,
     val description: String?,
     val category: String,
-    val subCategory: String,
+    val subCategory: String?,
     val location: String?,
     val visibility: String,
     val date: String,
@@ -55,4 +55,28 @@ data class ValidatedEventInputsModel(
     val date: DateFormat,
     val endDate: DateFormat,
     val price: Money
+)
+
+/**
+ * Model for returning a list of users.
+ *
+ * @property id The unique identifier of the user.
+ * @property taskName The name of the task.
+ * @property taskId The unique identifier of the task.
+ * @property username The username of the user.
+ */
+data class UserInEvent(
+    val id: Int,
+    val taskName: String?,
+    val taskId: Int?,
+    val username: String
+)
+
+/**
+ * Model for returning a list of users in an event.
+ *
+ * @property users The list of users.
+ */
+data class UsersInEventList(
+    val users: List<UserInEvent>
 )

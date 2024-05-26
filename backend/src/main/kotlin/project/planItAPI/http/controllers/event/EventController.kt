@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.Id
 import project.planItAPI.http.PathTemplates.CATEGORIES
 import project.planItAPI.http.PathTemplates.CREATE_EVENT
@@ -19,6 +18,7 @@ import project.planItAPI.http.PathTemplates.DELETE_EVENT
 import project.planItAPI.http.PathTemplates.EDIT_EVENT
 import project.planItAPI.http.PathTemplates.GET_EVENT
 import project.planItAPI.http.PathTemplates.JOIN_EVENT
+import project.planItAPI.http.PathTemplates.KICK_USER
 import project.planItAPI.http.PathTemplates.LEAVE_EVENT
 import project.planItAPI.http.PathTemplates.PREFIX
 import project.planItAPI.http.PathTemplates.SEARCH_EVENTS
@@ -243,4 +243,32 @@ class EventController(private val eventServices: EventServices) {
             }
         }
     }
+
+    @DeleteMapping(KICK_USER)
+    fun kickUser(
+        @RequestAttribute("userId") organizerId: String,
+        @PathVariable eventId: Int,
+        @PathVariable userId: Int
+    ): ResponseEntity<*> {
+        return when (val idResult = Id(userId)) {
+            is Failure -> failureResponse(idResult)
+            is Success -> {
+                when (val eventIdResult = Id(eventId)) {
+                    is Failure -> failureResponse(eventIdResult)
+                    is Success -> {
+                        when (val res = eventServices.kickUser(organizerId.toInt(), eventId, userId)) {
+                            is Failure -> {
+                                failureResponse(res)
+                            }
+
+                            is Success -> {
+                                return responseHandler(200, res.value)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

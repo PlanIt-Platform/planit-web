@@ -23,47 +23,45 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         userID: Int,
         password: String
     ): Int? {
-        return handle.inTransaction<Int?, Exception> { handle ->
-            val eventId = handle.createUpdate(
-                "insert into dbo.event(title, description, category, subcategory, location, visibility, date," +
-                        " end_date, priceAmount, priceCurrency, password) values (:title, :description, :category," +
-                        " :subcategory, :location, CAST(:visibility AS dbo.visibilitytype), :date, :end_date," +
-                        " :priceAmount, :priceCurrency, :password)"
-            )
-                .bind("title", title)
-                .bind("description", description)
-                .bind("category", category)
-                .bind("subcategory", subcategory)
-                .bind("location", location)
-                .bind("visibility", visibility)
-                .bind("date", date)
-                .bind("end_date", end_date)
-                .bind("priceAmount", price?.amount)
-                .bind("priceCurrency", price?.currency)
-                .bind("password", password)
-                .executeAndReturnGeneratedKeys()
-                .mapTo(Int::class.java)
-                .one()
+        val eventId = handle.createUpdate(
+            "insert into dbo.event(title, description, category, subcategory, location, visibility, date," +
+                    " end_date, priceAmount, priceCurrency, password) values (:title, :description, :category," +
+                    " :subcategory, :location, CAST(:visibility AS dbo.visibilitytype), :date, :end_date," +
+                    " :priceAmount, :priceCurrency, :password)"
+        )
+            .bind("title", title)
+            .bind("description", description)
+            .bind("category", category)
+            .bind("subcategory", subcategory)
+            .bind("location", location)
+            .bind("visibility", visibility)
+            .bind("date", date)
+            .bind("end_date", end_date)
+            .bind("priceAmount", price?.amount)
+            .bind("priceCurrency", price?.currency)
+            .bind("password", password)
+            .executeAndReturnGeneratedKeys()
+            .mapTo(Int::class.java)
+            .one()
 
-            handle.createUpdate(
-                "insert into dbo.UserParticipatesInEvent(user_id, event_id) " +
-                        "values (:user_id, :event_id)"
-            )
-                .bind("user_id", userID)
-                .bind("event_id", eventId)
-                .execute()
+        handle.createUpdate(
+            "insert into dbo.UserParticipatesInEvent(user_id, event_id) " +
+                    "values (:user_id, :event_id)"
+        )
+            .bind("user_id", userID)
+            .bind("event_id", eventId)
+            .execute()
 
-            handle.createUpdate(
-                "insert into dbo.Task(name, description, event_id, user_id)" +
-                        "values (:name, :description, :event_id, :user_id)"
-            )
-                .bind("name", "Organizer")
-                .bind("description", "User that organizated/created the event")
-                .bind("event_id", eventId)
-                .bind("user_id", userID)
-                .execute()
-            eventId
-        }
+        handle.createUpdate(
+            "insert into dbo.Task(name, event_id, user_id)" +
+                    "values (:name, :event_id, :user_id)"
+        )
+            .bind("name", "Organizer")
+            .bind("event_id", eventId)
+            .bind("user_id", userID)
+            .execute()
+
+        return eventId
     }
 
     override fun getEvent(id: Int): EventOutputModel? {
@@ -78,7 +76,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
     override fun getUsersInEvent(id: Int): UsersInEventList? {
         return handle.createQuery(
             """
-        SELECT u.id, u.username, t.name as taskName
+        SELECT u.id, u.username, t.name as taskName, t.id as taskId
         FROM dbo.UserParticipatesInEvent up
         JOIN dbo.Users u ON up.user_id = u.id
         LEFT JOIN dbo.Task t ON t.user_id = u.id AND t.event_id = up.event_id
@@ -206,5 +204,14 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("eventId", eventId)
             .mapTo(Int::class.java)
             .one()
+    }
+
+    override fun kickUser(userId: Int, eventId: Int) {
+        handle.createUpdate(
+            "delete from dbo.UserParticipatesInEvent where user_id = :userId and event_id = :eventId"
+        )
+            .bind("userId", userId)
+            .bind("eventId", eventId)
+            .execute()
     }
 }

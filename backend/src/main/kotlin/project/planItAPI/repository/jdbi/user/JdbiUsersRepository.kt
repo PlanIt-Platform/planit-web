@@ -1,7 +1,9 @@
 package project.planItAPI.repository.jdbi.user
 
 import org.jdbi.v3.core.Handle
+import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.RefreshTokenInfo
+import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserInfoRepo
 import project.planItAPI.models.UserLogInValidation
 import java.sql.Timestamp
@@ -107,6 +109,21 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .singleOrNull()
     }
 
+    override fun getUserEvents(id: Int): List<EventOutputModel> {
+        return handle.createQuery(
+            """
+        SELECT e.id, e.title, e.description, e.category, e.subcategory, e.location, e.visibility, e.date, e.end_date, 
+        e.priceAmount, e.priceCurrency, e.password
+        FROM dbo.Event e
+        JOIN dbo.UserParticipatesInEvent upe ON e.id = upe.event_id
+        WHERE upe.user_id = :id
+        """
+        )
+            .bind("id", id)
+            .mapTo(EventOutputModel::class.java)
+            .list()
+    }
+
     override fun editUser(id: Int, name: String, description: String, interests: String) {
         handle.createUpdate(
             "update dbo.Users set name = :name, description = :description, interests = :interests where id = :id",
@@ -116,6 +133,38 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .bind("interests", interests)
             .bind("id", id)
             .execute()
+    }
+
+    override fun assignTask(userId: Int, taskName: String, eventId: Int): Int? =
+        handle.createUpdate(
+            "insert into dbo.Task(name, event_id, user_id) " +
+                    "values (:name, :event_id, :user_id)",
+        )
+            .bind("name", taskName)
+            .bind("event_id", eventId)
+            .bind("user_id", userId)
+            .executeAndReturnGeneratedKeys()
+            .mapTo(Int::class.java)
+            .one()
+
+    override fun removeTask(taskId: Int) {
+        handle.createUpdate(
+            "delete from dbo.Task where id = :task_id",
+        )
+            .bind("task_id", taskId)
+            .execute()
+
+    }
+
+    override fun getUserTask(userId: Int, eventId: Int): TaskOutputModel? {
+        return handle.createQuery(
+            "select id, name from dbo.Task where user_id = :user_id and event_id = :event_id",
+        )
+            .bind("user_id", userId)
+            .bind("event_id", eventId)
+            .mapTo(TaskOutputModel::class.java)
+            .singleOrNull()
+
     }
 
 /*

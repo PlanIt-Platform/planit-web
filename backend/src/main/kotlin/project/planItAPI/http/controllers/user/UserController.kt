@@ -14,6 +14,7 @@ import project.planItAPI.http.PathTemplates.USER
 import project.planItAPI.http.controllers.failureResponse
 import project.planItAPI.http.controllers.responseHandler
 import project.planItAPI.http.controllers.setTokenCookies
+import project.planItAPI.models.AssignTaskInputModel
 import project.planItAPI.models.UserRegisterInputModel
 import project.planItAPI.services.user.UserServices
 import project.planItAPI.utils.Failure
@@ -145,6 +146,29 @@ class UserController(private val userServices: UserServices) {
     }
 
     /**
+     * Retrieves the events a user is participating in.
+     * @param id The unique identifier of the user.
+     * @return ResponseEntity with the appropriate status and user events.
+     */
+    @GetMapping(PathTemplates.USER_EVENTS)
+    fun getUserEvents(@RequestAttribute("userId") id: String): ResponseEntity<*> {
+        return when (val idResult = Id(id.toInt())) {
+            is Failure -> failureResponse(idResult)
+            is Success -> {
+                when (val res = userServices.getUserEvents(id.toInt())) {
+                    is Failure -> {
+                        failureResponse(res)
+                    }
+
+                    is Success -> {
+                        return responseHandler(200, res.value)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Edits a user's information.
      * @param userId The unique identifier of the user.
      * @param input The UserEditModel representing the user's new information.
@@ -169,6 +193,88 @@ class UserController(private val userServices: UserServices) {
 
                     is Success -> {
                         return responseHandler(200, res.value)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Assigns a task to a user.
+     * @param userId The unique identifier of the user.
+     * @param eventId The unique identifier of the event.
+     * @param input The AssignTaskInputModel representing the task to be assigned.
+     * @param organizerId The unique identifier of the user who assigned the task.
+     */
+    @PostMapping(PathTemplates.TASK)
+    fun assignTask(
+        @PathVariable userId: Int,
+        @PathVariable eventId: Int,
+        @RequestBody input: AssignTaskInputModel,
+        @RequestAttribute("userId") organizerId: String
+    ): ResponseEntity<*> {
+        return when (val idResult = Id(userId)) {
+            is Failure -> failureResponse(idResult)
+            is Success -> {
+                when (val eventIdResult = Id(eventId)) {
+                    is Failure -> failureResponse(eventIdResult)
+                    is Success ->
+                        when (val res = userServices.assignTask(userId, eventId, input, organizerId.toInt())) {
+                            is Failure -> failureResponse(res)
+                            is Success -> {
+                                return responseHandler(200, res.value)
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes a task from a user.
+     * @param userId The unique identifier of the user.
+     * @param eventId The unique identifier of the event.
+     * @param taskId The unique identifier of the task.
+     * @param organizerId The unique identifier of the user who assigned the task.
+     */
+    @DeleteMapping(PathTemplates.REMOVE_TASK)
+    fun removeTask(
+        @PathVariable userId: Int,
+        @PathVariable eventId: Int,
+        @PathVariable taskId: Int,
+        @RequestAttribute("userId") organizerId: String): ResponseEntity<*> {
+        val idResult = Id(userId)
+        val eventIdResult = Id(eventId)
+        val taskIdResult = Id(taskId)
+        if (idResult is Failure) return failureResponse(idResult)
+        if (eventIdResult is Failure) return failureResponse(eventIdResult)
+        if (taskIdResult is Failure) return failureResponse(taskIdResult)
+
+        return when (val res = userServices.removeTask(userId, taskId, eventId, organizerId.toInt())) {
+            is Failure -> failureResponse(res)
+            is Success -> {
+                return responseHandler(200, res.value)
+            }
+        }
+    }
+
+    @GetMapping(PathTemplates.TASK)
+    fun getUserTask(@PathVariable userId: Int, @PathVariable eventId: Int): ResponseEntity<*> {
+        return when (val idResult = Id(userId)) {
+            is Failure -> failureResponse(idResult)
+            is Success -> {
+                when (val eventIdResult = Id(eventId)) {
+                    is Failure -> failureResponse(eventIdResult)
+                    is Success -> {
+                        when (val res = userServices.getUserTask(userId, eventId)) {
+                            is Failure -> {
+                                failureResponse(res)
+                            }
+
+                            is Success -> {
+                                return responseHandler(200, res.value)
+                            }
+                        }
                     }
                 }
             }

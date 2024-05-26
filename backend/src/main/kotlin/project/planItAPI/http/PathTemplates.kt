@@ -11,8 +11,11 @@ object PathTemplates {
     const val LOGOUT = "/logout"
     const val USER = "/user/{pathId}"
     const val EDIT_USER = "/user"
+    const val USER_EVENTS = "/user/events"
     const val ABOUT = "/about"
     const val REFRESH_TOKEN = "/refresh-token"
+    const val TASK = "/user/{userId}/event/{eventId}/task"
+    const val REMOVE_TASK = "/user/{userId}/event/{eventId}/task/{taskId}"
     //const val UPLOAD_PROFILE_PICTURE = "/user/{id}/upload-profile-picture"
 
     /**
@@ -28,6 +31,7 @@ object PathTemplates {
     const val SEARCH_EVENTS = "/events"
     const val CATEGORIES = "/event/categories"
     const val SUBCATEGORIES = "/event/categories/{category}/subcategories"
+    const val KICK_USER = "/event/{eventId}/kick/{userId}"
 
     /**
      * Poll paths

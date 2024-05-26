@@ -10,8 +10,9 @@ typealias SubCategoryResult = Either<HTTPCodeException, Subcategory>
 
 class Subcategory private constructor(val name: String) {
     companion object {
-        operator fun invoke(categoryName: String, subcategoryName: String): SubCategoryResult {
+        operator fun invoke(categoryName: String, subcategoryName: String?): SubCategoryResult {
             if (categoryName == "Simple Meeting") return Success(Subcategory(""))
+            if (subcategoryName == null) return Success(Subcategory(""))
             val subcategories = readSubCategories(categoryName)
             if (subcategories == null || !subcategories.contains(subcategoryName)) {
                 return Failure(InvalidSubcategoryException())

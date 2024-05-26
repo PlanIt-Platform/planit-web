@@ -172,6 +172,11 @@ class FailedToCreateEventException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
+class FailedToJoinEventException : HTTPCodeException(
+    message = "Failed to join event",
+    httpCode = BAD_REQUEST
+)
+
 class PastDateException : HTTPCodeException(
     message = "Date not available, must be later than the current date",
     httpCode = BAD_REQUEST
@@ -271,3 +276,24 @@ class InvalidRefreshTokenException : HTTPCodeException(
     message = "Invalid refresh token",
     httpCode = BAD_REQUEST
 )
+
+class FailedToAssignTaskException : HTTPCodeException(
+    message = "Failed to assign task",
+    httpCode = BAD_REQUEST
+)
+
+class UserAlreadyAssignedTaskException : HTTPCodeException(
+    message = "User is already assigned to a task",
+    httpCode = BAD_REQUEST
+)
+
+class TaskNotFoundException : HTTPCodeException(
+    message = "Task not found",
+    httpCode = NOT_FOUND
+)
+
+class CantKickYourselfException : HTTPCodeException(
+    message = "You can't kick yourself out of the event",
+    httpCode = BAD_REQUEST
+)
+

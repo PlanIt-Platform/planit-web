@@ -51,7 +51,6 @@ CREATE TABLE dbo.Event (
 CREATE TABLE dbo.Task (
   id          serial primary key,
   name        VARCHAR(255) NOT NULL,
-  description VARCHAR(512),
   event_id    INT NOT NULL,
   user_id     INT NOT NULL,
   FOREIGN KEY (event_id) REFERENCES dbo.Event(id),

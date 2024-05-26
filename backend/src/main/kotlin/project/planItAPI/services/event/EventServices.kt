@@ -16,7 +16,9 @@ import project.planItAPI.models.SuccessMessage
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
 import project.planItAPI.domain.event.readSubCategories
+import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
+import project.planItAPI.utils.FailedToJoinEventException
 import project.planItAPI.utils.PastDateException
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -157,8 +159,8 @@ class EventServices(
     fun deleteEvent(userId: Int, eventId: Int): DeleteEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-        val creatorId = eventsRepository.getEventOrganizer(eventId)
-        if (creatorId != userId) { throw UserIsNotOrganizerException() }
+        val organizerId = eventsRepository.getEventOrganizer(eventId)
+        if (organizerId != userId) { throw UserIsNotOrganizerException() }
         eventsRepository.deleteEvent(event.id)
         return@run SuccessMessage("Event deleted with success.")
     }
@@ -231,6 +233,27 @@ class EventServices(
     fun getSubcategories(category: String): SubcategoriesResult = transactionManager.run {
         return@run readSubCategories(category) ?: throw InvalidCategoryException()
     }
+
+    /**
+     * Kicks a user from the event.
+     * @param organizerId The ID of the user kicking the other user.
+     * @param eventId The ID of the event to kick the user from.
+     * @param userId The ID of the user to kick from the event.
+     * @return [KickUserResult] A message indicating the success of the operation. If the event is not found, a [Failure] is thrown.
+     */
+    fun kickUser(organizerId: Int, eventId: Int, userId: Int): KickUserResult = transactionManager.run {
+        val eventsRepository = it.eventsRepository
+        val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+        if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+        val usersInEvent = eventsRepository.getUsersInEvent(event.id)
+        if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) {
+            throw UserNotInEventException()
+        }
+        if (organizerId == userId) throw CantKickYourselfException()
+        eventsRepository.kickUser(userId, event.id)
+        return@run SuccessMessage("User kicked from event with success.")
+    }
+
 
     fun getNowTime(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")

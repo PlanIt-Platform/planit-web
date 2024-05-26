@@ -7,6 +7,7 @@ import project.planItAPI.domain.user.EmailOrName
 import project.planItAPI.domain.user.Name
 import project.planItAPI.domain.user.Password
 import project.planItAPI.models.AccessRefreshTokensModel
+import project.planItAPI.models.AssignTaskInputModel
 import project.planItAPI.models.UserRegisterOutputModel
 import project.planItAPI.repository.jdbi.user.UsersRepository
 import project.planItAPI.services.user.utils.UsersDomain
@@ -24,7 +25,15 @@ import project.planItAPI.models.RefreshTokensOutputModel
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
 import project.planItAPI.models.SuccessMessage
+import project.planItAPI.models.TaskOutputModel
+import project.planItAPI.models.UserEventsOutputModel
+import project.planItAPI.utils.EventNotFoundException
+import project.planItAPI.utils.FailedToAssignTaskException
 import project.planItAPI.utils.InvalidRefreshTokenException
+import project.planItAPI.utils.TaskNotFoundException
+import project.planItAPI.utils.UserAlreadyAssignedTaskException
+import project.planItAPI.utils.UserIsNotOrganizerException
+import project.planItAPI.utils.UserNotInEventException
 
 /**
  * Service class providing user-related functionality.
@@ -155,6 +164,21 @@ class UserServices (
     }
 
     /**
+     * Retrieves the events of a user.
+     *
+     * @param userID The ID of the user to retrieve events for.
+     * @return The user's events as [GetUserEventsResult].
+     */
+    fun getUserEvents(userID: Int): GetUserEventsResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            val user = usersRepository.getUser(userID) ?: throw UserNotFoundException()
+            val events = usersRepository.getUserEvents(userID)
+            return@run UserEventsOutputModel(user.id, user.username, events)
+        }
+    }
+
+    /**
      * Edits a user's information.
      *
      * @param userID The ID of the user to edit.
@@ -171,6 +195,76 @@ class UserServices (
             }
             usersRepository.editUser(userID, name.value, description, interests.joinToString(","){el -> el.name})
             return@run SuccessMessage("User edited successfully.")
+        }
+    }
+
+    /**
+     * Assigns a task to a user.
+     *
+     * @param userId The ID of the user to assign the task to.
+     * @param input The task information.
+     * @param organizerId The ID of the event organizer.
+     * @return The result of the task assignment as [AssignTaskResult].
+     */
+    fun assignTask(userId: Int, eventId: Int, input: AssignTaskInputModel, organizerId: Int): AssignTaskResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            val eventsRepository = it.eventsRepository
+            if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
+            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val usersInEvent = eventsRepository.getUsersInEvent(eventId)
+            if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
+            if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+            if (usersRepository.getUserTask(userId, eventId) != null) throw UserAlreadyAssignedTaskException()
+            val taskId = usersRepository.assignTask(
+                userId,
+                input.taskName,
+                eventId
+            ) ?: throw FailedToAssignTaskException()
+
+            return@run TaskOutputModel(taskId, input.taskName)
+        }
+    }
+
+    /**
+     * Removes a task from a user.
+     * @param userId The ID of the user to remove the task from.
+     * @param taskId The ID of the task to remove.
+     * @param eventId The ID of the event the task belongs to.
+     * @param organizerId The ID of the event organizer.
+     * @return The result of the task removal as [RemoveTaskResult].
+     */
+    fun removeTask(userId: Int, taskId: Int, eventId: Int, organizerId: Int): RemoveTaskResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            val eventsRepository = it.eventsRepository
+            if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
+            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val usersInEvent = eventsRepository.getUsersInEvent(eventId)
+            if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
+            if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+            if (usersRepository.getUserTask(userId, eventId) == null) throw TaskNotFoundException()
+            usersRepository.removeTask(taskId)
+            return@run SuccessMessage("Task removed successfully.")
+        }
+    }
+
+    /**
+     * Retrieves a user's task in a given event.
+     * @param userId The ID of the user to retrieve the task for.
+     * @param eventId The ID of the event the task belongs to.
+     * @return The user's task as [TaskOutputModel].
+     */
+    fun getUserTask(userId: Int, eventId: Int): GetUserTaskResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            val eventsRepository = it.eventsRepository
+            if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
+            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val usersInEvent = eventsRepository.getUsersInEvent(eventId)
+            if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
+            val task = usersRepository.getUserTask(userId, eventId) ?: throw TaskNotFoundException()
+            return@run TaskOutputModel(task.id, task.name)
         }
     }
 

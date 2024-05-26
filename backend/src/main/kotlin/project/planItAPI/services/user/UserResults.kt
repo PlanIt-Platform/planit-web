@@ -4,6 +4,8 @@ import project.planItAPI.models.UserRegisterOutputModel
 import project.planItAPI.utils.Either
 import project.planItAPI.models.RefreshTokensOutputModel
 import project.planItAPI.models.SuccessMessage
+import project.planItAPI.models.TaskOutputModel
+import project.planItAPI.models.UserEventsOutputModel
 import project.planItAPI.models.UserInfo
 import project.planItAPI.models.UserLogInOutputModel
 
@@ -28,6 +30,8 @@ typealias LogoutResult = Either<Exception, Unit>
  */
 typealias GetUserResult = Either<Exception, UserInfo>
 
+typealias GetUserEventsResult = Either<Exception, UserEventsOutputModel>
+
 /**
  * Type alias for the result of a user information update operation.
  */
@@ -42,3 +46,19 @@ typealias UploadProfilePictureResult = Either<Exception, SuccessMessage>
  * Type alias for the result of a user token retrieval operation.
  */
 typealias UserTokensResult = Either<Exception, RefreshTokensOutputModel>
+
+/**
+ * Type alias for the result of a task creation operation.
+
+ */
+typealias AssignTaskResult = Either<Exception, TaskOutputModel>
+
+/**
+ * Type alias for the result of a task removal operation.
+ */
+typealias RemoveTaskResult = Either<Exception, SuccessMessage>
+
+/**
+ * Type alias for the result of a task
+ */
+typealias GetUserTaskResult = Either<Exception, TaskOutputModel>

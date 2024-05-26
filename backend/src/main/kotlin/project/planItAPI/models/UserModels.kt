@@ -175,28 +175,6 @@ data class SuccessMessage(
 )
 
 /**
- * Model for returning a list of users.
- *
- * @property id The unique identifier of the user.
- * @property name The name of the user.
- * @property username The username of the user.
- */
-data class UserInEvent(
-    val id: Int,
-    val taskName: String?,
-    val username: String
-)
-
-/**
- * Model for returning a list of users in an event.
- *
- * @property users The list of users.
- */
-data class UsersInEventList(
-    val users: List<UserInEvent>
-)
-
-/**
  * Data class representing information about user tokens.
  *
  * @property userID The ID of the user.
@@ -244,4 +222,34 @@ data class ValidatedUserEditInputsModel(
     val name: Name,
     val description: String,
     val interests: List<Category>
+)
+
+/**
+ * Data class representing the user's events information.
+ * @property userId The ID of the user.
+ * @property username The username of the user.
+ * @property events The events of the user.
+ */
+data class UserEventsOutputModel (
+    val userId : Int,
+    val username: String,
+    val events: List<EventOutputModel>
+)
+
+/**
+ * Data class representing the task to be assigned.
+ * @property taskName The name of the task.
+ */
+data class AssignTaskInputModel(
+    val taskName: String
+)
+
+/**
+ * Data class representing the task assigned.
+ * @property id The ID of the task.
+ * @property name The name of the task.
+ */
+data class TaskOutputModel(
+    val id: Int,
+    val name: String
 )
