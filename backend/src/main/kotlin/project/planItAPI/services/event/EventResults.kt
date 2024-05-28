@@ -3,7 +3,7 @@ package project.planItAPI.services.event
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.utils.Either
 import project.planItAPI.models.EventOutputModel
-import project.planItAPI.models.SearchEventOutputModel
+import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UsersInEventList
 
@@ -25,7 +25,7 @@ typealias UsersInEventResult = Either<Exception, UsersInEventList>
 /**
  * Represents the result of searching for an event.
  */
-typealias SearchEventResult = Either<Exception, SearchEventOutputModel>
+typealias SearchEventResult = Either<Exception, SearchEventListOutputModel>
 
 /**
  * Represents the result of joining an event.

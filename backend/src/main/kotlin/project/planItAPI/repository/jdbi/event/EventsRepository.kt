@@ -3,7 +3,7 @@ package project.planItAPI.repository.jdbi.event
 import org.springframework.stereotype.Component
 import project.planItAPI.models.EventOutputModel
 import project.planItAPI.domain.event.Money
-import project.planItAPI.models.SearchEventOutputModel
+import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.UsersInEventList
 import java.sql.Timestamp
 
@@ -64,13 +64,13 @@ interface EventsRepository {
      * @param searchInput The search criteria to match events against.
      * @return A list of [EventOutputModel] containing the events that match the search criteria.
      */
-    fun searchEvents(searchInput: String): SearchEventOutputModel
+    fun searchEvents(searchInput: String, limit: Int, offset: Int): SearchEventListOutputModel
 
     /**
      * Retrieves all events.
      * @return A list of [EventOutputModel] containing all events.
      */
-    fun getAllEvents(): SearchEventOutputModel
+    fun getAllEvents(limit: Int, offset: Int): SearchEventListOutputModel
 
     /**
      * Adds a user to the event with the given ID.

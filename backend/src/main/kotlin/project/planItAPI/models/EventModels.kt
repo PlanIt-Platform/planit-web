@@ -40,14 +40,38 @@ data class EventOutputModel(
     val password: String
 )
 
-data class SearchEventOutputModel(
-    val events: List<EventOutputModel>
+data class SearchEventsOutputModel(
+    val id: Int,
+    val title: String,
+    val description: String?,
+    val category: String?,
+    val location: String?,
+    val visibility: String,
+    val date: String?,
 )
 
+data class SearchEventListOutputModel(
+    val events: List<SearchEventsOutputModel>
+)
+
+/**
+ * Model for the password of an event.
+ *
+ */
 data class EventPasswordModel(
     val password: String
 )
 
+/**
+ * Model for validated event inputs.
+ *
+ * @property visibility The visibility of the event.
+ * @property category The category of the event.
+ * @property subCategory The subcategory of the event.
+ * @property date The date of the event.
+ * @property endDate The end date of the event.
+ * @property price The price of the event.
+ */
 data class ValidatedEventInputsModel(
     val visibility: Visibility,
     val category: Category,
@@ -79,4 +103,13 @@ data class UserInEvent(
  */
 data class UsersInEventList(
     val users: List<UserInEvent>
+)
+
+/**
+ * Model for getting an event.
+ *
+ * @property password The password of the event.
+ */
+data class GetEventInput(
+    val password: String?
 )

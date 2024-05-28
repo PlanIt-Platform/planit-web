@@ -96,6 +96,15 @@ class IncorrectPasswordException : HTTPCodeException(
 )
 
 /**
+ * Exception indicating that the event is private.
+ * The HTTP code is 400, because it is a bad request.
+ */
+class PrivateEventException : HTTPCodeException(
+    message = "Event is private. Password is required",
+    httpCode = BAD_REQUEST
+)
+
+/**
  * Exception indicating that the login is incorrect.
  * The HTTP code is 400, because it is a bad request.
  */
@@ -296,4 +305,15 @@ class CantKickYourselfException : HTTPCodeException(
     message = "You can't kick yourself out of the event",
     httpCode = BAD_REQUEST
 )
+
+class InvalidLimitAndOffsetException (limit: Boolean, offset: Boolean): HTTPCodeException(
+    message = (if(limit && offset)"Invalid limit and offset." else if (limit) "Invalid limit." else "Invalid offset."),
+    httpCode = BAD_REQUEST
+){
+    init {
+        if (!limit && !offset) {
+            throw IllegalArgumentException("At least one of 'limit' or 'offset' must be true")
+        }
+    }
+}
 

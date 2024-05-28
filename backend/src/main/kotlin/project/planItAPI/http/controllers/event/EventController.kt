@@ -32,6 +32,8 @@ import project.planItAPI.models.EventPasswordModel
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.domain.event.transformURIToCategory
+import project.planItAPI.domain.validateLimitAndOffset
+import project.planItAPI.models.GetEventInput
 
 /**
  * Controller class for handling event-related operations in a RESTful manner.
@@ -69,11 +71,11 @@ class EventController(private val eventServices: EventServices) {
     }
 
     @GetMapping(GET_EVENT)
-    fun getEvent(@PathVariable id: Int): ResponseEntity<*> {
+    fun getEvent(@PathVariable id: Int, @RequestBody input: GetEventInput): ResponseEntity<*> {
         return when (val idResult = Id(id)) {
             is Failure -> failureResponse(idResult)
             is Success -> {
-                when (val res = eventServices.getEvent(id)) {
+                when (val res = eventServices.getEvent(id, input.password)) {
                     is Failure -> {
                         failureResponse(res)
                     }
@@ -105,14 +107,23 @@ class EventController(private val eventServices: EventServices) {
     }
 
     @GetMapping(SEARCH_EVENTS)
-    fun searchEvents(@RequestParam searchInput: String): ResponseEntity<*> {
-        return when (val res = eventServices.searchEvents(searchInput)) {
-            is Failure -> {
-                failureResponse(res)
-            }
-
+    fun searchEvents(@RequestParam searchInput: String?, @RequestParam offset: Int?, @RequestParam limit: Int?): ResponseEntity<*> {
+        return when (val validations = validateLimitAndOffset(limit, offset)) {
+            is Failure -> failureResponse(validations)
             is Success -> {
-                return responseHandler(200, res.value)
+                return when (val res = eventServices.searchEvents(
+                    searchInput,
+                    validations.value.first,
+                    validations.value.second)
+                ) {
+                    is Failure -> {
+                        failureResponse(res)
+                    }
+
+                    is Success -> {
+                        return responseHandler(200, res.value)
+                    }
+                }
             }
         }
     }

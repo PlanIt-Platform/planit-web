@@ -3,7 +3,8 @@ package project.planItAPI.repository.jdbi.event
 import org.jdbi.v3.core.Handle
 import project.planItAPI.models.EventOutputModel
 import project.planItAPI.domain.event.Money
-import project.planItAPI.models.SearchEventOutputModel
+import project.planItAPI.models.SearchEventListOutputModel
+import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.UserInEvent
 import project.planItAPI.models.UsersInEventList
 import java.sql.Timestamp
@@ -89,29 +90,37 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .let { UsersInEventList(it) }
     }
 
-    override fun searchEvents(searchInput: String): SearchEventOutputModel {
+    override fun searchEvents(searchInput: String, limit: Int, offset: Int): SearchEventListOutputModel {
         return handle.createQuery(
             """
-        SELECT *
+        SELECT id, title, description, category, location, visibility, date
         FROM dbo.Event
         WHERE title LIKE :searchInput
         OR category LIKE :searchInput
         OR subcategory LIKE :searchInput
+        LIMIT :limit OFFSET :offset
         """
         )
             .bind("searchInput", "%$searchInput%")
-            .mapTo(EventOutputModel::class.java)
+            .bind("limit", limit)
+            .bind("offset", offset)
+            .mapTo(SearchEventsOutputModel::class.java)
             .list()
-            .let { SearchEventOutputModel(it) }
+            .let { SearchEventListOutputModel(it) }
     }
 
-    override fun getAllEvents(): SearchEventOutputModel {
+    override fun getAllEvents(limit: Int, offset: Int): SearchEventListOutputModel {
         return handle.createQuery(
-            "select * from dbo.Event"
+            "select id, title, description, category, location, visibility, date " +
+                    "from dbo.Event " +
+                    "LIMIT :limit OFFSET :offset"
+
         )
-            .mapTo(EventOutputModel::class.java)
+            .bind("limit", limit)
+            .bind("offset", offset)
+            .mapTo(SearchEventsOutputModel::class.java)
             .list()
-            .let { SearchEventOutputModel(it) }
+            .let { SearchEventListOutputModel(it) }
     }
 
     override fun joinEvent(userId: Int, eventId: Int) {

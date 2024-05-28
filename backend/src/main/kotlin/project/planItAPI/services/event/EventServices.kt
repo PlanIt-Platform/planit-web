@@ -16,10 +16,12 @@ import project.planItAPI.models.SuccessMessage
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
 import project.planItAPI.domain.event.readSubCategories
+import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
 import project.planItAPI.utils.FailedToJoinEventException
 import project.planItAPI.utils.PastDateException
+import project.planItAPI.utils.PrivateEventException
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
@@ -88,8 +90,17 @@ class EventServices(
      * @param id The ID of the event to retrieve.
      * @return [EventResult] The event associated with the ID. If the event is not found, a [Failure] is thrown.
      */
-    fun getEvent(id: Int): EventResult = transactionManager.run {
-        return@run it.eventsRepository.getEvent(id) ?: throw EventNotFoundException()
+    fun getEvent(id: Int, password: String?): EventResult = transactionManager.run {
+        val event = it.eventsRepository.getEvent(id) ?: throw EventNotFoundException()
+        if(event.visibility != "Public") {
+            if (password.isNullOrBlank()) {
+                throw PrivateEventException()
+            }
+            if (password != event.password) {
+                throw IncorrectPasswordException()
+            }
+        }
+        return@run event
     }
 
     /**
@@ -106,12 +117,16 @@ class EventServices(
      * @param searchInput The input to search for.
      * @return [SearchEventResult] The events that match the filters.
      */
-    fun searchEvents(searchInput: String): SearchEventResult = transactionManager.run {
+    fun searchEvents(searchInput: String?, limit: Int, offset: Int): SearchEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
-        if (searchInput.isBlank() || searchInput == "All") {
-            return@run eventsRepository.getAllEvents()
+        if (searchInput.isNullOrBlank() || searchInput == "All") {
+            val events = eventsRepository.getAllEvents(limit, offset)
+            val eventsReturn = hidePrivateEventInfo(events)
+            return@run eventsReturn
         }
-        return@run eventsRepository.searchEvents(searchInput)
+        val events = eventsRepository.searchEvents(searchInput, limit, offset)
+        val eventsReturn = hidePrivateEventInfo(events)
+        return@run eventsReturn
     }
 
     /**
@@ -258,5 +273,16 @@ class EventServices(
     fun getNowTime(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
         return LocalDateTime.now().format(formatter)
+    }
+
+    private fun hidePrivateEventInfo(events: SearchEventListOutputModel): SearchEventListOutputModel {
+        val eventsReturn = SearchEventListOutputModel(events.events.map { event ->
+            if (event.visibility == "Private") {
+                event.copy(description = null, location = null, date = null, category = null)
+            } else {
+                event
+            }
+        })
+        return eventsReturn
     }
 }
