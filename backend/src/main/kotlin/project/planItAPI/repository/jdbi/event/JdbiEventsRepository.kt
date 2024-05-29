@@ -1,7 +1,7 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.jdbi.v3.core.Handle
-import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
@@ -65,12 +65,12 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         return eventId
     }
 
-    override fun getEvent(id: Int): EventOutputModel? {
+    override fun getEvent(id: Int): EventModel? {
         return handle.createQuery(
             "select * from dbo.Event where id = :id"
         )
             .bind("id", id)
-            .mapTo(EventOutputModel::class.java)
+            .mapTo(EventModel::class.java)
             .singleOrNull()
     }
 

@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import project.planItAPI.models.CreateEventOutputModel
-import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.EventModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserInEvent
@@ -304,7 +304,7 @@ class EventControllerTests {
             eventServices.getEvent(1))
             .thenReturn(
                 Success(
-                    EventOutputModel(
+                    EventModel(
                         1,
                         "Test Event",
                         "Test Event Description",
@@ -434,7 +434,7 @@ class EventControllerTests {
                 Success(
                     SearchEventListOutputModel(
                         listOf(
-                            EventOutputModel(
+                            EventModel(
                                 1,
                                 "Test Event",
                                 "Test Event Description",

@@ -6,7 +6,7 @@ import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.models.CreateEventOutputModel
-import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.EventModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserInEvent
@@ -66,7 +66,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         return when (id) {
             1 -> {
                 Success(
-                    EventOutputModel(
+                    EventModel(
                         id,
                         "Event Title",
                         "Event description",
@@ -84,7 +84,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
             }
             2 -> {
                 Success(
-                    EventOutputModel(
+                    EventModel(
                         id,
                         "Event 2 Title",
                         "Event 2 description",
@@ -152,7 +152,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
             Success(
                 SearchEventListOutputModel(
                     listOf(
-                        EventOutputModel(
+                        EventModel(
                             1,
                             "Event Title",
                             "Event description",
@@ -166,7 +166,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                             "EUR",
                             ""
                         ),
-                        EventOutputModel(
+                        EventModel(
                             2,
                             "Event 2 Title",
                             "Event 2 description",
@@ -188,7 +188,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
             Success(
                 SearchEventListOutputModel(
                     listOf(
-                        EventOutputModel(
+                        EventModel(
                             1,
                             "Event Title",
                             "Event description",

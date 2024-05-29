@@ -71,11 +71,11 @@ class EventController(private val eventServices: EventServices) {
     }
 
     @GetMapping(GET_EVENT)
-    fun getEvent(@PathVariable id: Int, @RequestBody input: GetEventInput): ResponseEntity<*> {
+    fun getEvent(@PathVariable id: Int, @RequestAttribute("userId") userId: String): ResponseEntity<*> {
         return when (val idResult = Id(id)) {
             is Failure -> failureResponse(idResult)
             is Success -> {
-                when (val res = eventServices.getEvent(id, input.password)) {
+                when (val res = eventServices.getEvent(id, userId.toInt())) {
                     is Failure -> {
                         failureResponse(res)
                     }

@@ -25,7 +25,7 @@ data class CreateEventOutputModel(
     val status: String,
 )
 
-data class EventOutputModel(
+data class EventModel(
     val id: Int,
     val title: String,
     val description: String?,
@@ -38,6 +38,20 @@ data class EventOutputModel(
     val priceAmount: Double?,
     val priceCurrency: String?,
     val password: String
+)
+
+data class EventOutputModel(
+    val id: Int,
+    val title: String,
+    val description: String?,
+    val category: String,
+    val subcategory: String?,
+    val location: String?,
+    val visibility: String?,
+    val date: String?,
+    val endDate: String?,
+    val priceAmount: Double?,
+    val priceCurrency: String?
 )
 
 data class SearchEventsOutputModel(

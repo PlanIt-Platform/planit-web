@@ -16,12 +16,11 @@ import project.planItAPI.models.SuccessMessage
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
 import project.planItAPI.domain.event.readSubCategories
+import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
-import project.planItAPI.utils.FailedToJoinEventException
 import project.planItAPI.utils.PastDateException
-import project.planItAPI.utils.PrivateEventException
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
@@ -90,17 +89,17 @@ class EventServices(
      * @param id The ID of the event to retrieve.
      * @return [EventResult] The event associated with the ID. If the event is not found, a [Failure] is thrown.
      */
-    fun getEvent(id: Int, password: String?): EventResult = transactionManager.run {
+    fun getEvent(id: Int, userID: Int): EventResult = transactionManager.run {
         val event = it.eventsRepository.getEvent(id) ?: throw EventNotFoundException()
         if(event.visibility != "Public") {
-            if (password.isNullOrBlank()) {
-                throw PrivateEventException()
-            }
-            if (password != event.password) {
-                throw IncorrectPasswordException()
+            val usersInEvent = it.eventsRepository.getUsersInEvent(id) ?: throw EventNotFoundException()
+            val isUserInEvent = usersInEvent.users.any { user -> user.id == userID }
+            if (!isUserInEvent) {
+                throw UserNotInEventException()
             }
         }
-        return@run event
+        return@run EventOutputModel(event.id, event.title, event.description, event.category, event.subcategory,
+            event.location, event.visibility, event.date, event.endDate, event.priceAmount, event.priceCurrency)
     }
 
     /**

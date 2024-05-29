@@ -2,6 +2,7 @@ package project.planItAPI.services.event
 
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.utils.Either
+import project.planItAPI.models.EventModel
 import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SuccessMessage
