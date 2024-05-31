@@ -38,7 +38,7 @@ object PathTemplates {
      */
     const val CREATE_POLL = "/event/{eventId}/poll"
     const val GET_POLL = "/event/{eventId}/poll/{pollId}"
-    const val DELETE_POLL = "/event/{eventId}/poll/{pollId}/delete"
+    const val DELETE_POLL = "/event/{eventId}/poll/{pollId}"
     const val VOTE_POLL = "/event/{eventId}/poll/{pollId}/vote/{optionId}"
 
 }

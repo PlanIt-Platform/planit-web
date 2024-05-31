@@ -3,6 +3,7 @@ package project.planItAPI.repository.jdbi.user
 import org.springframework.stereotype.Component
 import project.planItAPI.models.EventModel
 import project.planItAPI.models.RefreshTokenInfo
+import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserInfoRepo
 import project.planItAPI.models.UserLogInValidation
@@ -113,9 +114,9 @@ interface UsersRepository {
     /**
      * Retrieves the events associated with the user.
      * @param id The user ID to retrieve events for.
-     * @return List of [EventModel] containing event information.
+     * @return List of [SearchEventsOutputModel] containing event information.
      */
-    fun getUserEvents(id: Int): List<EventModel>
+    fun getUserEvents(id: Int): List<SearchEventsOutputModel>
 
     /**
      * Updates user information based on the provided user ID.

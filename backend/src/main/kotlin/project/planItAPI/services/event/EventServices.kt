@@ -107,8 +107,16 @@ class EventServices(
      * @param id The ID of the event to retrieve the users from.
      * @return [UsersInEventResult] The users participating in the event. If the event is not found, a [Failure] is thrown.
      */
-    fun getUsersInEvent(id: Int): UsersInEventResult = transactionManager.run {
-        return@run it.eventsRepository.getUsersInEvent(id) ?: throw EventNotFoundException()
+    fun getUsersInEvent(id: Int, userId: Int): UsersInEventResult = transactionManager.run {
+        val usersInEvent = it.eventsRepository.getUsersInEvent(id) ?: throw EventNotFoundException()
+        val event = it.eventsRepository.getEvent(id) ?: throw EventNotFoundException()
+        if(event.visibility == "Private"){
+            val isUserInEvent = usersInEvent.users.any { user -> user.id == userId }
+            if (!isUserInEvent) {
+                throw UserNotInEventException()
+            }
+        }
+        return@run usersInEvent
     }
 
     /**
