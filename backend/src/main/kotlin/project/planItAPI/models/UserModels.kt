@@ -233,7 +233,7 @@ data class ValidatedUserEditInputsModel(
 data class UserEventsOutputModel (
     val userId : Int,
     val username: String,
-    val events: List<EventOutputModel>
+    val events: List<EventModel>
 )
 
 /**

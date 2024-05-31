@@ -1,9 +1,9 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.springframework.stereotype.Component
-import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
-import project.planItAPI.models.SearchEventOutputModel
+import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.UsersInEventList
 import java.sql.Timestamp
 
@@ -49,7 +49,7 @@ interface EventsRepository {
      * @param id The ID of the event to retrieve.
      * @return The event associated with the ID, or null if not found.
      */
-    fun getEvent(id: Int): EventOutputModel?
+    fun getEvent(id: Int): EventModel?
 
     /**
      * Retrieves the users participating in the event associated with the given ID.
@@ -62,15 +62,15 @@ interface EventsRepository {
     /**
      * Retrieves the events that match the given search criteria.
      * @param searchInput The search criteria to match events against.
-     * @return A list of [EventOutputModel] containing the events that match the search criteria.
+     * @return A list of [EventModel] containing the events that match the search criteria.
      */
-    fun searchEvents(searchInput: String): SearchEventOutputModel
+    fun searchEvents(searchInput: String, limit: Int, offset: Int): SearchEventListOutputModel
 
     /**
      * Retrieves all events.
-     * @return A list of [EventOutputModel] containing all events.
+     * @return A list of [EventModel] containing all events.
      */
-    fun getAllEvents(): SearchEventOutputModel
+    fun getAllEvents(limit: Int, offset: Int): SearchEventListOutputModel
 
     /**
      * Adds a user to the event with the given ID.

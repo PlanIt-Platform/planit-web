@@ -1,7 +1,7 @@
 package project.planItAPI.repository.jdbi.user
 
 import org.jdbi.v3.core.Handle
-import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.EventModel
 import project.planItAPI.models.RefreshTokenInfo
 import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserInfoRepo
@@ -109,7 +109,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .singleOrNull()
     }
 
-    override fun getUserEvents(id: Int): List<EventOutputModel> {
+    override fun getUserEvents(id: Int): List<EventModel> {
         return handle.createQuery(
             """
         SELECT e.id, e.title, e.description, e.category, e.subcategory, e.location, e.visibility, e.date, e.end_date, 
@@ -120,7 +120,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
         """
         )
             .bind("id", id)
-            .mapTo(EventOutputModel::class.java)
+            .mapTo(EventModel::class.java)
             .list()
     }
 
