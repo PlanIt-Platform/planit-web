@@ -1,4 +1,4 @@
-import {get, post, put} from "./custom/useFetch";
+import {get, post, put, del} from "./custom/useFetch";
 import {LOGIN, LOGOUT, REGISTER, USER} from "./navigation/URIS";
 import {executeRequestAndRefreshToken} from "./requestUtils";
 
@@ -38,5 +38,34 @@ export async function editUser(name, description, interests) {
         put,
         USER,
         JSON.stringify({name, interests, description})
+    )
+}
+
+export async function getUserEvents() {
+    return await executeRequestAndRefreshToken(
+        get,
+        USER + '/events',
+    )
+}
+
+export async function assignTask(userId, eventId, {taskName}) {
+    return await executeRequestAndRefreshToken(
+        post,
+        USER + '/' + userId +  '/event/' + eventId + '/task',
+        JSON.stringify({taskName})
+    )
+}
+
+export async function removeTask(userId, taskId, eventId) {
+    return await executeRequestAndRefreshToken(
+        del,
+        USER + '/' + userId +  '/event/' + eventId + '/task/' + taskId
+    )
+}
+
+export async function getUserTask(userId, eventId) {
+    return await executeRequestAndRefreshToken(
+        get,
+        USER + '/' + userId + '/event/' + eventId + '/task'
     )
 }

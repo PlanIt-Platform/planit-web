@@ -1,5 +1,6 @@
 package project.planItAPI.services.poll
 
+import kotlinx.datetime.toLocalTime
 import org.springframework.stereotype.Service
 import project.planItAPI.domain.poll.Option
 import project.planItAPI.domain.poll.TimeFormat
@@ -10,9 +11,13 @@ import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreatePollException
 import project.planItAPI.utils.InvalidNumberOfOptionsException
 import project.planItAPI.utils.OptionNotFoundException
+import project.planItAPI.utils.PollHasEndedException
 import project.planItAPI.utils.PollNotFoundException
 import project.planItAPI.utils.UserAlreadyVotedException
 import project.planItAPI.utils.UserIsNotOrganizerException
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Service
 class PollServices(
@@ -30,7 +35,7 @@ class PollServices(
             val pollRepository = it.pollRepository
             val eventsRepository = it.eventsRepository
             eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-            if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+            if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
             val pollId = pollRepository.createPoll(
                 title,
                 options.map { opt -> opt.value },
@@ -50,12 +55,12 @@ class PollServices(
             return@run pollRepository.getPoll(pollId) ?: throw PollNotFoundException()
         }
 
-    fun deletePoll(pollId: Int, eventId: Int, userId: Int): DeletePollResult =
+    fun deletePoll(userId: Int, pollId: Int, eventId: Int): DeletePollResult =
         transactionManager.run {
             val pollRepository = it.pollRepository
             val eventsRepository = it.eventsRepository
             val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-            if (eventsRepository.getEventOrganizer(event.id) != userId) throw UserIsNotOrganizerException()
+            if (userId !in eventsRepository.getEventOrganizers(event.id)) throw UserIsNotOrganizerException()
             pollRepository.getPoll(pollId) ?: throw PollNotFoundException()
             pollRepository.deletePoll(pollId)
             return@run SuccessMessage("Poll deleted successfully")
@@ -66,7 +71,12 @@ class PollServices(
             val pollRepository = it.pollRepository
             val eventsRepository = it.eventsRepository
             eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-            pollRepository.getPoll(pollId) ?: throw PollNotFoundException()
+            val poll = pollRepository.getPoll(pollId) ?: throw PollNotFoundException()
+            val nowTime = System.currentTimeMillis()
+            val endTime = dateToMilliseconds(poll.created_at) + poll.duration * 60 * 60 * 1000
+            if (nowTime > endTime) {
+                throw PollHasEndedException()
+            }
             pollRepository.getOption(optionId) ?: throw OptionNotFoundException()
             val userVoteExists = it.pollRepository.checkIfUserVoted(userId, pollId)
             if (userVoteExists) {
@@ -75,4 +85,19 @@ class PollServices(
             pollRepository.vote(pollId, userId, optionId)
             return@run SuccessMessage("Vote registered successfully")
         }
+
+    fun getPolls(eventId: Int): GetPollsResult =
+        transactionManager.run {
+            val eventsRepository = it.eventsRepository
+            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            return@run it.pollRepository.getPolls(eventId)
+        }
+
+    fun dateToMilliseconds(date: String): Long {
+        val dotIndex = date.indexOf('.')
+        val dateStringWithoutFractionalSeconds = date.substring(0, dotIndex)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val dateTime = LocalDateTime.parse(dateStringWithoutFractionalSeconds, formatter)
+        return dateTime.toInstant(ZoneOffset.UTC).toEpochMilli()
+    }
 }

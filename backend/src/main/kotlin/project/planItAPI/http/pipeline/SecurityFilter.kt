@@ -15,6 +15,7 @@ class SecurityFilter : HttpFilter() {
     private val unauthenticatedEndpoints = listOf(
         "/register",
         "/login",
+        "/logout",
         "/refresh-token",
         "/about",
         "/categories",

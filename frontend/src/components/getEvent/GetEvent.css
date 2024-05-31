@@ -90,22 +90,56 @@
     margin-left: 5px;
 }
 
-.participant-item {
+.participant-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border: 1px solid transparent; /* Make the border transparent by default */
     border-radius: 10px;
     padding: 10px;
     margin: 5px 25px;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-    text-align: left; /* Align text to the left */
     font-weight: bold;
+    text-align: left;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
-.participant-item:hover {
+.participant-container:hover {
     background-color: #f5f5f5;
     color: #074160;
     border-color: #424141; /* Show the border when hovering */
     transform: scale(1.05); /* Increase the size of the card */
+}
+
+.participant-task {
+    color: #6893ad;
+}
+
+.organizer {
+    display: none;
+    color: #ad2d2d;
+}
+
+.participant-container:hover .organizerName {
+    color: #ad2d2d;
+}
+
+.participant-container:hover .organizer {
+    display: block;
+}
+
+.plus_img {
+    display: none;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    position: relative;
+    right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.participant-container:hover .plus_img {
+    display: block;
 }
 
 .arrow {
@@ -233,44 +267,6 @@
     margin-top: 20px;
 }
 
-.chat-container {
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 55vh;
-    width: 85%;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-}
-
-.chat-input {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-}
-
-.chat-input input {
-    flex-grow: 1;
-    border: 2px solid #368fc5;
-    padding: 10px;
-    border-radius: 5px;
-    margin-right: 10px;
-}
-
-.chat-input button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #0b4669;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 .pencil_img {
     width: 25px;
     height: 25px;
@@ -278,4 +274,12 @@
     position: fixed;
     top: 114px;
     left: 350px;
+}
+
+.arrows_img{
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+    position: relative;
 }

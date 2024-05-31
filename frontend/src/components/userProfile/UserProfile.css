@@ -61,9 +61,28 @@ button.primary {
     padding: 10px 25px;
 }
 
-button.primary.ghost {
-    background-color: transparent;
-    color: #02899C;
+.taskContainer {
+    background-color: #02899C;
+    border: 1px solid #02899C;
+    border-radius: 3px;
+    color: #231E39;
+    font-family: Montserrat, sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 10px 25px;
+    width: 85px;
+    height: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.taskName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 15ch;
+    align-content: center;
 }
 
 .skills {
@@ -88,8 +107,27 @@ button.primary.ghost {
     padding: 5px;
 }
 
-.profile_buttons {
+.profile-buttons {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: center;
     margin-top: 20px;
+}
+
+.minus_img {
+    position: absolute;
+    top: 308px;
+    right: 115px;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+}
+
+.kick_img {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
 }

@@ -64,12 +64,14 @@ data class ValidatedEventInputsModel(
  * @property taskName The name of the task.
  * @property taskId The unique identifier of the task.
  * @property username The username of the user.
+ * @property name The name of the user.
  */
 data class UserInEvent(
     val id: Int,
     val taskName: String?,
     val taskId: Int?,
-    val username: String
+    val username: String,
+    val name: String
 )
 
 /**

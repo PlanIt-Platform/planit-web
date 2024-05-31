@@ -1,7 +1,6 @@
-import {post, get, put} from "./custom/useFetch";
+import {post, get, put, del} from "./custom/useFetch";
 import {CATEGORIES, CREATE_EVENT, GET_EVENT, SEARCH_EVENTS} from "./navigation/URIS";
 import {executeRequestAndRefreshToken} from "./requestUtils";
-
 
 export async function createEvent({
         title,
@@ -93,5 +92,9 @@ export async function leaveEvent(eventId) {
 }
 
 export async function deleteEvent(eventId) {
-    return await executeRequestAndRefreshToken(post, GET_EVENT + eventId + '/delete')
+    return await executeRequestAndRefreshToken(del, GET_EVENT + eventId + '/delete')
+}
+
+export async function kickUser(eventId, userId) {
+    return await executeRequestAndRefreshToken(del, GET_EVENT + eventId + '/kick/' + userId)
 }

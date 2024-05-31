@@ -11,7 +11,7 @@ export default function EventForm({ event, onClose }) {
         location: event.location,
         visibility: event.visibility,
         date: formatDateTime(event.date),
-        endDate: formatDateTime(event.endDate),
+        endDate: formatDateTime(event.endDate) || "",
         priceAmount: event.priceAmount,
         priceCurrency: event.priceCurrency,
         password: event.password
@@ -34,7 +34,8 @@ export default function EventForm({ event, onClose }) {
 
     useEffect(() => {
         if (inputs.category) {
-            getSubCategories(inputs.category)
+            const category = inputs.category.replace(/\s+/g, '-')
+            getSubCategories(category)
                 .then((res) => {
                     if (res.data.error) {
                         setError(res.data.error);
@@ -68,18 +69,13 @@ export default function EventForm({ event, onClose }) {
             });
     }
 
-    function handleChange(ev: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
-        const name = ev.currentTarget.name;
-        const value = ev.currentTarget.value;
-        if (name == "date" || name == "endDate") {
-            const formattedValue = formatDateTime(value);
-            setInputs({...inputs, [name]: formattedValue});
-        }
-        else {
-            setInputs({...inputs, [name]: value})
-        }
+    function handleChange(ev) {
+        const { name, value } = ev.currentTarget;
+        setInputs(prevInputs => ({
+            ...prevInputs,
+            [name]: name === "date" || name === "endDate" ? formatDateTime(value) : value
+        }));
     }
-
 
     return (
         <>
@@ -93,8 +89,9 @@ export default function EventForm({ event, onClose }) {
                         <option value="" disabled>Select Category*</option>
                         {categories.map(category => <option key={category} value={category}>{category}</option>)}
                     </select>
-                    <select name="subCategory" value={inputs.subCategory} onChange={handleChange} required>
-                        <option value="" disabled>Select Sub-Category*</option>
+                    <select name="subCategory" value={inputs.subCategory} onChange={handleChange}>
+                        <option value="disabled" disabled>Select Sub-Category</option>
+                        <option value="">None</option>
                         {subCategories.map(subCategory => <option key={subCategory} value={subCategory}>{subCategory}</option>)}
                     </select>
                     <input type="text" name="location" value={inputs.location} onChange={handleChange} placeholder="Location"/>

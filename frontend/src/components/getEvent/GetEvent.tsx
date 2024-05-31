@@ -1,16 +1,21 @@
 import React, {useEffect, useState} from "react";
 import './GetEvent.css';
-import {deleteEvent, editEvent, getEvent, getUsersInEvent, leaveEvent} from "../../services/eventsServices";
+import {deleteEvent, getEvent, getUsersInEvent, leaveEvent} from "../../services/eventsServices";
 import {Navigate, useParams} from "react-router-dom";
 import location from "../../../images/location.png";
 import date from "../../../images/date.png";
 import arrow from "../../../images/arrow.png";
 import price from "../../../images/price.png";
+import plus from "../../../images/plus.png";
 import pencilImage from '../../../images/pencil.png';
 import description from "../../../images/description.png";
 import {getUserId} from "../authentication/Session";
 import UserProfile from "../userProfile/UserProfile";
 import EditForm from "./editEvent/EditForm";
+import {AssignTask} from "./assignTask/AssignTask";
+import {ChatRoom} from "../chat/chatRoom/ChatRoom";
+import {collection, deleteDoc, getDocs, doc} from "firebase/firestore";
+import {db} from "../../Router";
 
 function formatDate(dateString) {
     // Remove the seconds from the date string
@@ -29,6 +34,7 @@ function formatDate(dateString) {
 
 export default function GetEvent(): React.ReactElement {
     const userId = getUserId();
+    const eventId = useParams().id
     const [isOrganizer, setIsOrganizer] = useState(false);
     const [isInEvent, setIsInEvent] = useState(false);
     const [participants, setParticipants] = useState([])
@@ -37,19 +43,21 @@ export default function GetEvent(): React.ReactElement {
     const [redirectHome, setRedirectHome] = useState(false);
     const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const eventId = useParams().id
-    const [event, setEvent] = useState(
-        {title: "",
-            description: "",
-            category: "",
-            subCategory: "",
-            location: "",
-            visibility: "",
-            date: "",
-            endDate: "",
-            priceAmount: "",
-            priceCurrency: "",
-            password: ""
+    const [isAssigningTask, setIsAssigningTask] = useState(false);
+    const [participantId, setParticipantId] = useState(0);
+    const [update, setUpdate] = useState(false);
+    const [event, setEvent] = useState({
+        title: "",
+        description: "",
+        category: "",
+        subCategory: "",
+        location: "",
+        visibility: "",
+        date: "",
+        endDate: "",
+        priceAmount: "",
+        priceCurrency: "",
+        password: ""
         })
 
     useEffect(() => {
@@ -70,22 +78,43 @@ export default function GetEvent(): React.ReactElement {
                     setError(res.data.error)
                     return
                 } else {
-                    setParticipants(res.data.users);
+                    const sortedUsers = res.data.users.sort((a, b) => {
+                        if (a.taskName === "Organizer") return -1;
+                        if (b.taskName === "Organizer") return 1;
+                        return 0;
+                    })
+                    setParticipants(sortedUsers);
                     setIsInEvent(res.data.users.some((user) => user.id === userId))
                     setIsOrganizer(res.data.users.some((user) => user.id === userId && user.taskName === "Organizer"));
+
+                    if (!res.data.users.some(participant => participant.id === userId)) {
+                        setRedirectHome(true);
+                    }
                 }
             });
 
 
-    }, [eventId, event]);
+    }, [eventId, update]);
 
     const handleDelete = () => {
         deleteEvent(eventId)
-            .then((res) => {
+            .then(async (res) => {
                 if (res.data.error) {
                     setError(res.data.error)
                     return
                 }
+
+                // Get a reference to the chat collection
+                const chatCollection = collection(db, `events/${eventId}/messages`);
+
+                // Get all documents in the collection
+                const chatSnapshot = await getDocs(chatCollection);
+
+                // Delete each document
+                chatSnapshot.forEach((docSnapshot) => {
+                    deleteDoc(doc(db, `events/${eventId}/messages`, docSnapshot.id));
+                });
+
                 setRedirectHome(true)
             })
     }
@@ -108,7 +137,7 @@ export default function GetEvent(): React.ReactElement {
     }
 
     return (
-        <div>
+        <>
             <div className="event-title">
                 <h1>{event.title}</h1>
             </div>
@@ -136,10 +165,10 @@ export default function GetEvent(): React.ReactElement {
                                 <span className="info-value">{formatDate(event.date)}</span>
                             </div>
                             {event.endDate &&
-                                    <div className="info-pair">
-                                        <img src={date} alt="date" className={"info_img"}/>
-                                        <span className="info-value">{formatDate(event.endDate)}</span>
-                                    </div>
+                                <div className="info-pair">
+                                    <img src={date} alt="date" className={"info_img"}/>
+                                    <span className="info-value">{formatDate(event.endDate)}</span>
+                                </div>
                             }
                         </div>
                     </div>
@@ -153,12 +182,7 @@ export default function GetEvent(): React.ReactElement {
                     </div>
                 </div>
                 <div className="middle">
-                    <div className="chat-container">
-                        <div className="chat-input">
-                            <input type="text" placeholder="Type a message..."/>
-                            <button>Send</button>
-                        </div>
-                    </div>
+                    <ChatRoom uId={userId} eventId={eventId} isOrganizer={isOrganizer}/>
                 </div>
                 <div className="right">
                     <h2>Participants ({participants.length})</h2>
@@ -166,16 +190,53 @@ export default function GetEvent(): React.ReactElement {
                         {
                             participants.map((participant: any) => {
                             return (
-                                <li key={participant.id} className="participant-item" onClick={() => setIsUserProfileOpen(true)}>
-                                        {participant.username}
-                                </li>
+                                <div className="participant-container" key={participant.id}
+                                     onClick={
+                                         () => {
+                                             setIsUserProfileOpen(true)
+                                             setParticipantId(participant.id)
+                                         }
+                                     }>
+                                    <li className={`participant-item ${participant.taskName === 'Organizer' 
+                                        ? 'organizerName' : ''}`}>{participant.username}</li>
+                                    {
+                                        participant.taskName
+                                            ? <li className={`participant-task 
+                                                ${participant.taskName === 'Organizer' 
+                                                    ? 'organizer' : ''}`}>{participant.taskName}</li>
+                                            : isOrganizer && <img src={plus} alt="Assign" className={"plus_img"}
+                                                   onClick={(event) => {
+                                                       event.stopPropagation();
+                                                       setIsAssigningTask(true)
+                                                       setParticipantId(participant.id)
+                                                   }}/>
+                                    }
+                                </div>
                             )})
                         }
                     </ul>
                 </div>
             </div>
-            {isEditing && <EditForm onClose={() => setIsEditing(false)} event={event} />}
-            {isUserProfileOpen && <UserProfile onClose={() => setIsUserProfileOpen(false)} />}
-        </div>
+            {isAssigningTask && <AssignTask onClose={() => {
+                setIsAssigningTask(false)
+                setUpdate(!update)
+            }
+            } userId={participantId} eventId={eventId}/> }
+            {isEditing && <EditForm onClose={() => {
+                setIsEditing(false)
+                setUpdate(!update)
+            }} event={event} />}
+            {isUserProfileOpen &&
+                <UserProfile
+                    onClose={() => {
+                        setIsUserProfileOpen(false)
+                        setUpdate(!update)
+                    }}
+                    userId={participantId}
+                    eventId={eventId}
+                    isOrganizer={isOrganizer}
+                />
+            }
+        </>
     );
 }

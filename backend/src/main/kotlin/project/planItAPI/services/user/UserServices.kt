@@ -214,7 +214,7 @@ class UserServices (
             eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
             val usersInEvent = eventsRepository.getUsersInEvent(eventId)
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
-            if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+            if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
             if (usersRepository.getUserTask(userId, eventId) != null) throw UserAlreadyAssignedTaskException()
             val taskId = usersRepository.assignTask(
                 userId,
@@ -242,7 +242,7 @@ class UserServices (
             eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
             val usersInEvent = eventsRepository.getUsersInEvent(eventId)
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
-            if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+            if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
             if (usersRepository.getUserTask(userId, eventId) == null) throw TaskNotFoundException()
             usersRepository.removeTask(taskId)
             return@run SuccessMessage("Task removed successfully.")

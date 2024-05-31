@@ -257,6 +257,11 @@ class PollNotFoundException : HTTPCodeException(
     httpCode = NOT_FOUND
 )
 
+class PollHasEndedException : HTTPCodeException(
+    message = "Poll has ended",
+    httpCode = BAD_REQUEST
+)
+
 class OptionNotFoundException : HTTPCodeException(
     message = "Option not found",
     httpCode = NOT_FOUND

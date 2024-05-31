@@ -1,0 +1,92 @@
+.poll-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #b4c9e1;
+    padding: 25px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.poll-title input, .poll-option input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #000000;
+    border-radius: 3px;
+}
+
+.add-option-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background-color: #000;
+    color: #fff;
+    cursor: pointer;
+}
+
+.poll-container h2 {
+    text-align: center;
+}
+
+.save-button {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background: #1c2a33;
+    color: White;
+    cursor: pointer;
+    width: 25%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.trash-img {
+    left: 5px;
+    bottom: 5px;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    position: relative;
+}
+
+.poll-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 45%;
+}
+
+.durationSaveContainer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.duration-dropdown {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.duration-dropdown select {
+    width: 60%;
+    padding: 7px;
+    border-radius: 5px;
+    border: 1px solid #868585;
+}

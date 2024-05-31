@@ -32,7 +32,8 @@ export default function EventForm({onClose}) {
 
     useEffect(() => {
         if (inputs.category) {
-            getSubCategories(inputs.category)
+            const category = inputs.category.replace(/\s+/g, '-')
+            getSubCategories(category)
                 .then((res) => {
                     if (res.data.error) {
                         setError(res.data.error);
@@ -63,16 +64,12 @@ export default function EventForm({onClose}) {
             })
     }
 
-    function handleChange(ev: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
-        const name = ev.currentTarget.name;
-        const value = ev.currentTarget.value;
-        if (name == "date" || name == "endDate") {
-            const formattedValue = formatDateTime(value);
-            setInputs({...inputs, [name]: formattedValue});
-        }
-        else {
-            setInputs({...inputs, [name]: value})
-        }
+    function handleChange(ev) {
+        const { name, value } = ev.currentTarget;
+        setInputs(prevInputs => ({
+            ...prevInputs,
+            [name]: name === "date" || name === "endDate" ? formatDateTime(value) : value
+        }));
     }
 
     function handleKeyPress(event) {
@@ -109,8 +106,9 @@ export default function EventForm({onClose}) {
                         </select>
                     </label>
                     <label>
-                        Subcategory*:
-                        <select name="subCategory" value={inputs.subCategory} onChange={handleChange} required>
+                        Subcategory:
+                        <select name="subCategory" value={inputs.subCategory} onChange={handleChange}>
+                            <option value="">None</option>
                             {subCategories.map(subCategory => (
                                 <option key={subCategory} value={subCategory}>{subCategory}</option>
                             ))}

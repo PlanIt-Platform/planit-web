@@ -113,9 +113,9 @@ interface EventsRepository {
     /**
      * Retrieves the ID of the user that organized the event with the given ID.
      * @param eventId The ID of the event to retrieve the organizer for.
-     * @return The ID of the user that organized the event.
+     * @return The IDs of the users that organized the event.
      */
-    fun getEventOrganizer(eventId: Int): Int
+    fun getEventOrganizers(eventId: Int): List<Int>
 
     /**
      * Kicks a user from the event with the given ID.

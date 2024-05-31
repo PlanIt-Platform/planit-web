@@ -86,6 +86,7 @@ CREATE TABLE dbo.Polls (
     id serial PRIMARY KEY,
     title VARCHAR(255),
     duration INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     organizer_id INT,
     event_id INT,
     FOREIGN KEY (organizer_id) REFERENCES dbo.Users(id),

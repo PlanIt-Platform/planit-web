@@ -16,7 +16,9 @@ data class ValidatedPollInputModel(
 )
 
 data class PollOutputModel(
+    val id: Int,
     val title: String,
+    val created_at: String,
     val duration: Int,
     val options: List<OptionVotesModel>
 )
@@ -27,6 +29,7 @@ data class CreatePollOutputModel(
 )
 
 data class OptionVotesModel(
-    val option: String,
+    val id: Int,
+    val title: String,
     val votes: Int
 )

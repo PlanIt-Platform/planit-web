@@ -23,4 +23,6 @@ interface PollRepository {
     fun checkIfUserVoted(userId: Int, pollId: Int): Boolean
 
     fun vote(pollId: Int, userId: Int, optionId: Int)
+
+    fun getPolls(eventId: Int): List<PollOutputModel>
 }

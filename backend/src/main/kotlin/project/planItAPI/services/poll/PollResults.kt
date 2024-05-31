@@ -1,6 +1,5 @@
 package project.planItAPI.services.poll
 
-import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.models.CreatePollOutputModel
 import project.planItAPI.models.PollOutputModel
 import project.planItAPI.models.SuccessMessage
@@ -26,3 +25,8 @@ typealias DeletePollResult = Either<Exception, SuccessMessage>
  * The result of voting in a poll.
  */
 typealias VoteResult = Either<Exception, SuccessMessage>
+
+/**
+ * The result of getting all polls.
+ */
+typealias GetPollsResult = Either<Exception, List<PollOutputModel>>

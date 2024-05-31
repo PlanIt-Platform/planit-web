@@ -76,7 +76,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
     override fun getUsersInEvent(id: Int): UsersInEventList? {
         return handle.createQuery(
             """
-        SELECT u.id, u.username, t.name as taskName, t.id as taskId
+        SELECT u.id, u.username, t.name as taskName, t.id as taskId, u.name
         FROM dbo.UserParticipatesInEvent up
         JOIN dbo.Users u ON up.user_id = u.id
         LEFT JOIN dbo.Task t ON t.user_id = u.id AND t.event_id = up.event_id
@@ -197,13 +197,13 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .execute()
     }
 
-    override fun getEventOrganizer(eventId: Int): Int {
+    override fun getEventOrganizers(eventId: Int): List<Int> {
         return handle.createQuery(
             "select user_id from dbo.Task where event_id = :eventId and name = 'Organizer'"
         )
             .bind("eventId", eventId)
             .mapTo(Int::class.java)
-            .one()
+            .list()
     }
 
     override fun kickUser(userId: Int, eventId: Int) {

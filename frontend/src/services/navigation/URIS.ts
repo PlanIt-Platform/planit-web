@@ -13,6 +13,7 @@ export const GET_EVENT = URI_PREFIX + "event/";
 export const SEARCH_EVENTS = URI_PREFIX + "events";
 export const CATEGORIES = URI_PREFIX + "event/categories";
 
+
 export const REFRESH_TOKEN = URI_PREFIX + "refresh-token";
 
 

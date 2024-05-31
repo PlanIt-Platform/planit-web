@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import project.planItAPI.domain.Id
 import project.planItAPI.http.PathTemplates
+import project.planItAPI.http.PathTemplates.POLLS
 import project.planItAPI.http.controllers.failureResponse
 import project.planItAPI.http.controllers.responseHandler
 import project.planItAPI.models.PollInputModel
@@ -49,7 +50,7 @@ class PollController(private val pollServices: PollServices) {
         }
     }
 
-    @GetMapping(PathTemplates.GET_POLL)
+    @GetMapping(PathTemplates.POLL)
     fun getPoll(@PathVariable pollId: Int, @PathVariable eventId: Int): ResponseEntity<*> {
         return when (val eventIdResult = Id(eventId)) {
             is Failure -> failureResponse(eventIdResult)
@@ -69,7 +70,7 @@ class PollController(private val pollServices: PollServices) {
         }
     }
 
-    @DeleteMapping(PathTemplates.DELETE_POLL)
+    @DeleteMapping(PathTemplates.POLL)
     fun deletePoll(
         @RequestAttribute("userId") userId: String,
         @PathVariable pollId: Int,
@@ -117,6 +118,21 @@ class PollController(private val pollServices: PollServices) {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @GetMapping(POLLS)
+    fun getPolls(@PathVariable eventId: Int): ResponseEntity<*> {
+        return when (val eventIdResult = Id(eventId)) {
+            is Failure -> failureResponse(eventIdResult)
+            is Success -> {
+                when (val res = pollServices.getPolls(eventId)) {
+                    is Failure -> failureResponse(res)
+                    is Success -> {
+                        return responseHandler(200, res.value)
                     }
                 }
             }

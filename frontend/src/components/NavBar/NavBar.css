@@ -102,8 +102,7 @@ body
     width: 300px;
     height: 110vh;
     margin: -100px 0 0 -50px;
-    padding: 50px;
-    padding-top: 125px;
+    padding: 125px 50px 50px;
 
     background: #ededed;
     list-style-type: none;
@@ -175,7 +174,7 @@ body
     display: flex; /* Use flexbox for buttons container */
     align-items: center; /* Align buttons vertically */
     padding: 0 20px; /* Adjust padding for buttons container */
-    margin-left: 510px;
+    margin-left: 500px;
 }
 
 .navStyle {
@@ -224,7 +223,7 @@ body
 
 .search-container {
     padding-left: 450px;
-    padding-bottom: 10px;
+    padding-bottom: 3px;
 }
 
 .search-bar {
@@ -248,5 +247,5 @@ body
 }
 
 .buttonExtraPadding {
-    padding-left: 820px;
+    padding-left: 830px;
 }

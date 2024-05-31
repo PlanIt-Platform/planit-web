@@ -159,8 +159,7 @@ class EventServices(
     fun deleteEvent(userId: Int, eventId: Int): DeleteEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-        val organizerId = eventsRepository.getEventOrganizer(eventId)
-        if (organizerId != userId) { throw UserIsNotOrganizerException() }
+        if (userId !in eventsRepository.getEventOrganizers(eventId)) { throw UserIsNotOrganizerException() }
         eventsRepository.deleteEvent(event.id)
         return@run SuccessMessage("Event deleted with success.")
     }
@@ -196,7 +195,7 @@ class EventServices(
     ): EditEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-        if (eventsRepository.getEventOrganizer(eventId) != userId) throw UserIsNotOrganizerException()
+        if (userId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
         val now = getNowTime()
         if (date.value < now) throw PastDateException()
         if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
@@ -244,7 +243,7 @@ class EventServices(
     fun kickUser(organizerId: Int, eventId: Int, userId: Int): KickUserResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-        if (eventsRepository.getEventOrganizer(eventId) != organizerId) throw UserIsNotOrganizerException()
+        if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
         val usersInEvent = eventsRepository.getUsersInEvent(event.id)
         if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) {
             throw UserNotInEventException()

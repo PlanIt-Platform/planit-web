@@ -1,9 +1,9 @@
 package project.planItAPI.repository.jdbi.poll
 
 import org.jdbi.v3.core.Handle
-import project.planItAPI.domain.poll.Option
 import project.planItAPI.models.OptionVotesModel
 import project.planItAPI.models.PollOutputModel
+import java.sql.Timestamp
 
 class JdbiPollRepository (private val handle: Handle): PollRepository {
 
@@ -43,7 +43,7 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
     override fun getPoll(pollId: Int): PollOutputModel? {
         val pollDetails = handle.createQuery(
             """
-        SELECT title, duration
+        SELECT title, duration, created_at
         FROM dbo.Polls
         WHERE id = :pollId
         """
@@ -54,20 +54,26 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
 
         val options = handle.createQuery(
             """
-        SELECT o.text, COUNT(uv.user_id) as votes
+        SELECT o.id, o.text as title, COUNT(uv.user_id) as votes
         FROM dbo.Options o
         LEFT JOIN dbo.UserVotes uv ON o.id = uv.option_id
         WHERE o.poll_id = :pollId
-        GROUP BY o.text
+        GROUP BY o.text, o.id
         """
         )
             .bind("pollId", pollId)
-            .map { rs, _ -> OptionVotesModel(rs.getString("text"), rs.getInt("votes")) }
+            .map { rs, _ -> OptionVotesModel(
+                rs.getInt("id"),
+                rs.getString("title"),
+                rs.getInt("votes")
+            ) }
             .list()
 
         return if (pollDetails != null) {
             PollOutputModel(
+                id = pollId,
                 title = pollDetails["title"] as String,
+                created_at = (pollDetails["created_at"] as Timestamp).toString(),
                 duration = pollDetails["duration"] as Int,
                 options = options
             )
@@ -75,6 +81,12 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
     }
 
     override fun deletePoll(pollId: Int) {
+        handle.createUpdate(
+            "delete from dbo.UserVotes where poll_id = :pollId"
+        )
+            .bind("pollId", pollId)
+            .execute()
+
         handle.createUpdate(
             "delete from dbo.Options where poll_id = :pollId"
         )
@@ -126,5 +138,44 @@ class JdbiPollRepository (private val handle: Handle): PollRepository {
             .bind("pollId", pollId)
             .bind("optionId", optionId)
             .execute()
+    }
+
+    override fun getPolls(eventId: Int): List<PollOutputModel> {
+        return handle.createQuery(
+            """
+        SELECT id, title, duration, created_at
+        FROM dbo.Polls
+        WHERE event_id = :eventId
+        """
+        )
+            .bind("eventId", eventId)
+            .mapToMap()
+            .list()
+            .map { pollDetails ->
+                val options = handle.createQuery(
+                    """
+                SELECT o.id, o.text as title, COUNT(uv.user_id) as votes
+                FROM dbo.Options o
+                LEFT JOIN dbo.UserVotes uv ON o.id = uv.option_id
+                WHERE o.poll_id = :pollId
+                GROUP BY o.text, o.id
+                """
+                )
+                    .bind("pollId", pollDetails["id"] as Int)
+                    .map { rs, _ -> OptionVotesModel(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getInt("votes")
+                    ) }
+                    .list()
+
+                PollOutputModel(
+                    id = pollDetails["id"] as Int,
+                    title = pollDetails["title"] as String,
+                    created_at = (pollDetails["created_at"] as Timestamp).toString(),
+                    duration = pollDetails["duration"] as Int,
+                    options = options
+                )
+            }
     }
 }

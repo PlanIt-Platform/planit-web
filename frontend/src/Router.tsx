@@ -11,6 +11,21 @@ import {PlanItProvider} from "./PlanItProvider";
 import AccountDetails from "./components/accountDetails/AccountDetails";
 import {RequireAuth} from "./AuthContainer";
 import GetEvent from "./components/getEvent/GetEvent";
+import MyEvents from "./components/myEvents/MyEvents";
+import {initializeApp} from "firebase/app";
+import {getFirestore} from "firebase/firestore";
+import {Calendar} from "./components/calendar/Calendar";
+
+const app = initializeApp({
+    apiKey: "AIzaSyCz8gn12VwIXJzs8F7Y1ZFU8JlSNmI3AIM",
+    authDomain: "planit-chat-4d37d.firebaseapp.com",
+    projectId: "planit-chat-4d37d",
+    storageBucket: "planit-chat-4d37d.appspot.com",
+    messagingSenderId: "708606212293",
+    appId: "1:708606212293:web:3555f12f048848cff358ac"
+})
+
+export const db = getFirestore(app);
 
 const router = createBrowserRouter([
     {
@@ -22,6 +37,10 @@ const router = createBrowserRouter([
             {
                 "path": "/",
                 "element": <Home />,
+            },
+            {
+                "path": "/planit/calendar",
+                "element": <Calendar />,
             },
             {
                 "path": "/planit/events",
@@ -52,6 +71,14 @@ const router = createBrowserRouter([
                 "element": (
                     <RequireAuth>
                         <AccountDetails />
+                    </RequireAuth>
+                )
+            },
+            {
+                "path": "/planit/user/events",
+                "element": (
+                    <RequireAuth>
+                        <MyEvents />
                     </RequireAuth>
                 )
             }

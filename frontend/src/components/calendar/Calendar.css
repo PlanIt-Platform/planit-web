@@ -1,0 +1,153 @@
+.calendar-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.calendar {
+    width: 900px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 3rem;
+    margin-right: auto;
+    margin-left: 320px;
+}
+
+.calendar-header {
+    margin-left: 315px;
+    width: 30%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.calendar-header button {
+    background-color: rgba(255, 255, 255, 0);
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.calendar-header img {
+    width: 20px;
+    height: 20px;
+}
+
+.title {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.title h2 {
+    margin: auto;
+}
+
+.calendar-body {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-header {
+    height: 70px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.weekday {
+    width: 100px;
+    text-align: center;
+}
+
+.table-content {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.calendar-weekday {
+    width: 125px;
+    height: 75px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.calendar-day {
+    width: 125px;
+    height: 75px;
+    position: relative;
+    border: 1px solid #a6a6a6;
+    border-radius: 10px;
+}
+
+.calendar-day:hover {
+    background-color: rgba(0,0,0,.10);
+}
+
+.calendar-day p {
+    position: absolute;
+    right: 10px;
+    color: #5e5e5e;
+    font-weight: bold;
+}
+
+.current-month p {
+    color: #ffffff;
+}
+
+.selected p {
+    color: #cc0000;
+    font-weight: bold;
+}
+
+.day-with-one-event {
+    background-color: #e0bd16;
+    font-weight: bold;
+}
+
+.day-with-two-events {
+    background-color: #7cea62;
+    font-weight: bold;
+}
+
+.day-with-three-or-more-events {
+    background-color: #b37eef;
+    font-weight: bold;
+}
+
+.color-info {
+    display: flex;
+    flex-direction: column;
+    margin-top: 300px;
+    margin-right: 60px;
+}
+
+.color-info img {
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+}
+
+.color-info-item {
+    display: flex;
+    align-items: center;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}

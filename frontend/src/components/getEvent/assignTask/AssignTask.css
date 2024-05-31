@@ -1,0 +1,46 @@
+.assign-task-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #b4c9e1;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    color: #000000;
+}
+
+.assign-task-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.assign-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.assign-label select, .assign-label input {
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+    border: 1px solid #000000;
+    width: 50%;
+}
+
+.assign-task-container button {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background: #1c2a33;
+    color: White;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}

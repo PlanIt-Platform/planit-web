@@ -92,8 +92,8 @@ export function NavBar() {
                                 </div>
                                 <div className={"menuOptions"} style={{fontSize: "20px"}}>
                                 <Link to="/planit/events" className={"menuOption"}>All Events</Link>
-                                    <Link to="/planit/myEvents" className={"menuOption"}>My Events</Link>
-                                    <Link to="/planit/schedule" className={"menuOption"}>Schedule</Link>
+                                    <Link to="/planit/user/events" className={"menuOption"}>My Events</Link>
+                                    <Link to="/planit/calendar" className={"menuOption"}>Calendar</Link>
                                     <button type="button" onClick={handleLogout}>Logout</button>
                                 </div>
                             </div>

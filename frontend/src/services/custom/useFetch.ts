@@ -23,3 +23,7 @@ export function get(uri){
 export function put(uri, body){
     return fetchData(uri, 'PUT', body)
 }
+
+export function del(uri, body){
+    return fetchData(uri, 'DELETE', body)
+}
