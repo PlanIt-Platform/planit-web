@@ -2,7 +2,7 @@ package project.planItAPI.domain
 
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
-import project.planItAPI.utils.InvalidIdException
+import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 import java.lang.Exception
 
@@ -15,7 +15,7 @@ class Id private constructor(val value: Int) {
             return if (value > 0) {
                 Success(Id(value))
             } else {
-                Failure(InvalidIdException())
+                Failure(InvalidValueException("id"))
             }
         }
     }

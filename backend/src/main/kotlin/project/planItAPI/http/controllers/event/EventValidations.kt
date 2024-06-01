@@ -38,12 +38,12 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
             ValidatedEventInputsModel(
             title = (results[0] as Success).value as Title,
             description = (results[1] as Success).value as Description,
-            visibility = (results[0] as Success).value as Visibility,
-            category = (results[1] as Success).value as Category,
-            subCategory = (results[2] as Success).value as Subcategory,
-            date = (results[3] as Success).value as DateFormat,
-            endDate = (results[4] as Success).value as DateFormat,
-            price = (results[5] as Success).value as Money
+            visibility = (results[2] as Success).value as Visibility,
+            category = (results[3] as Success).value as Category,
+            subCategory = (results[4] as Success).value as Subcategory,
+            date = (results[5] as Success).value as DateFormat,
+            endDate = (results[6] as Success).value as DateFormat,
+            price = (results[7] as Success).value as Money
             )
         )
     } else {
