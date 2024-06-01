@@ -228,7 +228,7 @@ class UserControllerTests {
         performRequest(
             RequestMethod.POST,
             "/api-planit/login",
-            "{\"emailOrName\":\"${email}\"," +
+            "{\"emailOrUsername\":\"${email}\"," +
                     "\"password\":\"${password}\"}")
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(1))
@@ -240,7 +240,7 @@ class UserControllerTests {
         performRequest(
             RequestMethod.POST,
             "/api-planit/login",
-            "{\"emailOrName\":\"abc@gmail\"," +
+            "{\"emailOrUsername\":\"abc@gmail\"," +
                     "\"password\":\"${password}\"}")
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Invalid email format"))
@@ -250,7 +250,7 @@ class UserControllerTests {
         performRequest(
             RequestMethod.POST,
             "/api-planit/login",
-            "{\"emailOrName\":\"abc\"," +
+            "{\"emailOrUsername\":\"abc\"," +
                     "\"password\":\"${password}\"}")
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Invalid username length"))
@@ -262,7 +262,7 @@ class UserControllerTests {
         performRequest(
             RequestMethod.POST,
             "/api-planit/login",
-            "{\"emailOrName\":\"${email}\"," +
+            "{\"emailOrUsername\":\"${email}\"," +
                     "\"password\":\"Ab!1\"}")
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error")

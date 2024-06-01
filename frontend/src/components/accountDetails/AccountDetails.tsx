@@ -10,7 +10,11 @@ const capitalizeFirstLetter = (string) => {
 
 export default function AccountDetails(): React.ReactElement {
     const userId = getUserId();
-    const [userData, setUserData] = useState<any>('');
+    const [userData, setUserData] = useState<any>({
+        name: '',
+        description: '',
+        interests: []
+    });
     const [error, setError] = useState('')
     const [isEditing, setIsEditing] = useState(false);
     const [interests, setInterests] = useState([]);

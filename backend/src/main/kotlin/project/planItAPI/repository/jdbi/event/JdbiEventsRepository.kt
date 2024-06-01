@@ -135,6 +135,13 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
 
     override fun leaveEvent(userId: Int, eventId: Int) {
         handle.createUpdate(
+            "delete from dbo.Task where user_id = :user_id and event_id = :event_id"
+        )
+            .bind("user_id", userId)
+            .bind("event_id", eventId)
+            .execute()
+
+        handle.createUpdate(
             "delete from dbo.UserParticipatesInEvent where user_id = :user_id and event_id = :event_id"
         )
             .bind("user_id", userId)

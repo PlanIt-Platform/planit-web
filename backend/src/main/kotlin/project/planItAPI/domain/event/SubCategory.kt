@@ -23,21 +23,6 @@ class Subcategory private constructor(val name: String) {
 }
 
 /**
- * Checks if a subcategory is valid for a given category.
- * @param category The category to check.
- * @param subcategory The subcategory to check.
- * @return True if the subcategory is valid for the category, false if it is not, and null if the category does not exist.
-
- */
-fun isValidSubcategory(category: String, subcategory: String): Boolean? {
-    val categories = readCategories()
-    if (isCategory(category)) {
-        return categories[category]?.any { it.contains(subcategory) } ?: false
-    }
-    return null
-}
-
-/**
  * Reads the category file and returns the subcategories for the given category.
  * @param category The category to read the subcategories for.
  * @return A list of subcategories for the given category, or null if the category does not exist.

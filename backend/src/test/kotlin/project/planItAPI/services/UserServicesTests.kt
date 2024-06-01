@@ -8,9 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
-import project.planItAPI.domain.user.EmailOrName
+import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
 import project.planItAPI.domain.user.Password
+import project.planItAPI.domain.user.Username
 import project.planItAPI.repository.jdbi.user.UsersRepository
 import project.planItAPI.services.utils.FakeTransactionManager
 import project.planItAPI.services.utils.FakeUserServices
@@ -35,7 +36,7 @@ class UserServicesTests {
     }
 
     private val name = (Name("testUser") as Success).value
-    private val username = (Name("testUser") as Success).value
+    private val username = (Username("testUser") as Success).value
     private val email = (Email("testUser@mail.com") as Success).value
     private val password = (Password("t3stP@ssw0rd") as Success).value
 
@@ -90,34 +91,34 @@ class UserServicesTests {
         @Test
         fun `can login a user with email`() {
             userServices.register(name, username, email, password)
-            val result = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val result = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             assert(result is Success)
         }
 
         @Test
         fun `can login a user with username`() {
             userServices.register(name, username, email, password)
-            val result = userServices.login((EmailOrName(username.value) as Success).value, password)
+            val result = userServices.login((EmailOrUsername(username.value) as Success).value, password)
             assert(result is Success)
         }
 
         @Test
         fun `cannot login a user because there is no user`() {
-            val result = userServices.login((EmailOrName(username.value) as Success).value, password)
+            val result = userServices.login((EmailOrUsername(username.value) as Success).value, password)
             assert(result is Failure)
         }
 
         @Test
         fun `cannot login a user because there is no user with the email`() {
             userServices.register(name, username, email, password)
-            val result = userServices.login((EmailOrName("testUsr@mail.com") as Success).value, password)
+            val result = userServices.login((EmailOrUsername("testUsr@mail.com") as Success).value, password)
             assert(result is Failure)
         }
 
         @Test
         fun `cannot login a user because there is no user with the username`() {
             userServices.register(name, username, email, password)
-            val result = userServices.login((EmailOrName("testUsr") as Success).value, password)
+            val result = userServices.login((EmailOrUsername("testUsr") as Success).value, password)
             assert(result is Failure)
         }
     }
@@ -130,7 +131,7 @@ class UserServicesTests {
         @Test
         fun `can logout a user`() {
             userServices.register(name, username, email, password)
-            val loginResult = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
                 val result = userServices.logout(loginResult.value.accessToken, loginResult.value.refreshToken)
                 assert(result is Success)
@@ -142,7 +143,7 @@ class UserServicesTests {
         @Test
         fun `cannot logout a user because of wrong refresh token`() {
             userServices.register(name, username, email, password)
-            val loginResult = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
                 val result = userServices.logout(loginResult.value.accessToken, "wrongRefreshToken")
                 assert(result is Failure)
@@ -154,7 +155,7 @@ class UserServicesTests {
         @Test
         fun `cannot logout a user because of wrong access and refresh tokens`() {
             userServices.register(name, username, email, password)
-            val loginResult = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
                 val result = userServices.logout("wrongAccessToken", "wrongRefreshToken")
                 assert(result is Failure)
@@ -172,7 +173,7 @@ class UserServicesTests {
         @Test
         fun `getUser successful`() {
             userServices.register(name, username, email, password)
-            val loginResult = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
                 val result = userServices.getUser(1)
                 if (result is Success) {
@@ -202,7 +203,7 @@ class UserServicesTests {
         @Test
         fun `cannot getUser because of wrong id`() {
             userServices.register(name, username, email, password)
-            val loginResult = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
                 val result = userServices.getUser(2)
                 assert(result is Failure)
@@ -252,7 +253,7 @@ class UserServicesTests {
         @Test
         fun `cannot editUser because of wrong id`() {
             userServices.register(name, username, email, password)
-            val loginResult = userServices.login((EmailOrName(email.value) as Success).value, password)
+            val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
                 val result = userServices.editUser(2, name, "", listOf((Category("Technology") as Success).value))
                 assert(result is Failure)

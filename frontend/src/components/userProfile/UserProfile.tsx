@@ -58,7 +58,7 @@ export default function UserProfile({onClose, userId, eventId, isOrganizer}) {
                 <img src={kick} alt="Kick" className={"kick_img"} title={"Kick user"} onClick={handleKickUser}/>
             }
             <img className="round" src="https://randomuser.me/api/portraits/men/69.jpg" alt="user"/> {/*29*/}
-            <h3 className="h3_userProfile">{userData?.name}</h3>
+            <h3 className="h3_userProfile" title={userData?.name}>{userData?.name}</h3>
             <h5 className="h5_userProfile">@{userData?.username}</h5>
             {userData?.description ? (
                 <p className="p_userProfile">{userData.description}</p>

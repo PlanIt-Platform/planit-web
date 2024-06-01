@@ -2,9 +2,10 @@ package project.planItAPI.models
 
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
-import project.planItAPI.domain.user.EmailOrName
+import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
 import project.planItAPI.domain.user.Password
+import project.planItAPI.domain.user.Username
 import java.time.Instant
 
 /**
@@ -195,7 +196,7 @@ data class RefreshTokensOutputModel(
  * @property password The password of the user.
  */
 data class ValidatedUserRegisterInputsModel(
-    val username: Name,
+    val username: Username,
     val name: Name,
     val email: Email,
     val password: Password
@@ -203,12 +204,12 @@ data class ValidatedUserRegisterInputsModel(
 
 /**
  * Data class representing the user's input information.
- * @property emailOrName The email or name of the user.
+ * @property emailOrUsername The email or name of the user.
  * @property password The password of the user.
  */
 
 data class ValidatedUserLoginInputsModel(
-    val emailOrName: EmailOrName,
+    val emailOrUsername: EmailOrUsername,
     val password: Password
 )
 

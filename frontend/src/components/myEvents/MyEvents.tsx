@@ -67,7 +67,9 @@ export default function MyEvents() {
                         setEventId(event.id)
                     }}>
                         <img src={categoryBackgrounds[event.category]} alt={event.category} className={"event-card-img"}/>
-                        <p style={{fontSize: 30, fontWeight: "bold"}}>{event.title}</p>
+                        <div className="search-event-title-container">
+                            <p className="search-event-title">{event.title}</p>
+                        </div>
                         <div>
                             <div className="info-container">
                                 <img src={date} alt="date" className={"info_img"}/>

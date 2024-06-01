@@ -92,7 +92,7 @@ export async function leaveEvent(eventId) {
 }
 
 export async function deleteEvent(eventId) {
-    return await executeRequestAndRefreshToken(del, GET_EVENT + eventId + '/delete')
+    return await executeRequestAndRefreshToken(del, GET_EVENT + eventId)
 }
 
 export async function kickUser(eventId, userId) {

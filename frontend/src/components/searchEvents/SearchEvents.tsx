@@ -17,6 +17,7 @@ import charitybg from "../../../images/caridadebg.png";
 import technologybg from "../../../images/technologybg.png";
 import businessbg from "../../../images/businessbg.png";
 import simplemeetingbg from "../../../images/simplemeeting.png";
+import private_bg from "../../../images/private.png";
 import EventForm from "./createEvent/EventForm";
 import JoinPopup from "./joinPopup/JoinPopup";
 import {Link, Navigate} from "react-router-dom";
@@ -94,7 +95,8 @@ export default function SearchEvents(): React.ReactElement {
                     setError(res.data.error);
                     return;
                 }
-                setEvents(res.data.events);
+                if (category === "All") setEvents(res.data.events);
+                else setEvents(res.data.events.filter(event => event.visibility === "Public"));
                 setError('')
             });
     }
@@ -131,18 +133,32 @@ export default function SearchEvents(): React.ReactElement {
                 {events.length === 0 && <h1>No events found.</h1>}
                 {events.map((event: any) => (
                     <div key={event.id} className="event-card" onClick={() => handleEventClick(event)}>
-                        <img src={categoryBackgrounds[event.category]} alt={event.category} className={"event-card-img"}/>
-                        <p style={{fontSize: 30, fontWeight: "bold"}}>{event.title}</p>
-                        <div>
-                            <div className="info-container">
-                                <img src={date} alt="date" className={"info_img"}/>
-                                <p style={{fontSize: 15}}>{formatDate(event.date)}</p>
-                            </div>
-                            <div className="info-container">
-                                <img src={location} alt="location" className={"info_img"}/>
-                                <p>{event.location}</p>
-                            </div>
+                        <img src={
+                            event.visibility === "Private"
+                                ? private_bg
+                                : categoryBackgrounds[event.category]
+                        } alt={event.category} className={"event-card-img"}/>
+                        <div className="search-event-title-container">
+                            <p className="search-event-title">{event.title}</p>
                         </div>
+                        {event.visibility === "Public"
+                            ? <div>
+                                    <div className="info-container">
+                                        <img src={date} alt="date" className={"info_img"}/>
+                                        <p style={{fontSize: 15}}>{formatDate(event.date)}</p>
+                                    </div>
+                                    <div className="info-container">
+                                        <img src={location} alt="location" className={"info_img"}/>
+                                        <p>{event.location}</p>
+                                    </div>
+
+                            </div>
+                            :
+                            <div>
+                                <p style={{fontSize: 20, marginTop: 20}}>Private</p>
+                                <p style={{fontSize: 18, fontWeight: "bold"}}>Password required</p>
+                            </div>
+                        }
                     </div>
                 ))}
                 {error && <p>{error}</p>}

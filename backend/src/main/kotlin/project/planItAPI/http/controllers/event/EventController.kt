@@ -51,8 +51,8 @@ class EventController(private val eventServices: EventServices) {
             is Success -> {
                 val validatedInputs = validation.value
                 when (val res = eventServices.createEvent(
-                    input.title,
-                    input.description,
+                    validatedInputs.title,
+                    validatedInputs.description,
                     validatedInputs.category,
                     validatedInputs.subCategory,
                     input.location,
@@ -203,8 +203,8 @@ class EventController(private val eventServices: EventServices) {
                 when (val res = eventServices.editEvent(
                     userId.toInt(),
                     eventId,
-                    input.title,
-                    input.description,
+                    validatedInputs.title,
+                    validatedInputs.description,
                     validatedInputs.category,
                     validatedInputs.subCategory,
                     input.location,

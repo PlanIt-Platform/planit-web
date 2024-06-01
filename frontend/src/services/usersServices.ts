@@ -34,6 +34,7 @@ export async function getUser(userId) {
 }
 
 export async function editUser(name, description, interests) {
+    if (interests )
     return await executeRequestAndRefreshToken(
         put,
         USER,

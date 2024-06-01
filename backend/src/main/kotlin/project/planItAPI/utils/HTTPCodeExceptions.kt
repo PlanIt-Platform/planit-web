@@ -136,28 +136,13 @@ class InvalidTimestampFormatException (name: String) : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
-class InvalidVisibilityException : HTTPCodeException(
-    message = "Invalid visibility value",
-    httpCode = BAD_REQUEST
-)
-
 class InvalidPriceFormatException : HTTPCodeException(
     message = "Invalid price format. The correct format is 'amount currency'. Example: '10.00 USD'",
     httpCode = BAD_REQUEST
 )
 
-class InvalidCategoryException : HTTPCodeException(
-    message = "Invalid category",
-    httpCode = BAD_REQUEST
-)
-
 class InvalidSubcategoryException : HTTPCodeException(
     message = "Invalid subcategory",
-    httpCode = BAD_REQUEST
-)
-
-class UserIDParameterMissing : HTTPCodeException(
-    message = "UserID parameter missing",
     httpCode = BAD_REQUEST
 )
 
@@ -181,11 +166,6 @@ class FailedToCreateEventException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
-class FailedToJoinEventException : HTTPCodeException(
-    message = "Failed to join event",
-    httpCode = BAD_REQUEST
-)
-
 class PastDateException : HTTPCodeException(
     message = "Date not available, must be later than the current date",
     httpCode = BAD_REQUEST
@@ -201,48 +181,23 @@ class UserIsNotOrganizerException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
-class InvalidIdException : HTTPCodeException(
-    message = "Invalid ID",
+class OnlyOrganizerException : HTTPCodeException(
+    message = "User is the only organizer of the event",
     httpCode = BAD_REQUEST
 )
 
-class InvalidVisibilityValueException : HTTPCodeException(
-    message = "Invalid visibility value",
+class InvalidValueException (value: String): HTTPCodeException(
+    message = "Invalid $value",
     httpCode = BAD_REQUEST
 )
 
-class UsernameIsBlankException : HTTPCodeException(
-    message = "Username is blank",
+class InvalidValueLengthException (value: String) : HTTPCodeException(
+    message = "Invalid $value length",
     httpCode = BAD_REQUEST
 )
 
-class InvalidUsernameLengthException : HTTPCodeException(
-    message = "Invalid username length",
-    httpCode = BAD_REQUEST
-)
-
-class InvalidEmailException : HTTPCodeException(
-    message = "Invalid email format",
-    httpCode = BAD_REQUEST
-)
-
-class InvalidUsernameException : HTTPCodeException(
-    message = "Invalid username",
-    httpCode = BAD_REQUEST
-)
-
-class OptionIsBlankException : HTTPCodeException(
-    message = "Option is blank",
-    httpCode = BAD_REQUEST
-)
-
-class InvalidOptionLengthException : HTTPCodeException(
-    message = "Invalid option length",
-    httpCode = BAD_REQUEST
-)
-
-class DurationIsBlankException : HTTPCodeException(
-    message = "Duration is blank",
+class ValueIsBlankException (value: String) : HTTPCodeException(
+    message = "$value is blank",
     httpCode = BAD_REQUEST
 )
 

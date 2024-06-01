@@ -5,11 +5,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.HTTPCodeException
-import project.planItAPI.utils.InvalidCategoryException
+import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 import java.io.File
 import java.lang.Exception
-import java.util.Locale
 
 const val CATEGORIES_FILE_PATH = "categories.json"
 
@@ -21,7 +20,7 @@ class Category private constructor(val name: String) {
 
         operator fun invoke(name: String): CategoryResult {
             val matchedCategory = categories.find { it.lowercase() == name.lowercase() }
-                ?: return Failure(InvalidCategoryException())
+                ?: return Failure(InvalidValueException("category"))
             return Success(Category(matchedCategory))
         }
     }

@@ -2,9 +2,10 @@ package project.planItAPI.services.utils
 
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
-import project.planItAPI.domain.user.EmailOrName
+import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
 import project.planItAPI.domain.user.Password
+import project.planItAPI.domain.user.Username
 import project.planItAPI.models.AccessRefreshTokensModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserInfo
@@ -81,7 +82,7 @@ class FakeUserServices(transactionManager: TransactionManager)
         return UserLogInOutputModel(user.id, accessToken, newRefreshToken)
     }
 
-    override fun register(name: Name, username: Name, email: Email, password: Password): UserRegisterResult {
+    override fun register(name: Name, username: Username, email: Email, password: Password): UserRegisterResult {
         //Simulate the register of a user
         if (users.any { it.email == email.value }) return Failure(ExistingEmailException())
         if (users.any { it.username == username.value }) return Failure(ExistingUsernameException())
@@ -112,17 +113,17 @@ class FakeUserServices(transactionManager: TransactionManager)
         )
     }
 
-    override fun login(emailOrName: EmailOrName, password: Password): UserLoginResult {
+    override fun login(emailOrUsername: EmailOrUsername, password: Password): UserLoginResult {
         //Simulate the login of a user
-        when (emailOrName) {
-            is EmailOrName.EmailType -> {
-                val user = users.find { it.email == emailOrName.email.value }
+        when (emailOrUsername) {
+            is EmailOrUsername.EmailType -> {
+                val user = users.find { it.email == emailOrUsername.email.value }
                 if (user != null) {
                     return Success(loginValidation(password.value, user))
                 }
             }
-            is EmailOrName.NameType -> {
-                val user = users.find { it.username == emailOrName.name.value }
+            is EmailOrUsername.UsernameType -> {
+                val user = users.find { it.username == emailOrUsername.name.value }
                 if (user != null) {
                     return Success(loginValidation(password.value, user))
                 }

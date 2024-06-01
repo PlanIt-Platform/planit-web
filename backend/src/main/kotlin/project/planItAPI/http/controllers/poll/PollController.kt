@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import project.planItAPI.domain.Id
 import project.planItAPI.http.PathTemplates
-import project.planItAPI.http.PathTemplates.POLLS
+import project.planItAPI.http.PathTemplates.GET_POLLS
 import project.planItAPI.http.controllers.failureResponse
 import project.planItAPI.http.controllers.responseHandler
 import project.planItAPI.models.PollInputModel
@@ -124,7 +124,7 @@ class PollController(private val pollServices: PollServices) {
         }
     }
 
-    @GetMapping(POLLS)
+    @GetMapping(GET_POLLS)
     fun getPolls(@PathVariable eventId: Int): ResponseEntity<*> {
         return when (val eventIdResult = Id(eventId)) {
             is Failure -> failureResponse(eventIdResult)

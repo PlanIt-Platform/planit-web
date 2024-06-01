@@ -1,7 +1,11 @@
 .h3_userProfile {
-    margin: 10px 0;
+    margin: 10px 50px;
     font-size: 32px;
     font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 15ch;
 }
 
 .h5_userProfile {

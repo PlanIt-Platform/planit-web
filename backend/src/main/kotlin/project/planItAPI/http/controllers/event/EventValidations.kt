@@ -2,8 +2,10 @@ package project.planItAPI.http.controllers.event
 
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.event.DateFormat
+import project.planItAPI.domain.event.Description
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
+import project.planItAPI.domain.event.Title
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.models.EventInputModel
 import project.planItAPI.models.ValidatedEventInputsModel
@@ -14,6 +16,8 @@ import project.planItAPI.utils.Success
 
 fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEventInputsModel> {
     val results = listOf(
+        Title(input.title),
+        Description(input.description),
         Visibility(input.visibility),
         Category(input.category),
         Subcategory(input.category, input.subCategory),
@@ -32,6 +36,8 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
     return if (errors.isEmpty()) {
         Success(
             ValidatedEventInputsModel(
+            title = (results[0] as Success).value as Title,
+            description = (results[1] as Success).value as Description,
             visibility = (results[0] as Success).value as Visibility,
             category = (results[1] as Success).value as Category,
             subCategory = (results[2] as Success).value as Subcategory,

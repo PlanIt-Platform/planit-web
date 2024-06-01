@@ -36,6 +36,7 @@ export default function GetEvent(): React.ReactElement {
     const userId = getUserId();
     const eventId = useParams().id
     const [isOrganizer, setIsOrganizer] = useState(false);
+    const [numberOfOrganizers, setNumberOfOrganizers] = useState(1);
     const [isInEvent, setIsInEvent] = useState(false);
     const [participants, setParticipants] = useState([])
     const [error, setError] = useState('')
@@ -86,6 +87,7 @@ export default function GetEvent(): React.ReactElement {
                     setParticipants(sortedUsers);
                     setIsInEvent(res.data.users.some((user) => user.id === userId))
                     setIsOrganizer(res.data.users.some((user) => user.id === userId && user.taskName === "Organizer"));
+                    setNumberOfOrganizers(res.data.users.filter((user) => user.taskName === "Organizer").length);
 
                     if (!res.data.users.some(participant => participant.id === userId)) {
                         setRedirectHome(true);
@@ -138,8 +140,8 @@ export default function GetEvent(): React.ReactElement {
 
     return (
         <>
-            <div className="event-title">
-                <h1>{event.title}</h1>
+            <div className="event-title-container">
+                <h1 className="event-title" title={event.title}>{event.title}</h1>
             </div>
             <div className="container">
                 <div className="left">
@@ -148,13 +150,13 @@ export default function GetEvent(): React.ReactElement {
                     {event.description &&
                         <div className="info-pair">
                             <img src={description} alt="description" className={"info_img"} style={{width: "25px"}}/>
-                            <span className="info-value">{event.description}</span>
+                            <span className="event-description" title={event.description}>{event.description}</span>
                         </div>
                     }
                     {event.location &&
                         <div className="info-pair">
                             <img src={location} alt="location" className={"info_img"}/>
-                            <span className="info-value">{event.location}</span>
+                            <span className="info-value" title={event.location}>{event.location}</span>
                         </div>
                     }
                     <div className={"date-container"}>
@@ -162,12 +164,12 @@ export default function GetEvent(): React.ReactElement {
                         <div className={event.endDate ? "date-pairs-endDate" : "date-pairs"}>
                             <div className="info-pair">
                                 <img src={date} alt="date" className={"info_img"}/>
-                                <span className="info-value">{formatDate(event.date)}</span>
+                                <span className="info-value" title={event.date}>{formatDate(event.date)}</span>
                             </div>
                             {event.endDate &&
                                 <div className="info-pair">
                                     <img src={date} alt="date" className={"info_img"}/>
-                                    <span className="info-value">{formatDate(event.endDate)}</span>
+                                    <span className="info-value" title={event.endDate}>{formatDate(event.endDate)}</span>
                                 </div>
                             }
                         </div>
@@ -177,7 +179,10 @@ export default function GetEvent(): React.ReactElement {
                         <span className="info-value">{event.priceAmount} {event.priceCurrency}</span>
                     </div>
                     <div className={"buttons-container"}>
-                        {isInEvent && !isOrganizer && <button className="del-button" onClick={handleLeave}>Leave</button>}
+                        {isInEvent && (!isOrganizer || (isOrganizer && numberOfOrganizers > 1)) && (
+                            <button className="leave-button" onClick={handleLeave}>Leave</button>
+                        )
+                        }
                         {isOrganizer && <button className="del-button" onClick={handleDelete}>Delete</button>}
                     </div>
                 </div>
@@ -197,11 +202,11 @@ export default function GetEvent(): React.ReactElement {
                                              setParticipantId(participant.id)
                                          }
                                      }>
-                                    <li className={`participant-item ${participant.taskName === 'Organizer' 
+                                    <li title={participant.username} className={`participant-item ${participant.taskName === 'Organizer' 
                                         ? 'organizerName' : ''}`}>{participant.username}</li>
                                     {
                                         participant.taskName
-                                            ? <li className={`participant-task 
+                                            ? <li title={participant.taskName} className={`participant-task 
                                                 ${participant.taskName === 'Organizer' 
                                                     ? 'organizer' : ''}`}>{participant.taskName}</li>
                                             : isOrganizer && <img src={plus} alt="Assign" className={"plus_img"}

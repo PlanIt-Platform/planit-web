@@ -78,7 +78,7 @@ class UserController(private val userServices: UserServices) {
             is Success -> {
                 val validatedInputs = validation.value
                 when (val res = userServices.login(
-                    validatedInputs.emailOrName,
+                    validatedInputs.emailOrUsername,
                     validatedInputs.password
                 )) {
                     is Failure -> {

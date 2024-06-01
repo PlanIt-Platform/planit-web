@@ -3,7 +3,7 @@ package project.planItAPI.domain.user
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.HTTPCodeException
-import project.planItAPI.utils.InvalidEmailException
+import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 
 typealias EmailResult = Either<HTTPCodeException, Email>
@@ -15,7 +15,7 @@ class Email private constructor(val value: String)  {
 
         operator fun invoke(value: String): EmailResult = when {
             value.matches(EMAIL_FORMAT.toRegex()) -> Success(Email(value))
-            else -> Failure(InvalidEmailException())
+            else -> Failure(InvalidValueException("email format"))
         }
     }
 }

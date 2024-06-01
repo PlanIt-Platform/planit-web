@@ -5,13 +5,14 @@ import project.planItAPI.domain.event.Category
 import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.domain.event.DateFormat
+import project.planItAPI.domain.event.Description
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
+import project.planItAPI.domain.event.Title
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreateEventException
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.IncorrectPasswordException
-import project.planItAPI.utils.InvalidCategoryException
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
@@ -20,7 +21,10 @@ import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
+import project.planItAPI.utils.InvalidValueException
+import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.PastDateException
+import project.planItAPI.utils.PrivateEventException
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
@@ -49,8 +53,8 @@ class EventServices(
      * If the creation fails, a [Failure] is thrown.
      */
     fun createEvent(
-        title: String,
-        description: String?,
+        title: Title,
+        description: Description,
         category: Category,
         subcategory: Subcategory,
         location: String?,
@@ -63,13 +67,13 @@ class EventServices(
     ): CreateEventResult =
         transactionManager.run {
             val eventsRepository = it.eventsRepository
-            if (visibility == Visibility.Private && password.isBlank()) throw FailedToCreateEventException()
+            if (visibility == Visibility.Private && password.isBlank()) throw PrivateEventException()
             val now = getNowTime()
             if (date.value < now) throw PastDateException()
             if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
             val eventID = eventsRepository.createEvent(
-                title,
-                description ?: "No description yet!",
+                title.value,
+                description.value,
                 category.name,
                 subcategory.name,
                 location ?: "To be Determined",
@@ -80,7 +84,7 @@ class EventServices(
                 userID,
                 password
             ) ?: throw FailedToCreateEventException()
-            return@run CreateEventOutputModel(eventID, title, "Created with success.")
+            return@run CreateEventOutputModel(eventID, title.value, "Created with success.")
         }
 
 
@@ -126,14 +130,23 @@ class EventServices(
      */
     fun searchEvents(searchInput: String?, limit: Int, offset: Int): SearchEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
+
         if (searchInput.isNullOrBlank() || searchInput == "All") {
-            val events = eventsRepository.getAllEvents(limit, offset)
-            val eventsReturn = hidePrivateEventInfo(events)
-            return@run eventsReturn
+            val eventList = eventsRepository.getAllEvents(limit, offset)
+            return@run hidePrivateEventInfo(eventList)
         }
-        val events = eventsRepository.searchEvents(searchInput, limit, offset)
-        val eventsReturn = hidePrivateEventInfo(events)
-        return@run eventsReturn
+
+        val categories = readCategories()
+        val subCategories = categories.keys.flatMap { cat -> readSubCategories(cat) ?: emptyList() }
+
+        if (searchInput in categories.keys || searchInput in subCategories) {
+            val eventList = eventsRepository.searchEvents(searchInput, limit, offset).events
+                .filter { event -> event.visibility == "Public" }
+            return@run hidePrivateEventInfo(SearchEventListOutputModel(eventList))
+        }
+
+        val eventList = eventsRepository.searchEvents(searchInput, limit, offset)
+        return@run hidePrivateEventInfo(eventList)
     }
 
     /**
@@ -167,6 +180,10 @@ class EventServices(
         val usersInEvent = eventsRepository.getUsersInEvent(event.id)
         if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) {
             throw UserNotInEventException()
+        }
+        val eventOrganizers = eventsRepository.getEventOrganizers(eventId)
+        if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) {
+            throw OnlyOrganizerException()
         }
         eventsRepository.leaveEvent(userId, event.id)
         return@run SuccessMessage("User left event with success.")
@@ -204,8 +221,8 @@ class EventServices(
     fun editEvent(
         userId: Int,
         eventId: Int,
-        title: String,
-        description: String?,
+        title: Title,
+        description: Description,
         category: Category,
         subcategory: Subcategory,
         location: String?,
@@ -216,15 +233,19 @@ class EventServices(
         password: String
     ): EditEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
-        eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+        if (visibility == Visibility.Private && password.isBlank()) throw PrivateEventException()
+        val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
         if (userId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
         val now = getNowTime()
         if (date.value < now) throw PastDateException()
         if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
+        val newPassword = if (visibility == Visibility.Private && password.isBlank()) event.password
+        else if (visibility == Visibility.Public) ""
+        else password
         eventsRepository.editEvent(
             eventId,
-            title,
-            description ?: "",
+            title.value,
+            description.value,
             category.name,
             subcategory.name,
             location ?: "To be Determined",
@@ -232,7 +253,7 @@ class EventServices(
             Timestamp.valueOf("${date.value}:00"),
             if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
             price,
-            password
+            newPassword
         )
         return@run SuccessMessage("Event edited with success.")
     }
@@ -252,7 +273,7 @@ class EventServices(
      * @return [SubcategoriesResult] The list of event subcategories for the given category.
      */
     fun getSubcategories(category: String): SubcategoriesResult = transactionManager.run {
-        return@run readSubCategories(category) ?: throw InvalidCategoryException()
+        return@run readSubCategories(category) ?: throw InvalidValueException("category")
     }
 
     /**

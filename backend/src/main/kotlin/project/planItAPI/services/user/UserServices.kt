@@ -3,9 +3,10 @@ package project.planItAPI.services.user
 import org.springframework.stereotype.Service
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
-import project.planItAPI.domain.user.EmailOrName
+import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
 import project.planItAPI.domain.user.Password
+import project.planItAPI.domain.user.Username
 import project.planItAPI.models.AccessRefreshTokensModel
 import project.planItAPI.models.AssignTaskInputModel
 import project.planItAPI.models.UserRegisterOutputModel
@@ -30,6 +31,7 @@ import project.planItAPI.models.UserEventsOutputModel
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToAssignTaskException
 import project.planItAPI.utils.InvalidRefreshTokenException
+import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.TaskNotFoundException
 import project.planItAPI.utils.UserAlreadyAssignedTaskException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -62,7 +64,7 @@ class UserServices (
      * @param password The user's password.
      * @return The result of the user registration as [UserRegisterResult].
      */
-    fun register(name: Name, username: Name, email: Email, password: Password): UserRegisterResult {
+    fun register(name: Name, username: Username, email: Email, password: Password): UserRegisterResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
 
@@ -93,22 +95,22 @@ class UserServices (
     /**
      * Logs in a user.
      *
-     * @param emailOrName The user's email.
+     * @param emailOrUsername The user's email.
      * @param password The user's password.
      * @return The result of the user login as [UserLoginResult].
      */
-    fun login(emailOrName: EmailOrName, password: Password): UserLoginResult {
+    fun login(emailOrUsername: EmailOrUsername, password: Password): UserLoginResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
-            when (emailOrName) {
-                is EmailOrName.EmailType -> {
-                    val user = usersRepository.getUserByEmail(emailOrName.email.value)
+            when (emailOrUsername) {
+                is EmailOrUsername.EmailType -> {
+                    val user = usersRepository.getUserByEmail(emailOrUsername.email.value)
                     if (user != null) {
                         return@run loginValidation(password.value, user, usersRepository)
                     }
                 }
-                is EmailOrName.NameType -> {
-                    val user = usersRepository.getUserByUsername(emailOrName.name.value)
+                is EmailOrUsername.UsernameType -> {
+                    val user = usersRepository.getUserByUsername(emailOrUsername.name.value)
                     if (user != null) {
                         return@run loginValidation(password.value, user, usersRepository)
                     }
@@ -159,7 +161,8 @@ class UserServices (
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val user = usersRepository.getUser(userID) ?: throw UserNotFoundException()
-            return@run UserInfo(user.id, user.name, user.username,  user.email, user.description, user.interests.split(","))
+            return@run UserInfo(user.id, user.name, user.username,  user.email,
+                user.description, user.interests.split(",").filter { i -> i.isNotBlank() })
         }
     }
 
@@ -244,6 +247,10 @@ class UserServices (
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
             if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
             if (usersRepository.getUserTask(userId, eventId) == null) throw TaskNotFoundException()
+            val eventOrganizers = eventsRepository.getEventOrganizers(eventId)
+            if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) {
+                throw OnlyOrganizerException()
+            }
             usersRepository.removeTask(taskId)
             return@run SuccessMessage("Task removed successfully.")
         }
