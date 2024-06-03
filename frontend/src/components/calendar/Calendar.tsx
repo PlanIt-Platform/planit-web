@@ -8,6 +8,7 @@ import {getUserEvents} from "../../services/usersServices";
 import yellow_paint from "../../../images/yellow_paint.png";
 import purple_paint from "../../../images/purple_paint.png";
 import green_paint from "../../../images/green_paint.png";
+import Error from "../error/Error";
 
 export function Calendar() {
     const [events, setEvents] = useState([]);
@@ -77,6 +78,7 @@ export function Calendar() {
                     <p>3+ events</p>
                 </div>
             </div>
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </div>
     );
 }

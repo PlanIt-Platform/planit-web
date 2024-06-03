@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {getPoll, votePoll} from "../../../../services/pollServices";
 import './ViewPoll.css';
+import Error from "../../../error/Error";
 
 export function ViewPoll({onClose, eventId, pollId}) {
     const [error, setError] = useState('');
@@ -68,7 +69,7 @@ export function ViewPoll({onClose, eventId, pollId}) {
                     })}
                 </div>
                 <button className="view-poll-submit" onClick={handleSubmit}>Submit</button>
-                {error && <div className="error">{error}</div>}
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </>
     );

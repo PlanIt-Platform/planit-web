@@ -1,13 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ChatMessage from "../chatMessage/ChatMessage";
 import {addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp} from "firebase/firestore";
-import {getUser} from "../../../services/usersServices";
-import arrowDown from "../../../../images/arrowdown.png";
-import arrowUp from "../../../../images/arrowup.png";
-import {CreatePoll} from "../../getEvent/polls/create/CreatePoll";
-import {ViewPolls} from "../../getEvent/polls/view/ViewPolls";
-import {db} from "../../../Router";
+import {getUser} from "../../../../services/usersServices";
+import arrowDown from "../../../../../images/arrowdown.png";
+import arrowUp from "../../../../../images/arrowup.png";
+import {CreatePoll} from "../../polls/create/CreatePoll";
+import {ViewPolls} from "../../polls/view/ViewPolls";
+import {db} from "../../../../Router";
 import "./ChatRoom.css";
+import Error from "../../../error/Error";
 
 export function ChatRoom({uId, eventId, isOrganizer}) {
     const [messages, setMessages] = useState([]);
@@ -117,6 +118,7 @@ export function ChatRoom({uId, eventId, isOrganizer}) {
                     eventId={eventId}
                     isOrganizer={isOrganizer}
                 />}
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </div>
     );
 }

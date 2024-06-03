@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {editEvent, getCategories, getSubCategories} from "../../../services/eventsServices";
-
+import Error from "../../error/Error";
 
 export default function EventForm({ event, onClose }) {
     const [inputs, setInputs] =useState({
@@ -77,6 +77,13 @@ export default function EventForm({ event, onClose }) {
         }));
     }
 
+    function handleKeyPress(event) {
+        const keyCode = event.keyCode || event.which;
+        const keyValue = String.fromCharCode(keyCode);
+        if (!/\d/.test(keyValue) && keyValue !== "." && event.key !== "Backspace")
+            event.preventDefault();
+    }
+
     return (
         <>
             <div className={"overlay"} onClick={onClose}></div>
@@ -102,9 +109,14 @@ export default function EventForm({ event, onClose }) {
                     </select>
                     <input type="datetime-local" name="date" value={inputs.date} min={today} onChange={handleChange} required />
                     <input type="datetime-local" name="endDate" value={inputs.endDate} min={today} onChange={handleChange}/>
-                    <input type="number" name="priceAmount" value={inputs.priceAmount} onChange={handleChange} placeholder="Price" />
-                    <button type="submit" disabled={submitting}>Edit</button>
-                    {error && <p>{error}</p>}
+                    <label>
+                        Price*:
+                        <input type="number" name="price" value={inputs.priceAmount} onChange={handleChange}
+                               onKeyDown={handleKeyPress} step="0.01" min="0" required/>
+                        <input type={"text"} name={"currency"} value={inputs.priceCurrency} onChange={handleChange} required/>
+                    </label>
+                    <button type="submit" disabled={submitting} className="event-form-button">Edit</button>
+                    {error && <Error message={error} onClose={() => setError(null)} />}
                 </form>
             </div>
         </>

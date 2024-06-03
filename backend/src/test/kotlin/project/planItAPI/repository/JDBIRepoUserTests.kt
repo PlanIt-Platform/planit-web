@@ -25,8 +25,8 @@ class JDBIRepoUserTests {
 
     companion object {
         private const val JDBI_URL = "jdbc:postgresql://localhost:5432/PlanItTestDatabase?user=postgres&password=123"
-        private const val USER_SCRIPT_PATH = "src/test/sql/createUser.sql"
-        private const val DELETE_USER_SCRIPT_PATH = "src/test/sql/clearUser.sql"
+        private const val USER_SCRIPT_PATH = "sql/createUser.sql"
+        private const val DELETE_USER_SCRIPT_PATH = "sql/clearUser.sql"
 
         private fun runWithHandle(block: (Handle) -> Unit) = jdbi.useTransaction<Exception>(block)
 

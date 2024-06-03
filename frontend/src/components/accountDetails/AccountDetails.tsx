@@ -3,6 +3,7 @@ import {editUser, getUser} from "../../services/usersServices";
 import {getUserId} from "../authentication/Session";
 import './AccountDetails.css';
 import {getCategories} from "../../services/eventsServices";
+import Error from "../error/Error";
 
 const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -124,7 +125,7 @@ export default function AccountDetails(): React.ReactElement {
             ) : (
                 <button onClick={handleEdit}>Edit</button>
             )}
-            {error && <p style={{color: 'red'}}>{error}</p>}
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </div>
     )
 }

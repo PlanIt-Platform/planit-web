@@ -10,11 +10,12 @@ import project.planItAPI.executeSQLScript
 import project.planItAPI.repository.jdbi.event.JdbiEventsRepository
 import project.planItAPI.repository.jdbi.user.JdbiUsersRepository
 import project.planItAPI.repository.jdbi.utils.configureWithAppRequirements
+import java.sql.Timestamp
 
 class EventsRepositoryTests {
     companion object {
         private const val JDBI_URL = "jdbc:postgresql://localhost:5432/PlanItTestDatabase?user=postgres&password=123"
-        private const val EVENT_SCRIPT_PATH = "src/test/sql/createEvent.sql"
+        private const val EVENT_SCRIPT_PATH = "sql/createEvent.sql"
 
         private fun runWithHandle(block: (Handle) -> Unit) = jdbi.useTransaction<Exception>(block)
 
@@ -53,7 +54,7 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
@@ -81,8 +82,8 @@ class EventsRepositoryTests {
             assertEquals(userInEvent.users[0].id, userId)
 
             //Check if user is Organizer
-            val userOrganizer = repo.getEventOrganizer(eventID)
-            assertEquals(userOrganizer, userId)
+            val userOrganizers = repo.getEventOrganizers(eventID)
+            assertEquals(userOrganizers[0], userId)
         }
     }
 
@@ -107,7 +108,7 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
@@ -167,7 +168,7 @@ class EventsRepositoryTests {
     fun `searchEvent returns emptyList when no events are found`() {
         runWithHandle { handle ->
             val repo = JdbiEventsRepository(handle)
-            val eventList = repo.searchEvents("Event")
+            val eventList = repo.searchEvents("Event", 5, 5)
             assert(eventList.events.isEmpty())
         }
     }
@@ -184,14 +185,14 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
                 password = ""
             )
 
-            val eventList = repo.searchEvents("title")
+            val eventList = repo.searchEvents("title", 10, 0)
 
             assert(eventList.events.isNotEmpty())
             assert(eventList.events.size == 1)
@@ -204,20 +205,20 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
                 password = ""
             )
 
-            val secondEventList = repo.searchEvents("WebDev")
+            val secondEventList = repo.searchEvents("WebDev", 10, 0)
 
             assert(secondEventList.events.isNotEmpty())
             assert(secondEventList.events.size == 1)
             assertEquals(secondEventList.events[0].id, secondEventID)
 
-            val allEventsList = repo.searchEvents("Technology")
+            val allEventsList = repo.searchEvents("Technology",10 ,0)
 
             assert(allEventsList.events.isNotEmpty())
             assert(allEventsList.events.size == 2)
@@ -230,7 +231,7 @@ class EventsRepositoryTests {
     fun `getAllEvents returns emptyList when no events are found`() {
         runWithHandle { handle ->
             val repo = JdbiEventsRepository(handle)
-            val eventList = repo.getAllEvents()
+            val eventList = repo.getAllEvents(5, 5)
             assert(eventList.events.isEmpty())
         }
     }
@@ -247,7 +248,7 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
@@ -260,14 +261,14 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
                 password = ""
             )
 
-            val eventList = repo.getAllEvents()
+            val eventList = repo.getAllEvents(10, 0)
 
             assert(eventList.events.isNotEmpty())
             assert(eventList.events.size == 2)
@@ -376,7 +377,7 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
@@ -391,9 +392,10 @@ class EventsRepositoryTests {
                 subcategory = "newSubcategory",
                 location = "newLocation",
                 visibility = "Private",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
-                price = null
+                price = null,
+                password = ""
             )
 
             val event = repo.getEvent(eventID)
@@ -421,15 +423,15 @@ class EventsRepositoryTests {
                 subcategory = "Web Development",
                 location = "location",
                 visibility = "Public",
-                date = null,
+                date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
                 password = ""
             )
 
-            val organizer = repo.getEventOrganizer(eventID!!)
-            assertEquals(organizer, userId)
+            val organizers = repo.getEventOrganizers(eventID!!)
+            assertEquals(organizers[0], userId)
         }
     }
 }

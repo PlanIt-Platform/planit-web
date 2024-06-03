@@ -13,9 +13,10 @@ import {getUserId} from "../authentication/Session";
 import UserProfile from "../userProfile/UserProfile";
 import EditForm from "./editEvent/EditForm";
 import {AssignTask} from "./assignTask/AssignTask";
-import {ChatRoom} from "../chat/chatRoom/ChatRoom";
+import {ChatRoom} from "./chat/chatRoom/ChatRoom";
 import {collection, deleteDoc, getDocs, doc} from "firebase/firestore";
 import {db} from "../../Router";
+import Error from "../error/Error";
 
 function formatDate(dateString) {
     // Remove the seconds from the date string
@@ -242,6 +243,7 @@ export default function GetEvent(): React.ReactElement {
                     isOrganizer={isOrganizer}
                 />
             }
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </>
     );
 }

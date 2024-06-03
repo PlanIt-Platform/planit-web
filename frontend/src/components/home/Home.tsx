@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import './homeStyle.css';
+import './Home.css';
 import logo from "../../../images/logo.png";
 import {isLogged} from "../authentication/Session";
 import {Navigate} from "react-router-dom";

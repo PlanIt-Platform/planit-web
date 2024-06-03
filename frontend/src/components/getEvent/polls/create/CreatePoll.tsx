@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import "./CreatePoll.css";
 import {createPoll} from "../../../../services/pollServices";
 import trash_bin from "../../../../../images/trashbin.png";
+import Error from "../../../error/Error";
 
 
 export function CreatePoll({ onClose, eventId }) {
@@ -98,7 +99,7 @@ export function CreatePoll({ onClose, eventId }) {
                         </div>
                         <button type="submit" className="save-button">Save</button>
                     </div>
-                    {error && <div className="error">{error}</div>}
+                    {error && <Error message={error} onClose={() => setError(null)} />}
                 </div>
             </form>
         </>

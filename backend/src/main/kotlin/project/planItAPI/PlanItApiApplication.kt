@@ -9,7 +9,7 @@ import java.time.Duration
 
 val jdbcUrl: String = System.getenv("JDBC_DATABASE_URL")
 
-private const val createSchemaScriptPath = "backend/src/main/sql/createSchema.sql"
+private const val createSchemaScriptPath = "sql/createSchema.sql"
 
 @SpringBootApplication
 class PlanItApiApplication{

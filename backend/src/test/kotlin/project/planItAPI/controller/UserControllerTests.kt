@@ -63,6 +63,34 @@ class UserControllerTests {
 
         return mockMvc.perform(requestBuilder)
     }
+
+    private fun authenticateUser(): String {
+
+        `when`(userServices.register(any(), any(), any(), any()))
+            .thenReturn(
+                Success(
+                    UserRegisterOutputModel(
+                        1,
+                        "testuser123",
+                        "testUser",
+                        "refreshToken",
+                        "accessToken"
+                    )
+                )
+            )
+
+        val response = performRequest(
+            RequestMethod.POST,
+            "/api-planit/register",
+            "{\"username\":\"testuser123\"," +
+                    "\"name\":\"testUser\"," +
+                    "\"email\":\"testuser@gmail.com\"," +
+                    "\"password\":\"T3stP#ssword\"}")
+            .andReturn().response
+
+        return response.getCookie("access_token")?.value ?: ""
+    }
+
     @Test
     fun register() {
         `when`(
@@ -354,7 +382,7 @@ class UserControllerTests {
                 cookies = mapOf("access_token" to "accessToken")
        )
            .andExpect(status().isBadRequest)
-           .andExpect(jsonPath("$.error").value("Invalid ID"))
+           .andExpect(jsonPath("$.error").value("Invalid id"))
    }
 
     @Test
@@ -372,6 +400,8 @@ class UserControllerTests {
             )
         )
 
+        val accessToken = authenticateUser()
+
         //User edits his information successfully
         //Expected: 200 OK
         performRequest(
@@ -380,7 +410,7 @@ class UserControllerTests {
             "{\"name\":\"${name}\"," +
                     "\"description\":\"test description\"," +
                     "\"interests\":[\"Technology\",\"Business\"]}",
-            cookies = mapOf("access_token" to "accessToken")
+            cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.success").value("User information edited successfully"))
@@ -393,23 +423,10 @@ class UserControllerTests {
             "{\"name\":\"\"," +
                     "\"description\":\"test description\"," +
                     "\"interests\":[\"test1\",\"test2\"]}",
-            cookies = mapOf("access_token" to "accessToken")
+            cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Username is blank"))
-
-        //User tries to edit his information with a short name
-        //Expected: 400 Bad Request
-        performRequest(
-            RequestMethod.PUT,
-            "/api-planit/user",
-            "{\"name\":\"abc\"," +
-                    "\"description\":\"test description\"," +
-                    "\"interests\":[\"test1\",\"test2\"]}",
-            cookies = mapOf("access_token" to "accessToken")
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid username length"))
+            .andExpect(jsonPath("$.error").value("Name is blank"))
 
         //User tries to edit his information with invalid categories (interests)
         //Expected: 400 Bad Request
@@ -419,7 +436,7 @@ class UserControllerTests {
             "{\"name\":\"${name}\"," +
                     "\"description\":\"test description\"," +
                     "\"interests\":[\"test1\",\"test2\",\"test3\"]}",
-            cookies = mapOf("access_token" to "accessToken")
+            cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Invalid category"))

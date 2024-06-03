@@ -49,12 +49,6 @@
     left: 30px;
 }
 
-.card-container .round {
-    border: 1px solid #03BFCB;
-    border-radius: 50%;
-    padding: 7px;
-}
-
 button.primary {
     background-color: #03BFCB;
     border: 1px solid #03BFCB;
@@ -134,4 +128,13 @@ button.primary {
     width: 25px;
     height: 25px;
     cursor: pointer;
+}
+
+.user_img {
+    border: 1px solid #03BFCB;
+    border-radius: 50%;
+    padding: 2px;
+    position: relative;
+    width: 120px;
+    height: 120px;
 }

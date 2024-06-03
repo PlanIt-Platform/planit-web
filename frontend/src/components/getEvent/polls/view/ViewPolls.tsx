@@ -4,6 +4,7 @@ import trashBin from "../../../../../images/trashbin.png";
 import trophy from "../../../../../images/trophy.png";
 import "./ViewPolls.css";
 import {ViewPoll} from "./ViewPoll";
+import Error from "../../../error/Error";
 
 export function ViewPolls({ onClose, eventId, isOrganizer }) {
     const [error, setError] = useState("");
@@ -95,6 +96,7 @@ export function ViewPolls({ onClose, eventId, isOrganizer }) {
                             )
                         })
                     )}
+                    {error && <Error message={error} onClose={() => setError(null)} />}
                 </div>
             </div>
         </>

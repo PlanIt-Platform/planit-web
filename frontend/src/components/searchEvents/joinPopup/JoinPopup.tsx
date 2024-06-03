@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {joinEvent} from "../../../services/eventsServices";
 import {Navigate} from "react-router-dom";
 import "./JoinPopup.css"
+import Error from "../../error/Error";
 
 export default function JoinPopup({ event, onClose }) {
     const [password, setPassword] = useState('');
@@ -35,7 +36,7 @@ export default function JoinPopup({ event, onClose }) {
                     )}
                     <button type="submit">Join</button>
                 </form>
-                {error && <p>{error}</p>}
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </>
     );

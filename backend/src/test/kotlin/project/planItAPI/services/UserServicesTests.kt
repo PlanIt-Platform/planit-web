@@ -61,7 +61,7 @@ class UserServicesTests {
         @Test
         fun `cannot register a user with an existing email`() {
             userServices.register(name, username, email, password)
-            val result = userServices.register(name, (Name("testUser2") as Success).value, email, password)
+            val result = userServices.register(name, (Username("testUser2") as Success).value, email, password)
             if (result is Failure) {
                 assert(result.value is ExistingEmailException)
                 println("User with existing email cannot be registered")

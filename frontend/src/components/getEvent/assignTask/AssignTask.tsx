@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {assignTask} from "../../../services/usersServices";
 import "./AssignTask.css";
+import Error from "../../error/Error";
 
 export function AssignTask({ onClose, userId, eventId }) {
     const [error, setError] = useState("");
@@ -46,6 +47,7 @@ export function AssignTask({ onClose, userId, eventId }) {
                     </label>
                     <button type="submit">Save</button>
                 </form>
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </>
     )

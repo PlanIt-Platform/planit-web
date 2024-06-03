@@ -20,11 +20,12 @@ import simplemeetingbg from "../../../images/simplemeeting.png";
 import private_bg from "../../../images/private.png";
 import EventForm from "./createEvent/EventForm";
 import JoinPopup from "./joinPopup/JoinPopup";
-import {Link, Navigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {PlanItContext} from "../../PlanItProvider";
 import location from "../../../images/location.png";
 import date from "../../../images/date.png";
 import {getUserId} from "../authentication/Session";
+import Error from "../error/Error";
 
 const categoryIcons = {
     'All': globe_icon,
@@ -161,11 +162,11 @@ export default function SearchEvents(): React.ReactElement {
                         }
                     </div>
                 ))}
-                {error && <p>{error}</p>}
             </div>
             <button className="floating-button" onClick={() => setIsEventFormOpen(true)}>+</button>
             {isJoinPopupOpen && !isParticipant && <JoinPopup event={selectedEvent} onClose={() => setIsJoinPopupOpen(false)} />}
             {isEventFormOpen && <EventForm onClose={() => setIsEventFormOpen(false)} />}
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </div>
     )
 }

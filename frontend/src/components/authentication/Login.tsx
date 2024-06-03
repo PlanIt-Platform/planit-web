@@ -5,6 +5,7 @@ import {login} from "../../services/usersServices";
 import './authStyle.css';
 import logo from "../../../images/logo.png";
 import {PlanItContext} from "../../PlanItProvider";
+import Error from "../error/Error";
 
 export default function Login(): React.ReactElement {
     const { setUserId } = useContext(PlanItContext);
@@ -65,15 +66,15 @@ export default function Login(): React.ReactElement {
                             />
                         </div>
                         <div>
-                            <button type="submit">
+                            <button className="form-container_button" type="submit">
                                 {submitting ? 'Logging in...' : 'Login'}
                             </button>
                         </div>
-                        <p>
+                        <p className="form-container_p">
                             Don't have an account? <Link to="/planit/register" className={"linkStyle"}>Sign Up</Link>
                         </p>
                 </form>
-                {error && <p>{error}</p>}
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </div>
     );

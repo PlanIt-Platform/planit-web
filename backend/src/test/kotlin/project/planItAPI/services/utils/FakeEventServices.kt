@@ -2,12 +2,16 @@ package project.planItAPI.services.utils
 
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.event.DateFormat
+import project.planItAPI.domain.event.Description
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
+import project.planItAPI.domain.event.Title
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.models.EventModel
+import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
+import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserInEvent
 import project.planItAPI.models.UsersInEventList
@@ -26,7 +30,7 @@ import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreateEventException
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.IncorrectPasswordException
-import project.planItAPI.utils.InvalidCategoryException
+import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -40,8 +44,8 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
     }
 
     override fun createEvent(
-        title: String,
-        description: String?,
+        title: Title,
+        description: Description,
         category: Category,
         subcategory: Subcategory,
         location: String?,
@@ -57,16 +61,16 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
             Failure(FailedToCreateEventException())
         } else {
             val eventID = generateEventID()
-            Success(CreateEventOutputModel(eventID, title, "Created with success."))
+            Success(CreateEventOutputModel(eventID, title.value, "Created with success."))
         }
     }
 
-    override fun getEvent(id: Int): EventResult {
+    override fun getEvent(id: Int, userID: Int): EventResult {
         // Simulate the behavior of retrieving an event
         return when (id) {
             1 -> {
                 Success(
-                    EventModel(
+                    EventOutputModel(
                         id,
                         "Event Title",
                         "Event description",
@@ -77,14 +81,13 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                         "2024-12-12 12:00",
                         "2024-12-24 15:00",
                         100.00,
-                        "EUR",
-                        ""
+                        "EUR"
                     )
                 )
             }
             2 -> {
                 Success(
-                    EventModel(
+                    EventOutputModel(
                         id,
                         "Event 2 Title",
                         "Event 2 description",
@@ -95,8 +98,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                         "2024-01-12 11:00",
                         "2024-01-24 15:00",
                         50.00,
-                        "EUR",
-                        "123"
+                        "EUR"
                     )
                 )
             }
@@ -106,7 +108,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         }
     }
 
-    override fun getUsersInEvent(id: Int): UsersInEventResult {
+    override fun getUsersInEvent(id: Int, userId: Int): UsersInEventResult {
         // Simulate the behavior of retrieving users in an event
         return when (id) {
             1 -> {
@@ -115,13 +117,18 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                         listOf(
                             UserInEvent(
                                 1,
-                                "user1",
-                                "user1"
+                                "userTask1",
+                                1,
+                                "userTest1",
+                            "user"
                             ),
                             UserInEvent(
                                 3,
-                                "user3",
-                                "user3"
+                                "userTask2",
+                                2,
+                                "userTest3",
+                                "user"
+
                             )
                         )
                     )
@@ -133,8 +140,10 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                         listOf(
                             UserInEvent(
                                 2,
-                                "user2",
-                                "user2"
+                                "userTask3",
+                                3,
+                                "userTest2",
+                                "user"
                             )
                         )
                     )
@@ -146,39 +155,29 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         }
     }
 
-    override fun searchEvents(searchInput: String): SearchEventResult {
+    override fun searchEvents(searchInput: String?, limit: Int, offset: Int): SearchEventResult {
         // Simulate the behavior of searching for events
-        return if (searchInput.isBlank() || searchInput == "All") {
+        return if (searchInput!!.isBlank() || searchInput == "All") {
             Success(
                 SearchEventListOutputModel(
                     listOf(
-                        EventModel(
+                        SearchEventsOutputModel(
                             1,
                             "Event Title",
                             "Event description",
                             "Technology",
-                            "Web Development",
                             "Location",
                             "Public",
-                            "2024-12-12 12:00",
-                            "2024-12-24 15:00",
-                            100.00,
-                            "EUR",
-                            ""
+                            "2024-12-12 12:00"
                         ),
-                        EventModel(
+                        SearchEventsOutputModel(
                             2,
                             "Event 2 Title",
                             "Event 2 description",
                             "Business",
-                            "Networking Events and Mixers",
                             "Location 2",
                             "Private",
-                            "2024-01-12 11:00",
-                            "2024-01-24 15:00",
-                            50.00,
-                            "EUR",
-                            "123"
+                            "2024-01-12 11:00"
                         )
                     )
                 )
@@ -188,19 +187,14 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
             Success(
                 SearchEventListOutputModel(
                     listOf(
-                        EventModel(
+                        SearchEventsOutputModel(
                             1,
                             "Event Title",
                             "Event description",
                             "Technology",
-                            "Web Development",
                             "Location",
                             "Public",
                             "2024-12-12 12:00",
-                            "2024-12-24 15:00",
-                            100.00,
-                            "EUR",
-                            ""
                         )
                     )
                 )
@@ -212,14 +206,12 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
     }
 
     override fun joinEvent(userId: Int, eventId: Int, password: String): JoinEventResult {
-        val eventResult = getEvent(eventId)
+        val eventResult = getEvent(eventId, userId)
         if (eventResult is Failure) {
             return Failure(EventNotFoundException())
         }
-        val usersInEvent = (getUsersInEvent(eventId) as Success).value
-        if(password != (eventResult as Success).value.password) {
-            return Failure(IncorrectPasswordException())
-        }
+        val usersInEvent = (getUsersInEvent(eventId, userId) as Success).value
+
         if (usersInEvent.users.any { user -> user.id == userId }) {
             return Failure(UserAlreadyInEventException())
         }
@@ -228,11 +220,11 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
     }
 
     override fun leaveEvent(userId: Int, eventId: Int): LeaveEventResult {
-        val eventResult = getEvent(eventId)
+        val eventResult = getEvent(eventId, userId)
         if (eventResult is Failure) {
             return Failure(EventNotFoundException())
         }
-        val usersInEvent = (getUsersInEvent(eventId) as Success).value
+        val usersInEvent = (getUsersInEvent(eventId, userId) as Success).value
         if (!usersInEvent.users.any { user -> user.id == userId }) {
             return Failure(UserNotInEventException())
         }
@@ -241,7 +233,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
     }
 
     override fun deleteEvent(userId: Int, eventId: Int): DeleteEventResult {
-        val eventResult = getEvent(eventId)
+        val eventResult = getEvent(eventId, userId)
         val organizerId = 1
         if (eventResult is Failure) {
             return Failure(EventNotFoundException())
@@ -255,18 +247,19 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
     override fun editEvent(
         userId: Int,
         eventId: Int,
-        title: String,
-        description: String?,
+        title: Title,
+        description: Description,
         category: Category,
         subcategory: Subcategory,
         location: String?,
         visibility: Visibility,
         date: DateFormat,
         endDate: DateFormat,
-        price: Money
+        price: Money,
+        password: String
     ): EditEventResult {
         val organizerId = 1
-        val eventResult = getEvent(eventId)
+        val eventResult = getEvent(eventId, userId)
         if (eventResult is Failure) {
             return Failure(EventNotFoundException())
         }
@@ -279,7 +272,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
 
     override fun getSubcategories(category: String): CategoriesResult {
         if (category != "Technology") {
-            return Failure(InvalidCategoryException())
+            return Failure(InvalidValueException("category"))
         }
         val subCategories = listOf(
             "Web Development",

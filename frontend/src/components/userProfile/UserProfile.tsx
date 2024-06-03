@@ -5,6 +5,8 @@ import kick from "../../../images/kick.png";
 import "./UserProfile.css"
 import {kickUser} from "../../services/eventsServices";
 import {getUserId} from "../authentication/Session";
+import Error from "../error/Error";
+import user_img from "../../../images/user_img.png";
 
 export default function UserProfile({onClose, userId, eventId, isOrganizer}) {
     const organizerId = getUserId();
@@ -23,7 +25,6 @@ export default function UserProfile({onClose, userId, eventId, isOrganizer}) {
 
         getUserTask(userId, eventId).then((res) => {
             if(res.data.error) {
-                setError(res.data.error)
                 return
             }
             setTask(res.data);
@@ -57,7 +58,7 @@ export default function UserProfile({onClose, userId, eventId, isOrganizer}) {
             {isOrganizer && userId != organizerId &&
                 <img src={kick} alt="Kick" className={"kick_img"} title={"Kick user"} onClick={handleKickUser}/>
             }
-            <img className="round" src="https://randomuser.me/api/portraits/men/69.jpg" alt="user"/> {/*29*/}
+            <img src={user_img} alt="User" className={"user_img"}/>
             <h3 className="h3_userProfile" title={userData?.name}>{userData?.name}</h3>
             <h5 className="h5_userProfile">@{userData?.username}</h5>
             {userData?.description ? (
@@ -72,7 +73,7 @@ export default function UserProfile({onClose, userId, eventId, isOrganizer}) {
                                              event.stopPropagation();
                                              handleRemoveTask();
                                          }}/>}
-                    <p className="taskName" title={task.name}>{task != '' ? task.name : error}</p>
+                    <p className="taskName" title={task.name}>{task != '' ? task.name : "Task not found"}</p>
                  </div>
             </div>
             <div className="skills">
@@ -87,6 +88,7 @@ export default function UserProfile({onClose, userId, eventId, isOrganizer}) {
                     <p>No interests available</p>
                 )}
             </div>
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </div>
     </>
     );

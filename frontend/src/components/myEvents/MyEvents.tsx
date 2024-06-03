@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {getUserEvents} from "../../services/usersServices";
-import {Link, Navigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import date from "../../../images/date.png";
 import location from "../../../images/location.png";
 import simplemeetingbg from "../../../images/simplemeeting.png";
@@ -11,6 +11,7 @@ import foodbg from "../../../images/foodbg.png";
 import charitybg from "../../../images/caridadebg.png";
 import technologybg from "../../../images/technologybg.png";
 import businessbg from "../../../images/businessbg.png";
+import Error from "../error/Error";
 
 const categoryBackgrounds = {
     'Simple Meeting': simplemeetingbg,
@@ -82,7 +83,7 @@ export default function MyEvents() {
                         </div>
                     </div>
                 ))}
-                {error && <p>{error}</p>}
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </div>
     );

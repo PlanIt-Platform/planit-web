@@ -28,13 +28,13 @@
     height: 90vh;
     max-width: 330px;
     max-height: 800px;
-    margin-left: 590px;
+    margin-left: 595px;
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.form-container h2 {
+.form-container_h2 {
     margin-bottom: 20px;
     color: #ffffff;
 }
@@ -58,7 +58,7 @@
 }
 
 
-.form-container button {
+.form-container_button {
     width: 60%;
     padding: 10px;
     margin-left: 69px;
@@ -74,7 +74,7 @@
     background-color: #2980b9;
 }
 
-.form-container p {
+.form-container_p {
     margin-top: 20px;
     text-align: center;
     color: #ffffff;

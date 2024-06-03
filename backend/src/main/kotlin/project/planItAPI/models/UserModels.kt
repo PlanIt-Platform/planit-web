@@ -42,11 +42,11 @@ data class UserRegisterOutputModel(
 /**
  * Input model for user login.
  *
- * @property emailOrName The email address or username of the user.
+ * @property emailOrUsername The email address or username of the user.
  * @property password The password provided by the user for login.
  */
 data class UserLoginInputModel(
-    val emailOrName: String,
+    val emailOrUsername: String,
     val password: String,
 )
 

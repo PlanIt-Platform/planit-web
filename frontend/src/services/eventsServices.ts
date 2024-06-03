@@ -12,6 +12,7 @@ export async function createEvent({
         date,
         endDate,
         price,
+        currency,
         password
     }) {
     if (visibility == 'Public') password = ""
@@ -27,7 +28,7 @@ export async function createEvent({
             visibility,
             date,
             endDate: endDate || null,
-            price: price + " EUR",
+            price: price + " " + currency,
             password: password
         }))
 }

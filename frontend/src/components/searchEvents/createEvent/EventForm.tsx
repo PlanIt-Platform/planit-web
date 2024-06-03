@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {createEvent, getCategories, getSubCategories} from "../../../services/eventsServices";
 import './EventForm.css';
+import Error from "../../error/Error";
 
 export default function EventForm({onClose}) {
     const [inputs, setInputs] = useState(
@@ -13,6 +14,7 @@ export default function EventForm({onClose}) {
             date: "",
             endDate: "",
             price: "0",
+            currency: "Eur",
             password: ""
         })
     const [categories, setCategories] = useState([]);
@@ -142,13 +144,13 @@ export default function EventForm({onClose}) {
                     <label>
                         Price*:
                         <input type="number" name="price" value={inputs.price} onChange={handleChange}
-                               onKeyDown={handleKeyPress} step="0.01" min="0" />
-                        <span> €</span>
+                               onKeyDown={handleKeyPress} step="0.01" min="0" required/>
+                        <input type={"text"} name={"currency"} value={inputs.currency} onChange={handleChange} required/>
                     </label>
-                    <button type="submit">Create Event</button>
-                    <button type="button" onClick={onClose}>Cancel</button>
+                    <button type="submit" className="event-form-button">Create Event</button>
+                    <button type="button" onClick={onClose} className="event-form-button">Cancel</button>
                 </form>
-                {error && <p>{error}</p>}
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </>
     );

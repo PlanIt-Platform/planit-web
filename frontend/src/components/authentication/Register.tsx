@@ -5,6 +5,7 @@ import {editUser, register} from "../../services/usersServices";
 import './authStyle.css';
 import {PlanItContext} from "../../PlanItProvider";
 import {getCategories} from "../../services/eventsServices";
+import Error from "../error/Error";
 
 const FormField = ({label, type, name, value, onChange}) => (
     <div className="inline-field">
@@ -89,7 +90,7 @@ export default function Register(): React.ReactElement {
                             <FormField label="Username" type="text" name="username" value={inputs.username} onChange={handleChange} />
                             <FormField label="Name" type="text" name="name" value={inputs.name} onChange={handleChange} />
                             <FormField label="Password" type="password" name="password" value={inputs.password} onChange={handleChange} />
-                            <button type="submit" style={{marginRight: "220px"}}>
+                            <button className="form-container_button" type="submit" style={{marginRight: "220px"}}>
                                 {'Next'}
                             </button>
                         </div>
@@ -97,7 +98,7 @@ export default function Register(): React.ReactElement {
                     {step === 2 && (
                         <div className={"int-div"} style={{marginTop: "190px"}}>
                             <Link to="/planit/register" onClick={() => setStep(1)} className={"linkStyle backStyle"}>Back</Link>
-                            <h2>Interests</h2>
+                            <h2 className="form-container_h2">Interests</h2>
                             <div className="checkbox-wrapper">
                                 {categories.map(interest => (
                                     <div key={interest}>
@@ -106,7 +107,8 @@ export default function Register(): React.ReactElement {
                                     </div>
                                 ))}
                             </div>
-                            <button type="button" onClick={() => setStep(3)} style={{marginRight: "10px"}}>
+                            <button className="form-container_button" type="button" onClick={() => setStep(3)}
+                                    style={{marginRight: "10px"}}>
                                 {'Next'}
                             </button>
                         </div>
@@ -115,22 +117,22 @@ export default function Register(): React.ReactElement {
                         <div className={"desc-div"} style={{marginTop: "150px"}}>
                             <Link to="/planit/register" onClick={() => setStep(1)} className={"linkStyle backStyle"}
                             style={{marginLeft: "10px"}}>Back</Link>
-                            <h2>Almost there!</h2>
+                            <h2 className="form-container_h2">Almost there!</h2>
                             <textarea
                                 value={description}
                                 onChange={(ev) => setDescription(ev.target.value)}
                                 placeholder="Tell us about yourself..."
                             />
-                            <button type="submit" style={{marginRight: "10px"}}>
+                            <button className="form-container_button" type="submit" style={{marginRight: "10px"}}>
                                 {'Register'}
                             </button>
                         </div>
                     )}
-                    <p>
+                    <p className="form-container_p">
                         Already have an account? <Link to="/planit/login" className={"linkStyle"}>Log In</Link>
                     </p>
                 </form>
-                {error && <p>{error}</p>}
+                {error && <Error message={error} onClose={() => setError(null)} />}
             </div>
         </div>
     );

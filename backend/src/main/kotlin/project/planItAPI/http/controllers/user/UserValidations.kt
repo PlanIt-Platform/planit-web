@@ -48,7 +48,7 @@ fun validateUserRegisterInput(input: UserRegisterInputModel): Either<Exception, 
 }
 
 fun validateUserLoginInput(input: UserLoginInputModel): Either<Exception, ValidatedUserLoginInputsModel> {
-    val emailOrUsername = EmailOrUsername(input.emailOrName)
+    val emailOrUsername = EmailOrUsername(input.emailOrUsername)
     val password = Password(input.password)
 
     if (password is Failure) {

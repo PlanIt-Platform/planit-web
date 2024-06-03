@@ -6,6 +6,7 @@ import {PlanItContext} from "../../PlanItProvider";
 import user_icon from "../../../images/profile-icon.png";
 import {getUser, logout} from "../../services/usersServices";
 import {searchEvents} from "../../services/eventsServices";
+import Error from "../error/Error";
 
 export function NavBar() {
     const { userId, setUserId, setEventsSearched } = useContext(PlanItContext);
@@ -135,6 +136,7 @@ export function NavBar() {
                     )}
                 </div>
             </nav>
+            {error && <Error message={error} onClose={() => setError(null)} />}
         </div>
     )
 }

@@ -23,8 +23,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import project.planItAPI.models.CreateEventOutputModel
-import project.planItAPI.models.EventModel
+import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
+import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserInEvent
 import project.planItAPI.models.UserRegisterOutputModel
@@ -33,8 +34,7 @@ import project.planItAPI.services.event.EventServices
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.IncorrectPasswordException
-import project.planItAPI.utils.InvalidCategoryException
-import project.planItAPI.utils.InvalidIdException
+import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 
 @SpringBootTest
@@ -125,8 +125,8 @@ class EventControllerTests {
     fun createEvent() {
         `when`(
             eventServices.createEvent(
-                anyString(),
-                anyString(),
+                any(),
+                any(),
                 any(),
                 any(),
                 anyString(),
@@ -176,7 +176,7 @@ class EventControllerTests {
             cookies = mapOf("access_token" to accessToken)
        )
            .andExpect(status().isBadRequest)
-           .andExpect(jsonPath("$.error").value("Invalid visibility value"))
+           .andExpect(jsonPath("$.error").value("Invalid visibility"))
 
         //User tries to create event with invalid category
         //Expected: 400 Bad Request
@@ -191,7 +191,7 @@ class EventControllerTests {
            cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid category, Invalid subcategory"))
+            .andExpect(jsonPath("$.error").value("Invalid category"))
 
         //User tries to create event with invalid subcategory
         //Expected: 400 Bad Request
@@ -301,10 +301,10 @@ class EventControllerTests {
     @Test
     fun getEvent(){
         `when`(
-            eventServices.getEvent(1))
+            eventServices.getEvent(1, 1))
             .thenReturn(
                 Success(
-                    EventModel(
+                    EventOutputModel(
                         1,
                         "Test Event",
                         "Test Event Description",
@@ -315,13 +315,12 @@ class EventControllerTests {
                         "2022-12-12 12:00",
                         "2022-12-12 15:00",
                         10.52,
-                      "Eur",
-                      ""
+                      "Eur"
                     )
                 )
             )
 
-        `when`(eventServices.getEvent(100))
+        `when`(eventServices.getEvent(100, 1))
             .thenReturn(Failure(EventNotFoundException()))
 
         //User not authenticated tries to get an Event
@@ -367,7 +366,6 @@ class EventControllerTests {
             .andExpect(jsonPath("$.endDate").value("2022-12-12 15:00"))
             .andExpect(jsonPath("$.priceAmount").value("10.52"))
             .andExpect(jsonPath("$.priceCurrency").value("Eur"))
-            .andExpect(jsonPath("$.password").isEmpty)
     }
 
     @Test
@@ -376,19 +374,23 @@ class EventControllerTests {
             UserInEvent(
                 1,
                 "user1",
-                "user1"
+                1,
+                "test123",
+                "test"
             ),
             UserInEvent(
                 2,
                 "user2",
-                "user2"
+                2,
+                "test1234",
+                "test2"
             )
         )
         `when`(
-            eventServices.getUsersInEvent(any()))
+            eventServices.getUsersInEvent(any(), any()))
             .thenReturn(Success(UsersInEventList(usersInList)))
 
-        `when`(eventServices.getUsersInEvent(100))
+        `when`(eventServices.getUsersInEvent(100, 1))
             .thenReturn(Failure(EventNotFoundException()))
 
         //User not authenticated tries to get users in an Event
@@ -429,24 +431,19 @@ class EventControllerTests {
     @Test
     fun searchEvents(){
         `when`(
-            eventServices.searchEvents("Test"))
+            eventServices.searchEvents("Test",10, 0))
             .thenReturn(
                 Success(
                     SearchEventListOutputModel(
                         listOf(
-                            EventModel(
+                            SearchEventsOutputModel(
                                 1,
                                 "Test Event",
                                 "Test Event Description",
                                 "Business",
-                                "Leadership and Management Workshops",
                                 "Test Location",
                                 "Public",
-                                "2022-12-12 12:00",
-                                "2022-12-12 15:00",
-                                10.52,
-                                "Eur",
-                                ""
+                                "2022-12-12 12:00"
                             )
                         )
                     )
@@ -454,7 +451,7 @@ class EventControllerTests {
             )
 
         `when`(
-            eventServices.searchEvents("None"))
+            eventServices.searchEvents("None", 10, 0))
             .thenReturn(
                 Success(
                     SearchEventListOutputModel(
@@ -487,16 +484,10 @@ class EventControllerTests {
             .andExpect(jsonPath("$.events", Matchers.hasSize<Any>(1)))
             .andExpect(jsonPath("$.events[0].id").value(1))
             .andExpect(jsonPath("$.events[0].title").value("Test Event"))
-            .andExpect(jsonPath("$.events[0].description").value("Test Event Description"))
             .andExpect(jsonPath("$.events[0].category").value("Business"))
-            .andExpect(jsonPath("$.events[0].subcategory").value("Leadership and Management Workshops"))
             .andExpect(jsonPath("$.events[0].location").value("Test Location"))
             .andExpect(jsonPath("$.events[0].visibility").value("Public"))
             .andExpect(jsonPath("$.events[0].date").value("2022-12-12 12:00"))
-            .andExpect(jsonPath("$.events[0].endDate").value("2022-12-12 15:00"))
-            .andExpect(jsonPath("$.events[0].priceAmount").value("10.52"))
-            .andExpect(jsonPath("$.events[0].priceCurrency").value("Eur"))
-            .andExpect(jsonPath("$.events[0].password").isEmpty)
 
         performRequest(
             RequestMethod.GET,
@@ -524,7 +515,7 @@ class EventControllerTests {
             .thenReturn(Failure(EventNotFoundException()))
 
         `when`(eventServices.joinEvent(1, 0, ""))
-            .thenReturn(Failure(InvalidIdException()))
+            .thenReturn(Failure(InvalidValueException("Id")))
 
         `when`(eventServices.joinEvent(1, 1, "123"))
             .thenReturn(Failure(IncorrectPasswordException()))
@@ -550,7 +541,7 @@ class EventControllerTests {
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid ID"))
+            .andExpect(jsonPath("$.error").value("Invalid id"))
 
         //User tries to join an event that does not exist
         //Expected: 404 Not Found
@@ -602,7 +593,7 @@ class EventControllerTests {
             .thenReturn(Failure(EventNotFoundException()))
 
         `when`(eventServices.leaveEvent(1, 0))
-            .thenReturn(Failure(InvalidIdException()))
+            .thenReturn(Failure(InvalidValueException("Id")))
 
         //User not authenticated tries to leave an Event
         //Expected: 401 Unauthorized
@@ -625,7 +616,7 @@ class EventControllerTests {
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid ID"))
+            .andExpect(jsonPath("$.error").value("Invalid id"))
 
         //User tries to leave an event that does not exist
         //Expected: 404 Not Found
@@ -666,13 +657,13 @@ class EventControllerTests {
             .thenReturn(Failure(EventNotFoundException()))
 
         `when`(eventServices.deleteEvent(1, 0))
-            .thenReturn(Failure(InvalidIdException()))
+            .thenReturn(Failure(InvalidValueException("Id")))
 
         //User not authenticated tries to delete an Event
         //Expected: 401 Unauthorized
         performRequest(
             RequestMethod.DELETE,
-            "/api-planit/event/1/delete",
+            "/api-planit/event/1",
             "",
         )
             .andExpect(status().isUnauthorized)
@@ -684,18 +675,18 @@ class EventControllerTests {
         //Expected: 400 Bad Request
         performRequest(
             RequestMethod.DELETE,
-            "/api-planit/event/0/delete",
+            "/api-planit/event/0",
             "",
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid ID"))
+            .andExpect(jsonPath("$.error").value("Invalid id"))
 
         //User tries to delete an event that does not exist
         //Expected: 404 Not Found
         performRequest(
             RequestMethod.DELETE,
-            "/api-planit/event/100/delete",
+            "/api-planit/event/100",
             "",
             cookies = mapOf("access_token" to accessToken)
         )
@@ -706,7 +697,7 @@ class EventControllerTests {
         //Expected: 200 OK
         performRequest(
             RequestMethod.DELETE,
-            "/api-planit/event/1/delete",
+            "/api-planit/event/1",
             "",
             cookies = mapOf("access_token" to accessToken)
         )
@@ -720,11 +711,12 @@ class EventControllerTests {
             eventServices.editEvent(
                 anyInt(),
                 anyInt(),
-                anyString(),
-                anyString(),
+                any(),
+                any(),
                 any(),
                 any(),
                 anyString(),
+                any(),
                 any(),
                 any(),
                 any(),
@@ -737,8 +729,6 @@ class EventControllerTests {
                 )
             )
         )
-
-
 
         //User not authenticated tries to edit an Event
         //Expected: 401 Unauthorized
@@ -769,7 +759,7 @@ class EventControllerTests {
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid ID"))
+            .andExpect(jsonPath("$.error").value("Invalid id"))
 
         //User tries to edit an event with invalid visibility
         //Expected: 400 Bad Request
@@ -784,7 +774,7 @@ class EventControllerTests {
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid visibility value"))
+            .andExpect(jsonPath("$.error").value("Invalid visibility"))
 
         //User tries to create event with invalid category
         //Expected: 400 Bad Request
@@ -799,7 +789,7 @@ class EventControllerTests {
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid category, Invalid subcategory"))
+            .andExpect(jsonPath("$.error").value("Invalid category"))
 
         //User tries to create event with invalid subcategory
         //Expected: 400 Bad Request
@@ -936,7 +926,7 @@ class EventControllerTests {
         `when`(
             eventServices.getSubcategories("Invalid Category"))
             .thenReturn(
-                Failure(InvalidCategoryException())
+                Failure(InvalidValueException("category"))
             )
 
         val accessToken = authenticateUser()
