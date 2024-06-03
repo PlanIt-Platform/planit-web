@@ -29,7 +29,7 @@ class JdbiConfiguration(
     @Bean
     fun jdbi(): Jdbi {
         val dataSource = PGSimpleDataSource()
-        val url = System.getenv("JDBC_DATABASE_URL") ?: throw Exception("Missing env var JDBC_DATABASE_URL")
+        val url = "jdbc:postgresql://dpg-cpeuehnsc6pc73a4qc40-a.frankfurt-postgres.render.com:5432/planitapi?user=planitapi_user&password=fl4ErLyCceSq8UNyptFyBcNrsOj9vIhA"
         dataSource.setURL(url)
         return Jdbi.create(dataSource)
             .configureWithAppRequirements()

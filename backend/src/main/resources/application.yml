@@ -13,7 +13,7 @@ spring:
     name: PlanIt
 
   datasource:
-    url: ${JDBC_DATABASE_URL}
+    url: jdbc:postgresql://dpg-cpeuehnsc6pc73a4qc40-a.frankfurt-postgres.render.com:5432/planitapi?user=planitapi_user&password=fl4ErLyCceSq8UNyptFyBcNrsOj9vIhA
     username: postgres
     password: 123
 

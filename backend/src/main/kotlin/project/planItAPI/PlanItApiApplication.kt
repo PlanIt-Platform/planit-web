@@ -7,7 +7,7 @@ import kotlinx.datetime.Clock
 import project.planItAPI.services.user.utils.UsersDomainConfig
 import java.time.Duration
 
-val jdbcUrl: String = System.getenv("JDBC_DATABASE_URL")
+val jdbcUrl: String = "jdbc:postgresql://dpg-cpeuehnsc6pc73a4qc40-a.frankfurt-postgres.render.com:5432/planitapi?user=planitapi_user&password=fl4ErLyCceSq8UNyptFyBcNrsOj9vIhA"
 
 private const val createSchemaScriptPath = "sql/createSchema.sql"
 
