@@ -26,6 +26,7 @@ import location from "../../../images/location.png";
 import date from "../../../images/date.png";
 import {getUserId} from "../authentication/Session";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 const categoryIcons = {
     'All': globe_icon,
@@ -68,6 +69,7 @@ export default function SearchEvents(): React.ReactElement {
     const userId = getUserId()
     const [events, setEvents] = useState(eventsSearched)
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [isEventFormOpen, setIsEventFormOpen] = useState(false);
     const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -78,44 +80,49 @@ export default function SearchEvents(): React.ReactElement {
     }, [eventsSearched]);
 
     useEffect(() => {
-        searchEvents("All")
-            .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
-                }
-                setEvents(res.data.events);
-                setError('')
-            });
+        if (!isEventFormOpen) {
+            setIsLoading(true)
+            searchEvents("All")
+                .then((res) => {
+                    if (res.data.error) setError(res.data.error);
+                    else {
+                        setEvents(res.data.events);
+                        setError('')
+                    }
+                    setIsLoading(false)
+                });
+        }
     }, [isEventFormOpen])
 
     const handleCategoryClick = (category: string) => {
+        setIsLoading(true)
         searchEvents(category)
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
+                if (res.data.error) setError(res.data.error);
+                else {
+                    if (category === "All") setEvents(res.data.events);
+                    else setEvents(res.data.events.filter(event => event.visibility === "Public"));
+                    setError('')
                 }
-                if (category === "All") setEvents(res.data.events);
-                else setEvents(res.data.events.filter(event => event.visibility === "Public"));
-                setError('')
+                setIsLoading(false)
             });
     }
 
     const handleEventClick = (event) => {
         setSelectedEvent(event);
+        setIsLoading(true)
         getUsersInEvent(event.id)
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
+                if (res.data.error) setError(res.data.error);
+                else {
+                    const users = res.data.users;
+                    if (users.some(user => user.id === userId)) {
+                        setIsParticipant(true);
+                    } else {
+                        setIsJoinPopupOpen(true);
+                    }
                 }
-                const users = res.data.users;
-                if (users.some(user => user.id === userId)) {
-                    setIsParticipant(true);
-                } else {
-                    setIsJoinPopupOpen(true);
-                }
+                setIsLoading(false)
             });
     };
 
@@ -123,6 +130,7 @@ export default function SearchEvents(): React.ReactElement {
 
     return (
         <div>
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <div className="category-scroll">
                 {Object.keys(categoryIcons).map(category => (
                     <button key={category} onClick={() => handleCategoryClick(category)}>
@@ -163,7 +171,10 @@ export default function SearchEvents(): React.ReactElement {
                     </div>
                 ))}
             </div>
-            <button className="floating-button" onClick={() => setIsEventFormOpen(true)}>+</button>
+            <button className="floating-button" onClick={() => {
+                setIsLoading(false)
+                setIsEventFormOpen(true)
+            }}>+</button>
             {isJoinPopupOpen && !isParticipant && <JoinPopup event={selectedEvent} onClose={() => setIsJoinPopupOpen(false)} />}
             {isEventFormOpen && <EventForm onClose={() => setIsEventFormOpen(false)} />}
             {error && <Error message={error} onClose={() => setError(null)} />}

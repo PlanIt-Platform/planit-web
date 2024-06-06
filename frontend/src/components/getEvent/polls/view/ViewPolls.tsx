@@ -5,34 +5,36 @@ import trophy from "../../../../../images/trophy.png";
 import "./ViewPolls.css";
 import {ViewPoll} from "./ViewPoll";
 import Error from "../../../error/Error";
+import Loading from "../../../loading/Loading";
 
 export function ViewPolls({ onClose, eventId, isOrganizer }) {
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(true)
     const [polls, setPolls] = useState([]);
     const [isViewingPoll, setIsViewingPoll] = useState(false);
     const [update, setUpdate] = useState(false);
     const [selectedPollId, setSelectedPollId] = useState(0);
 
     useEffect(() => {
-        getPolls(eventId).then(res => {
-            if (res.data.error) {
-                setError(res.data.error)
-                return
-            }
-            setPolls(res.data);
-        })
+        getPolls(eventId)
+            .then(res => {
+                if (res.data.error) setError(res.data.error)
+                else setPolls(res.data);
+                setIsLoading(false)
+            })
     }, [update])
 
     const handleDeletePoll = (pollId) => {
-       deletePoll(eventId, pollId).then(res => {
-              if (res.data.error) {
-                setError(res.data.error)
-                return
-              }
-              setPolls(polls.filter(poll => poll.id !== pollId));
-       }
-       )
+        setIsLoading(true)
+        deletePoll(eventId, pollId)
+            .then(res => {
+              if (res.data.error) setError(res.data.error)
+              else setPolls(polls.filter(poll => poll.id !== pollId));
+               setIsLoading(false)
+            })
     }
+
+    if (isLoading) return <Loading onClose={() => setIsLoading(false)} />
 
     const getWinningOption = (options) => {
         const sortedOptions = [...options].sort((a, b) => b.votes - a.votes);

@@ -6,6 +6,7 @@ import './authStyle.css';
 import {PlanItContext} from "../../PlanItProvider";
 import {getCategories} from "../../services/eventsServices";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 const FormField = ({label, type, name, value, onChange}) => (
     <div className="inline-field">
@@ -18,6 +19,7 @@ export default function Register(): React.ReactElement {
     const { setUserId } = useContext(PlanItContext);
     const [inputs, setInputs] = useState({email: "", username: "", password: "", name: ""})
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [redirect, setRedirect] = useState(false)
     const [step, setStep] = useState(1); // Step 1: Registration details, Step 2: Interests, Step 3: Description
     const [interests, setInterests] = useState([]);
@@ -29,10 +31,12 @@ export default function Register(): React.ReactElement {
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
         if (step == 1) {
+            setIsLoading(true)
             register(inputs)
                 .then(res => {
                     if (res.data.error) {
                         setError(res.data.error)
+                        setIsLoading(false)
                         return
                     }
                     setSession(res.data.id, setUserId);
@@ -41,25 +45,23 @@ export default function Register(): React.ReactElement {
 
                     getCategories()
                         .then((res) => {
-                            if (res.data.error) {
-                                setError(res.data.error);
-                                return
-                            } else {
+                            if (res.data.error) setError(res.data.error);
+                            else {
                                 const filteredCategories = res.data.filter(category => category !== 'Simple Meeting');
                                 setCategories(filteredCategories);
                             }
+                            setIsLoading(false)
                         });
 
                 })
         }
         if (step == 3){
+            setIsLoading(true)
             editUser(inputs.name, description, interests)
                 .then(res => {
-                        if (res.data.error) {
-                            setError(res.data.error)
-                            return
-                        }
-                        setRedirect(true)
+                    if (res.data.error) setError(res.data.error)
+                    else setRedirect(true)
+                    setIsLoading(false)
                     }
                 )
         }
@@ -80,6 +82,7 @@ export default function Register(): React.ReactElement {
 
     return (
         <div className="form-container fadeIn">
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <div className="form-content" style={{marginBottom: "110px"}}>
                 <form onSubmit={handleSubmit}>
                     {step === 1 && (

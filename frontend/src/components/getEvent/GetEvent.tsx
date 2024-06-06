@@ -17,6 +17,7 @@ import {ChatRoom} from "./chat/chatRoom/ChatRoom";
 import {collection, deleteDoc, getDocs, doc} from "firebase/firestore";
 import {db} from "../../Router";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 function formatDate(dateString) {
     // Remove the seconds from the date string
@@ -41,7 +42,7 @@ export default function GetEvent(): React.ReactElement {
     const [isInEvent, setIsInEvent] = useState(false);
     const [participants, setParticipants] = useState([])
     const [error, setError] = useState('')
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [redirectHome, setRedirectHome] = useState(false);
     const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -63,84 +64,78 @@ export default function GetEvent(): React.ReactElement {
         })
 
     useEffect(() => {
+        setIsLoading(true)
         getEvent(eventId)
             .then((res) => {
                 if (res.data.error) {
                     setError(res.data.error)
+                    setIsLoading(false)
                     return
-                } else {
-                    setEvent(res.data);
-                    setIsLoading(false);
                 }
-            });
+                setEvent(res.data)
+                getUsersInEvent(eventId)
+                    .then((res) => {
+                        if (res.data.error) setError(res.data.error)
+                        else {
+                            const sortedUsers = res.data.users.sort((a, b) => {
+                                if (a.taskName === "Organizer") return -1;
+                                if (b.taskName === "Organizer") return 1;
+                                return 0;
+                            })
+                            setParticipants(sortedUsers);
+                            setIsInEvent(res.data.users.some((user) => user.id === userId))
+                            setIsOrganizer(res.data.users.some((user) => user.id === userId && user.taskName === "Organizer"));
+                            setNumberOfOrganizers(res.data.users.filter((user) => user.taskName === "Organizer").length);
 
-        getUsersInEvent(eventId)
-            .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error)
-                    return
-                } else {
-                    const sortedUsers = res.data.users.sort((a, b) => {
-                        if (a.taskName === "Organizer") return -1;
-                        if (b.taskName === "Organizer") return 1;
-                        return 0;
-                    })
-                    setParticipants(sortedUsers);
-                    setIsInEvent(res.data.users.some((user) => user.id === userId))
-                    setIsOrganizer(res.data.users.some((user) => user.id === userId && user.taskName === "Organizer"));
-                    setNumberOfOrganizers(res.data.users.filter((user) => user.taskName === "Organizer").length);
-
-                    if (!res.data.users.some(participant => participant.id === userId)) {
-                        setRedirectHome(true);
-                    }
-                }
+                            if (!res.data.users.some(participant => participant.id === userId)) {
+                                setRedirectHome(true);
+                            }
+                        }
+                        setIsLoading(false)
+                    });
             });
 
 
     }, [eventId, update]);
 
     const handleDelete = () => {
+        setIsLoading(true)
         deleteEvent(eventId)
             .then(async (res) => {
-                if (res.data.error) {
-                    setError(res.data.error)
-                    return
+                if (res.data.error) setError(res.data.error)
+                else {
+                    // Get a reference to the chat collection
+                    const chatCollection = collection(db, `events/${eventId}/messages`);
+
+                    // Get all documents in the collection
+                    const chatSnapshot = await getDocs(chatCollection);
+
+                    // Delete each document
+                    chatSnapshot.forEach((docSnapshot) => {
+                        deleteDoc(doc(db, `events/${eventId}/messages`, docSnapshot.id));
+                    });
+
+                    setRedirectHome(true)
                 }
-
-                // Get a reference to the chat collection
-                const chatCollection = collection(db, `events/${eventId}/messages`);
-
-                // Get all documents in the collection
-                const chatSnapshot = await getDocs(chatCollection);
-
-                // Delete each document
-                chatSnapshot.forEach((docSnapshot) => {
-                    deleteDoc(doc(db, `events/${eventId}/messages`, docSnapshot.id));
-                });
-
-                setRedirectHome(true)
+                setIsLoading(false)
             })
     }
 
     const handleLeave = () => {
-       leaveEvent(eventId)
+        setIsLoading(true)
+        leaveEvent(eventId)
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error)
-                    return
-                }
-                setRedirectHome(true)
+                if (res.data.error) setError(res.data.error)
+                else setRedirectHome(true)
+                setIsLoading(false)
             })
     }
 
     if (redirectHome) return <Navigate to="/planit/events" replace={true}/>;
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
     return (
         <>
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <div className="event-title-container">
                 <h1 className="event-title" title={event.title}>{event.title}</h1>
             </div>
@@ -163,10 +158,12 @@ export default function GetEvent(): React.ReactElement {
                     <div className={"date-container"}>
                         {event.endDate && <img src={arrow} alt="arrow" className="arrow"/>}
                         <div className={event.endDate ? "date-pairs-endDate" : "date-pairs"}>
-                            <div className="info-pair">
-                                <img src={date} alt="date" className={"info_img"}/>
-                                <span className="info-value" title={event.date}>{formatDate(event.date)}</span>
-                            </div>
+                            {event.date &&
+                                <div className="info-pair">
+                                    <img src={date} alt="date" className={"info_img"}/>
+                                    <span className="info-value" title={event.date}>{formatDate(event.date)}</span>
+                                </div>
+                            }
                             {event.endDate &&
                                 <div className="info-pair">
                                     <img src={date} alt="date" className={"info_img"}/>
@@ -175,10 +172,12 @@ export default function GetEvent(): React.ReactElement {
                             }
                         </div>
                     </div>
-                    <div className="info-pair">
-                        <img src={price} alt="price" className={"info_img"}/>
-                        <span className="info-value">{event.priceAmount} {event.priceCurrency}</span>
-                    </div>
+                    {event.priceCurrency &&
+                        <div className="info-pair">
+                            <img src={price} alt="price" className={"info_img"}/>
+                            <span className="info-value">{event.priceAmount} {event.priceCurrency}</span>
+                        </div>
+                    }
                     <div className={"buttons-container"}>
                         {isInEvent && (!isOrganizer || (isOrganizer && numberOfOrganizers > 1)) && (
                             <button className="leave-button" onClick={handleLeave}>Leave</button>
@@ -229,6 +228,7 @@ export default function GetEvent(): React.ReactElement {
             }
             } userId={participantId} eventId={eventId}/> }
             {isEditing && <EditForm onClose={() => {
+                setIsLoading(false)
                 setIsEditing(false)
                 setUpdate(!update)
             }} event={event} />}

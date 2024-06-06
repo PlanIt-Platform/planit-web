@@ -12,6 +12,7 @@ import charitybg from "../../../images/caridadebg.png";
 import technologybg from "../../../images/technologybg.png";
 import businessbg from "../../../images/businessbg.png";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 const categoryBackgrounds = {
     'Simple Meeting': simplemeetingbg,
@@ -41,18 +42,17 @@ function formatDate(dateString) {
 export default function MyEvents() {
     const [events, setEvents] = useState([]);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(true)
     const [redirect, setRedirect] = useState(false);
     const [eventId, setEventId] = useState(0);
 
     useEffect(() => {
+        setIsLoading(true)
         getUserEvents()
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
-                }
-                console.log(res.data)
-                setEvents(res.data.events);
+                if (res.data.error) setError(res.data.error);
+                else setEvents(res.data.events);
+                setIsLoading(false)
             });
     }, []);
 
@@ -60,6 +60,7 @@ export default function MyEvents() {
 
     return (
         <div>
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <div className="events-grid" style={{paddingTop: 130}}>
                 {events.length === 0 && <h1>No events found.</h1>}
                 {events.map((event: any) => (

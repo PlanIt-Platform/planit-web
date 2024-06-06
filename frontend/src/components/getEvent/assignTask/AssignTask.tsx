@@ -2,9 +2,11 @@ import React, {useState} from "react";
 import {assignTask} from "../../../services/usersServices";
 import "./AssignTask.css";
 import Error from "../../error/Error";
+import Loading from "../../loading/Loading";
 
 export function AssignTask({ onClose, userId, eventId }) {
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false)
     const [taskName, setTaskName] = useState({
         taskName: "Organizer"
     });
@@ -12,14 +14,15 @@ export function AssignTask({ onClose, userId, eventId }) {
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault();
+        setIsLoading(true)
         assignTask(userId, eventId, taskName)
             .then(res => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
+                if (res.data.error) setError(res.data.error);
+                else {
+                    setIsCustomTask(false)
+                    onClose();
                 }
-                setIsCustomTask(false)
-                onClose();
+                setIsLoading(false)
             });
     }
 
@@ -32,6 +35,7 @@ export function AssignTask({ onClose, userId, eventId }) {
 
     return (
         <>
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <div className={"overlay"} onClick={onClose}></div>
             <div className="assign-task-container">
                 <form onSubmit={handleSubmit}>

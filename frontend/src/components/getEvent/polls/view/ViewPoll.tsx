@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {getPoll, votePoll} from "../../../../services/pollServices";
 import './ViewPoll.css';
 import Error from "../../../error/Error";
+import Loading from "../../../loading/Loading";
 
 export function ViewPoll({onClose, eventId, pollId}) {
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(true)
     const [checked, setChecked] = useState(null);
     const [optionId, setOptionId] = useState(0);
     const [poll, setPoll] = useState({
@@ -20,13 +22,13 @@ export function ViewPoll({onClose, eventId, pollId}) {
     });
 
     useEffect(() => {
-        getPoll(eventId, pollId).then(res => {
-            if (res.data.error) {
-                setError(res.data.error)
-                return;
-            }
-            setPoll(res.data);
-        })
+        setIsLoading(true)
+        getPoll(eventId, pollId)
+            .then(res => {
+                if (res.data.error) setError(res.data.error)
+                else setPoll(res.data);
+                setIsLoading(false)
+            })
     }, []);
 
     const handleVoteChange = (optionId, index) => {
@@ -39,14 +41,16 @@ export function ViewPoll({onClose, eventId, pollId}) {
             setError("Select an option to vote");
             return;
         }
-        votePoll(eventId, pollId, optionId).then(res => {
-            if (res.data.error) {
-                setError(res.data.error);
-                return;
-            }
-            onClose();
-        })
+        setIsLoading(true)
+        votePoll(eventId, pollId, optionId)
+            .then(res => {
+                if (res.data.error) setError(res.data.error);
+                else onClose();
+                setIsLoading(false)
+            })
     }
+
+    if (isLoading) return <Loading onClose={() => setIsLoading(false)} />
 
     return (
         <>

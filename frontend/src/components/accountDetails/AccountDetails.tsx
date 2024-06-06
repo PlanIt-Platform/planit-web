@@ -4,6 +4,7 @@ import {getUserId} from "../authentication/Session";
 import './AccountDetails.css';
 import {getCategories} from "../../services/eventsServices";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -17,43 +18,43 @@ export default function AccountDetails(): React.ReactElement {
         interests: []
     });
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false);
     const [interests, setInterests] = useState([]);
 
     useEffect(() => {
+        setIsLoading(true)
         getUser(userId)
             .then((res) => {
                 if (res.data.error) {
                     setError(res.data.error)
+                    setIsLoading(false)
                     return
                 }
                 setUserData(res.data);
+                getCategories()
+                    .then((res) => {
+                        if (res.data.error) setError(res.data.error);
+                        else {
+                            const filteredInterests = res.data.filter(interest => interest !== 'Simple Meeting');
+                            setInterests(filteredInterests);
+                        }
+                        setIsLoading(false)
+                    })
             })
-        getCategories()
-            .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                } else {
-                    const filteredInterests = res.data.filter(interest => interest !== 'Simple Meeting');
-                    setInterests(filteredInterests);
-                }
-            })
-        },
-        []
-    )
+    }, [])
 
     const handleEdit = () => {
         setIsEditing(true);
     }
 
     const handleSave = () => {
+        setIsLoading(true)
         editUser(userData.name, userData.description, userData.interests)
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error)
-                    return
-                }
-                setIsEditing(false);
+                if (res.data.error) setError(res.data.error)
+                else setIsEditing(false);
+                setIsLoading(false)
             })
     }
 
@@ -68,6 +69,8 @@ export default function AccountDetails(): React.ReactElement {
             setUserData({...userData, interests: userData.interests.filter(interest => interest !== event.target.value)});
         }
     }
+
+    if (isLoading) return <Loading onClose={() => setIsLoading(false)} />
 
     return (
         <div className={"divStyle"}>

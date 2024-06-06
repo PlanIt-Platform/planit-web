@@ -6,31 +6,33 @@ import './authStyle.css';
 import logo from "../../../images/logo.png";
 import {PlanItContext} from "../../PlanItProvider";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 export default function Login(): React.ReactElement {
     const { setUserId } = useContext(PlanItContext);
     const [inputs, setInputs] = useState({emailOrName: "", password: ""})
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [redirect, setRedirect] = useState(false)
 
     if (redirect) return <Navigate to="/planit/events" replace={true}/>;
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault()
-        setSubmitting(true)
         const email = inputs.emailOrName
         const password = inputs.password
+        setSubmitting(true)
+        setIsLoading(true)
         login(email, password)
             .then(res => {
-                if (res.data.error){
-                    setError(res.data.error)
-                    setSubmitting(false)
-                    return
+                if (res.data.error) setError(res.data.error)
+                else {
+                    setSession(res.data.id, setUserId);
+                    setRedirect(true)
                 }
-                setSession(res.data.id, setUserId);
                 setSubmitting(false)
-                setRedirect(true)
+                setIsLoading(false)
             })
     }
 
@@ -41,6 +43,7 @@ export default function Login(): React.ReactElement {
 
     return (
         <div className="form-container fadeIn">
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <img src={logo} alt="Image" className="image-overlay" />
             <div className="form-content">
                 <Link to="/" className={"linkStyle homeStyle"} style={{ width: "14%"}}>Home</Link>

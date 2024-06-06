@@ -18,16 +18,13 @@ export function ChatRoom({uId, eventId, isOrganizer}) {
     const [isCreatingPoll, setIsCreatingPoll] = useState(false);
     const [isViewingPolls, setIsViewingPolls] = useState(false);
     const messagesEndRef = useRef(null);
-    const [error, setError] = useState('');
+    const [error, setError] = useState('')
 
     useEffect(() => {
         getUser(uId)
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return
-                }
-                setName(res.data.name);
+                if (res.data.error) setError(res.data.error);
+                else setName(res.data.name);
             })
     }, [])
 

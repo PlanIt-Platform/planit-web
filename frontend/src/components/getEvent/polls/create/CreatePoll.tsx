@@ -3,25 +3,25 @@ import "./CreatePoll.css";
 import {createPoll} from "../../../../services/pollServices";
 import trash_bin from "../../../../../images/trashbin.png";
 import Error from "../../../error/Error";
-
+import Loading from "../../../loading/Loading";
 
 export function CreatePoll({ onClose, eventId }) {
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false)
     const [inputs, setInputs] = useState({
         title: "",
         options: ["", ""],
         duration: "1"
-    });
+    })
 
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault();
+        setIsLoading(true)
         createPoll(eventId, inputs)
             .then(res => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
-                }
-                onClose();
+                if (res.data.error) setError(res.data.error);
+                else onClose();
+                setIsLoading(false)
             });
     }
 
@@ -53,6 +53,8 @@ export function CreatePoll({ onClose, eventId }) {
             return {...inputs, options: newOptions};
         });
     }
+
+    if (isLoading) return <Loading onClose={() => setIsLoading(false)} />
 
     return (
         <>

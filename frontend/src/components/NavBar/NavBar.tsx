@@ -7,55 +7,24 @@ import user_icon from "../../../images/profile-icon.png";
 import {getUser, logout} from "../../services/usersServices";
 import {searchEvents} from "../../services/eventsServices";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 export function NavBar() {
     const { userId, setUserId, setEventsSearched } = useContext(PlanItContext);
     const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [username, setUsername] = useState<string>('');
     const [navOpen, setNavOpen] = useState<boolean>(false);
     const navRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
     const [searchInput, setSearchInput] = useState('');
 
-    const handleLogout = async (): Promise<void> => {
-        logout()
-            .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error)
-                    return
-                }
-                clearSession(setUserId)
-            })
-        return
-    }
-
-    const handleSearchChange = (event) => {
-        setSearchInput(event.target.value);
-    };
-
-    const handleKeyPress = (event) => {
-        if (event.key === 'Enter') {
-            searchEvents(searchInput)
-                .then((res) => {
-                    if (res.data.error) {
-                        setError(res.data.error);
-                        return;
-                    }
-                    setEventsSearched(res.data.events);
-                    setError('');
-                });
-        }
-    };
-
     useEffect(() => {
         if (isLogged()) {
             getUser(userId)
                 .then((res) => {
-                    if (res.data.error) {
-                        setError(res.data.error);
-                        return
-                    }
-                    setUsername(res.data.name);
+                    if (res.data.error) setError(res.data.error);
+                    else setUsername(res.data.name);
                 })
         }
 
@@ -74,9 +43,38 @@ export function NavBar() {
         };
     }, [navRef, isLogged()]);
 
+    const handleLogout = async (): Promise<void> => {
+        setIsLoading(true)
+        logout()
+            .then((res) => {
+                if (res.data.error) setError(res.data.error)
+                else clearSession(setUserId)
+                setIsLoading(false)
+            })
+    }
+
+    const handleSearchChange = (event) => {
+        setSearchInput(event.target.value);
+    };
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            setIsLoading(true)
+            searchEvents(searchInput)
+                .then((res) => {
+                    if (res.data.error) setError(res.data.error);
+                    else {
+                        setEventsSearched(res.data.events);
+                        setError('');
+                    }
+                    setIsLoading(false)
+                });
+        }
+    };
 
     return (
         <div className="header" ref={navRef}>
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <nav role="navigation">
                 <div id="menuToggle">
                     <input type="checkbox" checked={navOpen} onChange={() => setNavOpen(!navOpen)} />

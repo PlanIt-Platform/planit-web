@@ -9,23 +9,24 @@ import yellow_paint from "../../../images/yellow_paint.png";
 import purple_paint from "../../../images/purple_paint.png";
 import green_paint from "../../../images/green_paint.png";
 import Error from "../error/Error";
+import Loading from "../loading/Loading";
 
 export function Calendar() {
     const [events, setEvents] = useState([]);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(true)
     const [calendarDay, setCalendarDay] = useState(new Date());
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May',
         'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     useEffect(() => {
+        setIsLoading(true)
         getUserEvents()
             .then((res) => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    return;
-                }
-                setEvents(res.data.events);
+                if (res.data.error) setError(res.data.error);
+                else setEvents(res.data.events);
+                setIsLoading(false)
             });
     }, []);
 
@@ -43,6 +44,7 @@ export function Calendar() {
 
     return (
         <div className="calendar-container">
+            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
             <div className="calendar">
                 <div className="calendar-header">
                     <button onClick={previousMonth}>

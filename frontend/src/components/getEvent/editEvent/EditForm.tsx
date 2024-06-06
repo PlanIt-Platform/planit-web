@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {editEvent, getCategories, getSubCategories} from "../../../services/eventsServices";
 import Error from "../../error/Error";
+import Loading from "../../loading/Loading";
 
 export default function EventForm({ event, onClose }) {
     const [inputs, setInputs] =useState({
@@ -20,30 +21,32 @@ export default function EventForm({ event, onClose }) {
     const [subCategories, setSubCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
-    const today = new Date().toISOString().split('T')[0];
+    const [isLoading, setIsLoading] = useState(true)
+    const today = new Date().toISOString().split('T')[0]
 
     useEffect(() => {
-        getCategories().then((res) => {
-            if (res.data.error) {
-                setError(res.data.error);
-                return;
-            }
-            setCategories(res.data);
-        });
+        setIsLoading(true)
+        getCategories()
+            .then((res) => {
+                if (res.data.error) setError(res.data.error);
+                else setCategories(res.data);
+                setIsLoading(false)
+            });
     }, []);
 
     useEffect(() => {
         if (inputs.category) {
             const category = inputs.category.replace(/\s+/g, '-')
+            setIsLoading(true)
             getSubCategories(category)
                 .then((res) => {
-                    if (res.data.error) {
-                        setError(res.data.error);
-                        return;
+                    if (res.data.error) setError(res.data.error);
+                    else {
+                        setSubCategories(res.data);
+                        const defaultSubCategory = res.data[0];
+                        setInputs(inputs => ({...inputs, subCategory: defaultSubCategory}));
                     }
-                    setSubCategories(res.data);
-                    const defaultSubCategory = res.data[0];
-                    setInputs(inputs => ({ ...inputs, subCategory: defaultSubCategory }));
+                    setIsLoading(false)
                 });
         }
     }, [inputs.category]);
@@ -58,14 +61,13 @@ export default function EventForm({ event, onClose }) {
     function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
         ev.preventDefault();
         setSubmitting(true);
+        setIsLoading(true)
         editEvent(event.id, inputs)
             .then(res => {
-                if (res.data.error) {
-                    setError(res.data.error);
-                    setSubmitting(false);
-                    return;
-                }
-                onClose();
+                if (res.data.error) setError(res.data.error);
+                else onClose();
+                setSubmitting(false);
+                setIsLoading(false)
             });
     }
 
@@ -83,6 +85,8 @@ export default function EventForm({ event, onClose }) {
         if (!/\d/.test(keyValue) && keyValue !== "." && event.key !== "Backspace")
             event.preventDefault();
     }
+
+    if (isLoading) return <Loading onClose={() => setIsLoading(false)} />
 
     return (
         <>
