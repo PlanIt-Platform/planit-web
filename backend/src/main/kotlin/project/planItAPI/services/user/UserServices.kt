@@ -8,7 +8,7 @@ import project.planItAPI.domain.user.Name
 import project.planItAPI.domain.user.Password
 import project.planItAPI.domain.user.Username
 import project.planItAPI.models.AccessRefreshTokensModel
-import project.planItAPI.models.AssignTaskInputModel
+import project.planItAPI.models.AssignRoleInputModel
 import project.planItAPI.models.UserRegisterOutputModel
 import project.planItAPI.repository.jdbi.user.UsersRepository
 import project.planItAPI.services.user.utils.UsersDomain
@@ -17,23 +17,23 @@ import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.utils.ExistingEmailException
 import project.planItAPI.utils.ExistingUsernameException
 import project.planItAPI.utils.IncorrectPasswordException
-import project.planItAPI.models.SystemInfo
 import project.planItAPI.models.UserInfo
 import project.planItAPI.models.UserLogInOutputModel
 import project.planItAPI.models.UserLogInValidation
 import project.planItAPI.utils.IncorrectLoginException
 import project.planItAPI.models.RefreshTokensOutputModel
+import project.planItAPI.models.RoleOutputModel
 import project.planItAPI.utils.UserNotFoundException
 import project.planItAPI.utils.UserRegisterErrorException
 import project.planItAPI.models.SuccessMessage
-import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserEventsOutputModel
+import project.planItAPI.services.getNowTime
+import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.EventNotFoundException
-import project.planItAPI.utils.FailedToAssignTaskException
+import project.planItAPI.utils.FailedToAssignRoleException
 import project.planItAPI.utils.InvalidRefreshTokenException
 import project.planItAPI.utils.OnlyOrganizerException
-import project.planItAPI.utils.TaskNotFoundException
-import project.planItAPI.utils.UserAlreadyAssignedTaskException
+import project.planItAPI.utils.RoleNotFoundException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
 
@@ -50,10 +50,6 @@ class UserServices (
     private val domain: UsersDomain,
     private val usersConfig: UsersDomainConfig
 ) {
-
-    val APPLICATION_NAME = "PlanIt"
-    val APP_VERSION = "0.0.1"
-    val CONTRIBUTORS_LIST = listOf("Tiago Neutel - 49510", "Daniel Pojega - 49521")
 
     /**
      * Registers a new user.
@@ -190,79 +186,82 @@ class UserServices (
      * @param interests The new interests of the user.
      * @return The result of the user edit as [EditUserResult].
      */
-    fun editUser(userID: Int, name: Name, description: String, interests: List<Category>): EditUserResult {
+    fun editUser(userID: Int, name: Name, description: String, interests: List<String>): EditUserResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
             if (usersRepository.getUser(userID) == null) {
                 throw UserNotFoundException()
             }
-            usersRepository.editUser(userID, name.value, description, interests.joinToString(","){el -> el.name})
+            usersRepository.editUser(userID, name.value, description, interests.joinToString(","))
             return@run SuccessMessage("User edited successfully.")
         }
     }
 
     /**
-     * Assigns a task to a user.
+     * Assigns a role to a user.
      *
-     * @param userId The ID of the user to assign the task to.
-     * @param input The task information.
+     * @param userId The ID of the user to assign the role to.
+     * @param input The role information.
      * @param organizerId The ID of the event organizer.
-     * @return The result of the task assignment as [AssignTaskResult].
+     * @return The result of the role assignment as [AssignRoleResult].
      */
-    fun assignTask(userId: Int, eventId: Int, input: AssignTaskInputModel, organizerId: Int): AssignTaskResult {
+    fun assignRole(userId: Int, eventId: Int, input: AssignRoleInputModel, organizerId: Int): AssignRoleResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val eventsRepository = it.eventsRepository
             if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
-            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
             val usersInEvent = eventsRepository.getUsersInEvent(eventId)
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
             if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
-            if (usersRepository.getUserTask(userId, eventId) != null) throw UserAlreadyAssignedTaskException()
-            val taskId = usersRepository.assignTask(
+            val role = usersRepository.getUserRole(userId, eventId)
+            if (role != null && role.name == input.roleName) throw FailedToAssignRoleException()
+            val roleId = usersRepository.assignRole(
                 userId,
-                input.taskName,
+                input.roleName,
                 eventId
-            ) ?: throw FailedToAssignTaskException()
+            ) ?: throw FailedToAssignRoleException()
 
-            return@run TaskOutputModel(taskId, input.taskName)
+            return@run RoleOutputModel(roleId, input.roleName)
         }
     }
 
     /**
-     * Removes a task from a user.
-     * @param userId The ID of the user to remove the task from.
-     * @param taskId The ID of the task to remove.
-     * @param eventId The ID of the event the task belongs to.
+     * Removes a role from a user.
+     * @param userId The ID of the user to remove the role from.
+     * @param roleId The ID of the role to remove.
+     * @param eventId The ID of the event the role belongs to.
      * @param organizerId The ID of the event organizer.
-     * @return The result of the task removal as [RemoveTaskResult].
+     * @return The result of the role removal as [RemoveRoleResult].
      */
-    fun removeTask(userId: Int, taskId: Int, eventId: Int, organizerId: Int): RemoveTaskResult {
+    fun removeRole(userId: Int, roleId: Int, eventId: Int, organizerId: Int): RemoveRoleResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val eventsRepository = it.eventsRepository
             if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
-            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
             val usersInEvent = eventsRepository.getUsersInEvent(eventId)
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
             if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
-            if (usersRepository.getUserTask(userId, eventId) == null) throw TaskNotFoundException()
+            if (usersRepository.getUserRole(userId, eventId) == null) throw RoleNotFoundException()
             val eventOrganizers = eventsRepository.getEventOrganizers(eventId)
-            if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) {
-                throw OnlyOrganizerException()
-            }
-            usersRepository.removeTask(taskId)
-            return@run SuccessMessage("Task removed successfully.")
+            if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) throw OnlyOrganizerException()
+            val role = usersRepository.getUserRole(userId, eventId)
+            if (role != null && role.name == "Participant") throw FailedToAssignRoleException()
+            usersRepository.removeRole(roleId)
+            return@run SuccessMessage("Role removed successfully.")
         }
     }
 
     /**
-     * Retrieves a user's task in a given event.
-     * @param userId The ID of the user to retrieve the task for.
-     * @param eventId The ID of the event the task belongs to.
-     * @return The user's task as [TaskOutputModel].
+     * Retrieves a user's role in a given event.
+     * @param userId The ID of the user to retrieve the role for.
+     * @param eventId The ID of the event the role belongs to.
+     * @return The user's role as [RoleOutputModel].
      */
-    fun getUserTask(userId: Int, eventId: Int): GetUserTaskResult {
+    fun getUserRole(userId: Int, eventId: Int): GetUserRoleResult {
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val eventsRepository = it.eventsRepository
@@ -270,8 +269,8 @@ class UserServices (
             eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
             val usersInEvent = eventsRepository.getUsersInEvent(eventId)
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
-            val task = usersRepository.getUserTask(userId, eventId) ?: throw TaskNotFoundException()
-            return@run TaskOutputModel(task.id, task.name)
+            val role = usersRepository.getUserRole(userId, eventId) ?: throw RoleNotFoundException()
+            return@run RoleOutputModel(role.id, role.name)
         }
     }
 
@@ -313,17 +312,6 @@ class UserServices (
              return@run SuccessMessage("Profile picture uploaded successfully.")
          }
      }*/
-
-    /**
-     * Retrieves information about the application.
-     *
-     * @return [SystemInfo] containing application version and contributors.
-     */
-    fun about() = SystemInfo(
-        APPLICATION_NAME,
-        APP_VERSION,
-        CONTRIBUTORS_LIST,
-    )
 
     // Private helper function to create access and refresh tokens for a user.
     private fun createTokens(userID: Int, username: String, repo: UsersRepository): AccessRefreshTokensModel {

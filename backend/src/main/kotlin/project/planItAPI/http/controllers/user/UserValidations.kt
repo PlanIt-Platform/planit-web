@@ -75,16 +75,12 @@ fun validateUserEditInput(input: UserEditModel): Either<Exception, ValidatedUser
     val name = Name(input.name)
     if (name is Failure) return Failure(name.value)
 
-    for (category in input.interests) {
-        val result = Category(category)
-        if (result is Failure) return Failure(result.value)
-    }
 
     return Success(
         ValidatedUserEditInputsModel(
             name = (name as Success).value,
             description = input.description,
-            interests = input.interests.map { Category(it) as Success }.map { it.value }
+            interests = input.interests
         )
     )
 }

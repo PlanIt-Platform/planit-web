@@ -22,13 +22,14 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         end_date: Timestamp?,
         price: Money?,
         userID: Int,
-        password: String
+        password: String,
+        code: String
     ): Int? {
         val eventId = handle.createUpdate(
             "insert into dbo.event(title, description, category, subcategory, location, visibility, date," +
-                    " end_date, priceAmount, priceCurrency, password) values (:title, :description, :category," +
+                    " end_date, priceAmount, priceCurrency, password, code) values (:title, :description, :category," +
                     " :subcategory, :location, CAST(:visibility AS dbo.visibilitytype), :date, :end_date," +
-                    " :priceAmount, :priceCurrency, :password)"
+                    " :priceAmount, :priceCurrency, :password, :code)"
         )
             .bind("title", title)
             .bind("description", description)
@@ -41,6 +42,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("priceAmount", price?.amount)
             .bind("priceCurrency", price?.currency)
             .bind("password", password)
+            .bind("code", code)
             .executeAndReturnGeneratedKeys()
             .mapTo(Int::class.java)
             .one()
@@ -54,7 +56,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .execute()
 
         handle.createUpdate(
-            "insert into dbo.Task(name, event_id, user_id)" +
+            "insert into dbo.Roles(name, event_id, user_id)" +
                     "values (:name, :event_id, :user_id)"
         )
             .bind("name", "Organizer")
@@ -74,13 +76,22 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .singleOrNull()
     }
 
+    override fun getEventByCode(eventCode: String): EventModel? {
+        return handle.createQuery(
+            "select * from dbo.Event where code = :code"
+        )
+            .bind("code", eventCode)
+            .mapTo(EventModel::class.java)
+            .singleOrNull()
+    }
+
     override fun getUsersInEvent(id: Int): UsersInEventList? {
         return handle.createQuery(
             """
-        SELECT u.id, u.username, t.name as taskName, t.id as taskId, u.name
+        SELECT u.id, u.username, r.name as roleName, r.id as roleId, u.name
         FROM dbo.UserParticipatesInEvent up
         JOIN dbo.Users u ON up.user_id = u.id
-        LEFT JOIN dbo.Task t ON t.user_id = u.id AND t.event_id = up.event_id
+        LEFT JOIN dbo.Roles r ON r.user_id = u.id AND r.event_id = up.event_id
         WHERE up.event_id = :id
         """
         )
@@ -131,11 +142,20 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("user_id", userId)
             .bind("event_id", eventId)
             .execute()
+
+        handle.createUpdate(
+            "insert into dbo.Roles(name, event_id, user_id)" +
+                    "values (:name, :event_id, :user_id)"
+        )
+            .bind("name", "Participant")
+            .bind("event_id", eventId)
+            .bind("user_id", userId)
+            .execute()
     }
 
     override fun leaveEvent(userId: Int, eventId: Int) {
         handle.createUpdate(
-            "delete from dbo.Task where user_id = :user_id and event_id = :event_id"
+            "delete from dbo.Roles where user_id = :user_id and event_id = :event_id"
         )
             .bind("user_id", userId)
             .bind("event_id", eventId)
@@ -151,7 +171,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
 
     override fun deleteEvent(eventId: Int) {
         handle.createUpdate(
-            "delete from dbo.Task where event_id = :eventId"
+            "delete from dbo.Roles where event_id = :eventId"
         )
             .bind("eventId", eventId)
             .execute()
@@ -215,7 +235,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
 
     override fun getEventOrganizers(eventId: Int): List<Int> {
         return handle.createQuery(
-            "select user_id from dbo.Task where event_id = :eventId and name = 'Organizer'"
+            "select user_id from dbo.Roles where event_id = :eventId and name = 'Organizer'"
         )
             .bind("eventId", eventId)
             .mapTo(Int::class.java)

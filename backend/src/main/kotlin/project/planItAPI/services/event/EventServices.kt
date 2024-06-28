@@ -18,9 +18,13 @@ import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
 import project.planItAPI.domain.event.readSubCategories
 import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.JoinEventWithCodeOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
+import project.planItAPI.services.generateEventCode
+import project.planItAPI.services.getNowTime
 import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
+import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.PastDateException
@@ -29,8 +33,6 @@ import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
 import java.sql.Timestamp
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Service
 class EventServices(
@@ -71,6 +73,7 @@ class EventServices(
             val now = getNowTime()
             if (date.value < now) throw PastDateException()
             if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
+            val eventCode = generateEventCode()
             val eventID = eventsRepository.createEvent(
                 title.value,
                 description.value,
@@ -82,9 +85,10 @@ class EventServices(
                 if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
                 price,
                 userID,
-                password
+                password,
+                eventCode
             ) ?: throw FailedToCreateEventException()
-            return@run CreateEventOutputModel(eventID, title.value, "Created with success.")
+            return@run CreateEventOutputModel(eventID, title.value, eventCode, "Created with success.")
         }
 
 
@@ -103,7 +107,7 @@ class EventServices(
             }
         }
         return@run EventOutputModel(event.id, event.title, event.description, event.category, event.subcategory,
-            event.location, event.visibility, event.date, event.endDate, event.priceAmount, event.priceCurrency)
+            event.location, event.visibility, event.date, event.endDate, event.priceAmount, event.priceCurrency, event.code)
     }
 
     /**
@@ -159,6 +163,7 @@ class EventServices(
     fun joinEvent(userId: Int, eventId: Int, password: String): JoinEventResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+        if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
         if (event.password != password) throw IncorrectPasswordException()
         val usersInEvent = eventsRepository.getUsersInEvent(event.id)
         if (usersInEvent != null && usersInEvent.users.any { user -> user.id == userId }) {
@@ -166,6 +171,24 @@ class EventServices(
         }
         eventsRepository.joinEvent(userId, event.id)
         return@run SuccessMessage("User joined event with success.")
+    }
+
+    /**
+     * Allows a user to join an event through a code.
+     * @param userId The ID of the user joining the event.
+     * @param eventCode The code of the event to join.
+     * @return [JoinEventWithCodeResult] A message indicating the success of the operation. If the event is not found, a [Failure] is thrown.
+     */
+    fun joinEventByCode(userId: Int, eventCode: String): JoinEventWithCodeResult = transactionManager.run {
+        val eventsRepository = it.eventsRepository
+        val event = eventsRepository.getEventByCode(eventCode) ?: throw EventNotFoundException()
+        if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
+        val usersInEvent = eventsRepository.getUsersInEvent(event.id)
+        if (usersInEvent != null && usersInEvent.users.any { user -> user.id == userId }) {
+            throw UserAlreadyInEventException()
+        }
+        eventsRepository.joinEvent(userId, event.id)
+        return@run JoinEventWithCodeOutputModel(event.title, event.id, "User joined event with success.")
     }
 
     /**
@@ -235,6 +258,7 @@ class EventServices(
         val eventsRepository = it.eventsRepository
         if (visibility == Visibility.Private && password.isBlank()) throw PrivateEventException()
         val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+        if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
         if (userId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
         val now = getNowTime()
         if (date.value < now) throw PastDateException()
@@ -294,12 +318,6 @@ class EventServices(
         if (organizerId == userId) throw CantKickYourselfException()
         eventsRepository.kickUser(userId, event.id)
         return@run SuccessMessage("User kicked from event with success.")
-    }
-
-
-    fun getNowTime(): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        return LocalDateTime.now().format(formatter)
     }
 
     private fun hidePrivateEventInfo(events: SearchEventListOutputModel): SearchEventListOutputModel {

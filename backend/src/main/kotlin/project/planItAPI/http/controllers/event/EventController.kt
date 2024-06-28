@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import project.planItAPI.domain.Id
+import project.planItAPI.domain.event.Code
 import project.planItAPI.http.PathTemplates.CATEGORIES
 import project.planItAPI.http.PathTemplates.CREATE_EVENT
 import project.planItAPI.http.PathTemplates.DELETE_EVENT
@@ -33,7 +34,8 @@ import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.domain.event.transformURIToCategory
 import project.planItAPI.domain.validateLimitAndOffset
-import project.planItAPI.models.GetEventInput
+import project.planItAPI.http.PathTemplates.JOIN_EVENT_WITH_CODE
+import project.planItAPI.utils.InvalidEventCodeException
 
 /**
  * Controller class for handling event-related operations in a RESTful manner.
@@ -146,6 +148,24 @@ class EventController(private val eventServices: EventServices) {
                         return responseHandler(200, res.value)
                     }
                 }
+            }
+        }
+    }
+
+    @PostMapping(JOIN_EVENT_WITH_CODE)
+    fun joinEventWithCode(
+        @RequestAttribute("userId") userId: String,
+        @PathVariable code: String
+    ): ResponseEntity<*> {
+        val codeValidation = Code(code)
+        if (codeValidation is Failure) return failureResponse(codeValidation)
+        return when (val res = eventServices.joinEventByCode(userId.toInt(), code)) {
+            is Failure -> {
+                failureResponse(res)
+            }
+
+            is Success -> {
+                return responseHandler(200, res.value)
             }
         }
     }

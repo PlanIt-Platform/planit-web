@@ -1,10 +1,9 @@
 package project.planItAPI.repository.jdbi.user
 
 import org.springframework.stereotype.Component
-import project.planItAPI.models.EventModel
 import project.planItAPI.models.RefreshTokenInfo
+import project.planItAPI.models.RoleOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
-import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserInfoRepo
 import project.planItAPI.models.UserLogInValidation
 import java.sql.Timestamp
@@ -52,7 +51,7 @@ interface UsersRepository {
     /**
      * Retrieves user information for login validation based on the provided username.
      *
-     * @param name The username for login validation.
+     * @param username The username for login validation.
      * @return [UserLogInValidation] containing user information for login validation, or null if not found.
      */
     fun getUserByUsername(username: String): UserLogInValidation?
@@ -129,28 +128,28 @@ interface UsersRepository {
     fun editUser(id: Int, name: String, description: String, interests: String)
 
     /**
-     * Assigns a task to a user.
-     * @param userId The ID of the user to assign the task to.
-     * @param taskName The name of the task.
-     * @param eventId The ID of the event the task will belong to.
-     * @return The ID of the assigned task, or null if assignment fails.
+     * Assigns a role to a user.
+     * @param userId The ID of the user to assign the role to.
+     * @param roleName The name of the role.
+     * @param eventId The ID of the event the role will belong to.
+     * @return The ID of the assigned role, or null if assignment fails.
      */
-    fun assignTask(userId: Int, taskName: String, eventId: Int): Int?
+    fun assignRole(userId: Int, roleName: String, eventId: Int): Int?
 
     /**
-     * Removes a task from an event.
-     * @param taskId The ID of the task to remove.
+     * Removes a role from an event.
+     * @param roleId The ID of the role to remove.
      */
-    fun removeTask(taskId: Int)
+    fun removeRole(roleId: Int)
 
 
     /**
-     * Retrieves the task associated with the user and event.
-     * @param userId The ID of the user to retrieve the task for.
-     * @param eventId The ID of the event to retrieve the task for.
-     * @return [TaskOutputModel] containing task information, or null if not found.
+     * Retrieves the role associated with the user and event.
+     * @param userId The ID of the user to retrieve the role for.
+     * @param eventId The ID of the event to retrieve the role for.
+     * @return [RoleOutputModel] containing role information, or null if not found.
      */
-    fun getUserTask(userId: Int, eventId: Int): TaskOutputModel?
+    fun getUserRole(userId: Int, eventId: Int): RoleOutputModel?
 
     // fun uploadProfilePicture(id: Int, picture: ByteArray, fileType: String): Int?
 }

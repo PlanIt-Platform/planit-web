@@ -3,12 +3,11 @@ package project.planItAPI.services.user
 import project.planItAPI.models.UserRegisterOutputModel
 import project.planItAPI.utils.Either
 import project.planItAPI.models.RefreshTokensOutputModel
+import project.planItAPI.models.RoleOutputModel
 import project.planItAPI.models.SuccessMessage
-import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserEventsOutputModel
 import project.planItAPI.models.UserInfo
 import project.planItAPI.models.UserLogInOutputModel
-
 
 /**
  * Type alias for the result of a user registration operation.
@@ -51,14 +50,14 @@ typealias UserTokensResult = Either<Exception, RefreshTokensOutputModel>
  * Type alias for the result of a task creation operation.
 
  */
-typealias AssignTaskResult = Either<Exception, TaskOutputModel>
+typealias AssignRoleResult = Either<Exception, RoleOutputModel>
 
 /**
  * Type alias for the result of a task removal operation.
  */
-typealias RemoveTaskResult = Either<Exception, SuccessMessage>
+typealias RemoveRoleResult = Either<Exception, SuccessMessage>
 
 /**
  * Type alias for the result of a task
  */
-typealias GetUserTaskResult = Either<Exception, TaskOutputModel>
+typealias GetUserRoleResult = Either<Exception, RoleOutputModel>

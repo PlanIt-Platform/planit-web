@@ -1,15 +1,16 @@
 package project.planItAPI.services.poll
 
-import kotlinx.datetime.toLocalTime
 import org.springframework.stereotype.Service
 import project.planItAPI.domain.poll.Option
 import project.planItAPI.domain.poll.TimeFormat
 import project.planItAPI.models.CreatePollOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.repository.transaction.TransactionManager
+import project.planItAPI.services.dateToMilliseconds
+import project.planItAPI.services.getNowTime
+import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreatePollException
-import project.planItAPI.utils.InvalidNumberOfOptionsException
 import project.planItAPI.utils.OptionNotFoundException
 import project.planItAPI.utils.PollHasEndedException
 import project.planItAPI.utils.PollNotFoundException
@@ -34,7 +35,8 @@ class PollServices(
         transactionManager.run {
             val pollRepository = it.pollRepository
             val eventsRepository = it.eventsRepository
-            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
             if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
             val pollId = pollRepository.createPoll(
                 title,
@@ -70,7 +72,8 @@ class PollServices(
         transactionManager.run {
             val pollRepository = it.pollRepository
             val eventsRepository = it.eventsRepository
-            eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
+            if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
             val poll = pollRepository.getPoll(pollId) ?: throw PollNotFoundException()
             val nowTime = System.currentTimeMillis()
             val endTime = dateToMilliseconds(poll.created_at) + poll.duration * 60 * 60 * 1000
@@ -92,12 +95,4 @@ class PollServices(
             eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
             return@run it.pollRepository.getPolls(eventId)
         }
-
-    fun dateToMilliseconds(date: String): Long {
-        val dotIndex = date.indexOf('.')
-        val dateStringWithoutFractionalSeconds = date.substring(0, dotIndex)
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val dateTime = LocalDateTime.parse(dateStringWithoutFractionalSeconds, formatter)
-        return dateTime.toInstant(ZoneOffset.UTC).toEpochMilli()
-    }
 }

@@ -222,7 +222,7 @@ data class ValidatedUserLoginInputsModel(
 data class ValidatedUserEditInputsModel(
     val name: Name,
     val description: String,
-    val interests: List<Category>
+    val interests: List<String>
 )
 
 /**
@@ -238,19 +238,19 @@ data class UserEventsOutputModel (
 )
 
 /**
- * Data class representing the task to be assigned.
- * @property taskName The name of the task.
+ * Data class representing the role to be assigned.
+ * @property roleName The name of the role.
  */
-data class AssignTaskInputModel(
-    val taskName: String
+data class AssignRoleInputModel(
+    val roleName: String
 )
 
 /**
- * Data class representing the task assigned.
- * @property id The ID of the task.
- * @property name The name of the task.
+ * Data class representing the role assigned.
+ * @property id The ID of the role.
+ * @property name The name of the role.
  */
-data class TaskOutputModel(
+data class RoleOutputModel(
     val id: Int,
     val name: String
 )

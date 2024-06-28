@@ -14,7 +14,7 @@ import project.planItAPI.http.PathTemplates.USER
 import project.planItAPI.http.controllers.failureResponse
 import project.planItAPI.http.controllers.responseHandler
 import project.planItAPI.http.controllers.setTokenCookies
-import project.planItAPI.models.AssignTaskInputModel
+import project.planItAPI.models.AssignRoleInputModel
 import project.planItAPI.models.UserRegisterInputModel
 import project.planItAPI.services.user.UserServices
 import project.planItAPI.utils.Failure
@@ -203,14 +203,14 @@ class UserController(private val userServices: UserServices) {
      * Assigns a task to a user.
      * @param userId The unique identifier of the user.
      * @param eventId The unique identifier of the event.
-     * @param input The AssignTaskInputModel representing the task to be assigned.
-     * @param organizerId The unique identifier of the user who assigned the task.
+     * @param input The AssignRoleInputModel representing the role to be assigned.
+     * @param organizerId The unique identifier of the user who assigned the role.
      */
-    @PostMapping(PathTemplates.TASK)
-    fun assignTask(
+    @PostMapping(PathTemplates.ROLE)
+    fun assignRole(
         @PathVariable userId: Int,
         @PathVariable eventId: Int,
-        @RequestBody input: AssignTaskInputModel,
+        @RequestBody input: AssignRoleInputModel,
         @RequestAttribute("userId") organizerId: String
     ): ResponseEntity<*> {
         return when (val idResult = Id(userId)) {
@@ -219,7 +219,7 @@ class UserController(private val userServices: UserServices) {
                 when (val eventIdResult = Id(eventId)) {
                     is Failure -> failureResponse(eventIdResult)
                     is Success ->
-                        when (val res = userServices.assignTask(userId, eventId, input, organizerId.toInt())) {
+                        when (val res = userServices.assignRole(userId, eventId, input, organizerId.toInt())) {
                             is Failure -> failureResponse(res)
                             is Success -> {
                                 return responseHandler(200, res.value)
@@ -234,23 +234,23 @@ class UserController(private val userServices: UserServices) {
      * Removes a task from a user.
      * @param userId The unique identifier of the user.
      * @param eventId The unique identifier of the event.
-     * @param taskId The unique identifier of the task.
-     * @param organizerId The unique identifier of the user who assigned the task.
+     * @param roleId The unique identifier of the role.
+     * @param organizerId The unique identifier of the user who assigned the role.
      */
-    @DeleteMapping(PathTemplates.REMOVE_TASK)
-    fun removeTask(
+    @DeleteMapping(PathTemplates.REMOVE_ROLE)
+    fun removeRole(
         @PathVariable userId: Int,
         @PathVariable eventId: Int,
-        @PathVariable taskId: Int,
+        @PathVariable roleId: Int,
         @RequestAttribute("userId") organizerId: String): ResponseEntity<*> {
         val idResult = Id(userId)
         val eventIdResult = Id(eventId)
-        val taskIdResult = Id(taskId)
+        val taskIdResult = Id(roleId)
         if (idResult is Failure) return failureResponse(idResult)
         if (eventIdResult is Failure) return failureResponse(eventIdResult)
         if (taskIdResult is Failure) return failureResponse(taskIdResult)
 
-        return when (val res = userServices.removeTask(userId, taskId, eventId, organizerId.toInt())) {
+        return when (val res = userServices.removeRole(userId, roleId, eventId, organizerId.toInt())) {
             is Failure -> failureResponse(res)
             is Success -> {
                 return responseHandler(200, res.value)
@@ -258,15 +258,15 @@ class UserController(private val userServices: UserServices) {
         }
     }
 
-    @GetMapping(PathTemplates.TASK)
-    fun getUserTask(@PathVariable userId: Int, @PathVariable eventId: Int): ResponseEntity<*> {
+    @GetMapping(PathTemplates.ROLE)
+    fun getUserRole(@PathVariable userId: Int, @PathVariable eventId: Int): ResponseEntity<*> {
         return when (val idResult = Id(userId)) {
             is Failure -> failureResponse(idResult)
             is Success -> {
                 when (val eventIdResult = Id(eventId)) {
                     is Failure -> failureResponse(eventIdResult)
                     is Success -> {
-                        when (val res = userServices.getUserTask(userId, eventId)) {
+                        when (val res = userServices.getUserRole(userId, eventId)) {
                             is Failure -> {
                                 failureResponse(res)
                             }
@@ -320,13 +320,5 @@ class UserController(private val userServices: UserServices) {
              return responseHandler(400, "No image provided.")
          }
      }*/
-
-    /**
-     * Retrieves information about the application or service.
-     *
-     * @return Information about the application.
-     */
-    @GetMapping(PathTemplates.ABOUT)
-    fun about() = responseHandler(200, userServices.about())
 
 }

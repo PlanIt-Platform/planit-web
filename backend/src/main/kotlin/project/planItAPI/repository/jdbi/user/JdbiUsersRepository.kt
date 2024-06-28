@@ -1,10 +1,9 @@
 package project.planItAPI.repository.jdbi.user
 
 import org.jdbi.v3.core.Handle
-import project.planItAPI.models.EventModel
 import project.planItAPI.models.RefreshTokenInfo
+import project.planItAPI.models.RoleOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
-import project.planItAPI.models.TaskOutputModel
 import project.planItAPI.models.UserInfoRepo
 import project.planItAPI.models.UserLogInValidation
 import java.sql.Timestamp
@@ -135,34 +134,35 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .execute()
     }
 
-    override fun assignTask(userId: Int, taskName: String, eventId: Int): Int? =
+    override fun assignRole(userId: Int, roleName: String, eventId: Int): Int? =
         handle.createUpdate(
-            "insert into dbo.Task(name, event_id, user_id) " +
+            "insert into dbo.Roles(name, event_id, user_id) " +
                     "values (:name, :event_id, :user_id)",
         )
-            .bind("name", taskName)
+            .bind("name", roleName)
             .bind("event_id", eventId)
             .bind("user_id", userId)
             .executeAndReturnGeneratedKeys()
             .mapTo(Int::class.java)
             .one()
 
-    override fun removeTask(taskId: Int) {
+    override fun removeRole(roleId: Int) {
         handle.createUpdate(
-            "delete from dbo.Task where id = :task_id",
+            "update dbo.Roles set name = :name where id = :role_id",
         )
-            .bind("task_id", taskId)
+            .bind("role_id", roleId)
+            .bind("name", "Participant")
             .execute()
 
     }
 
-    override fun getUserTask(userId: Int, eventId: Int): TaskOutputModel? {
+    override fun getUserRole(userId: Int, eventId: Int): RoleOutputModel? {
         return handle.createQuery(
-            "select id, name from dbo.Task where user_id = :user_id and event_id = :event_id",
+            "select id, name from dbo.Roles where user_id = :user_id and event_id = :event_id",
         )
             .bind("user_id", userId)
             .bind("event_id", eventId)
-            .mapTo(TaskOutputModel::class.java)
+            .mapTo(RoleOutputModel::class.java)
             .singleOrNull()
 
     }

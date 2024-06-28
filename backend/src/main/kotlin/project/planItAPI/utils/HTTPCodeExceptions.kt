@@ -166,6 +166,11 @@ class FailedToCreateEventException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
+class EventHasEndedException : HTTPCodeException(
+    message = "Event has ended",
+    httpCode = BAD_REQUEST
+)
+
 class PastDateException : HTTPCodeException(
     message = "Date not available, must be later than the current date",
     httpCode = BAD_REQUEST
@@ -246,18 +251,13 @@ class InvalidRefreshTokenException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
-class FailedToAssignTaskException : HTTPCodeException(
-    message = "Failed to assign task",
+class FailedToAssignRoleException : HTTPCodeException(
+    message = "Failed to assign role",
     httpCode = BAD_REQUEST
 )
 
-class UserAlreadyAssignedTaskException : HTTPCodeException(
-    message = "User is already assigned to a task",
-    httpCode = BAD_REQUEST
-)
-
-class TaskNotFoundException : HTTPCodeException(
-    message = "Task not found",
+class RoleNotFoundException : HTTPCodeException(
+    message = "Role not found",
     httpCode = NOT_FOUND
 )
 
@@ -277,3 +277,7 @@ class InvalidLimitAndOffsetException (limit: Boolean, offset: Boolean): HTTPCode
     }
 }
 
+class InvalidEventCodeException : HTTPCodeException(
+    message = "Invalid event code",
+    httpCode = BAD_REQUEST
+)

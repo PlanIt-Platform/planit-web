@@ -27,6 +27,7 @@ interface EventsRepository {
      * @param price The price of the new event.
      * @param userID The ID of the user creating the event.
      * @param password The password of the event.
+     * @param eventCode The event code of the event.
      * @return The ID of the newly created event, or null if creation fails.
      */
     fun createEvent(
@@ -40,7 +41,8 @@ interface EventsRepository {
         end_date: Timestamp?,
         price: Money?,
         userID: Int,
-        password: String
+        password: String,
+        eventCode: String
     ): Int?
 
     /**
@@ -50,6 +52,14 @@ interface EventsRepository {
      * @return The event associated with the ID, or null if not found.
      */
     fun getEvent(id: Int): EventModel?
+
+    /**
+     * Retrieves the event associated with the given event code.
+     *
+     * @param eventCode The event code of the event to retrieve.
+     * @return The event associated with the event code, or null if not found.
+     */
+    fun getEventByCode(eventCode: String): EventModel?
 
     /**
      * Retrieves the users participating in the event associated with the given ID.

@@ -45,16 +45,8 @@ CREATE TABLE dbo.Event (
     end_date    TIMESTAMP,
     priceAmount DECIMAL(10, 2),
     priceCurrency VARCHAR(3),
-    password    VARCHAR(64)
-);
-
-CREATE TABLE dbo.Task (
-  id          serial primary key,
-  name        VARCHAR(255) NOT NULL,
-  event_id    INT NOT NULL,
-  user_id     INT NOT NULL,
-  FOREIGN KEY (event_id) REFERENCES dbo.Event(id),
-  FOREIGN KEY (user_id) REFERENCES dbo.Users(id)
+    password    VARCHAR(64),
+    code        VARCHAR(6)
 );
 
 CREATE TABLE dbo.Chat (
@@ -109,3 +101,16 @@ CREATE TABLE dbo.UserVotes (
    FOREIGN KEY (option_id) REFERENCES dbo.Options(id),
     FOREIGN KEY (poll_id) REFERENCES dbo.Polls(id)
 );
+
+CREATE TABLE dbo.Roles (
+    id serial PRIMARY KEY,
+    name VARCHAR(255) not null,
+    event_id INT,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES dbo.Users(id),
+    FOREIGN KEY (event_id) REFERENCES dbo.Event(id),
+    CONSTRAINT check_role_name CHECK (name IN ('Participant', 'Organizer'))
+);
+
+insert into dbo.Roles (name) values ('Participant');
+insert into dbo.Roles (name) values ('Organizer');

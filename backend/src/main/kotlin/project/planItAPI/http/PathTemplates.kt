@@ -14,8 +14,8 @@ object PathTemplates {
     const val USER_EVENTS = "/user/events"
     const val ABOUT = "/about"
     const val REFRESH_TOKEN = "/refresh-token"
-    const val TASK = "/user/{userId}/event/{eventId}/task"
-    const val REMOVE_TASK = "/user/{userId}/event/{eventId}/task/{taskId}"
+    const val ROLE = "/user/{userId}/event/{eventId}/role"
+    const val REMOVE_ROLE = "/user/{userId}/event/{eventId}/role/{roleId}"
     //const val UPLOAD_PROFILE_PICTURE = "/user/{id}/upload-profile-picture"
 
     /**
@@ -27,6 +27,7 @@ object PathTemplates {
     const val EDIT_EVENT = "/event/{eventId}/edit"
     const val DELETE_EVENT = "/event/{eventId}"
     const val JOIN_EVENT = "/event/{eventId}/join"
+    const val JOIN_EVENT_WITH_CODE = "/event/{code}"
     const val LEAVE_EVENT = "/event/{eventId}/leave"
     const val SEARCH_EVENTS = "/events"
     const val CATEGORIES = "/event/categories"
