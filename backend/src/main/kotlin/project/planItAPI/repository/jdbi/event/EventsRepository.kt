@@ -1,6 +1,7 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.springframework.stereotype.Component
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
 import project.planItAPI.models.SearchEventListOutputModel
@@ -35,7 +36,8 @@ interface EventsRepository {
         description: String,
         category: String,
         subcategory: String?,
-        location: String,
+        locationType: String?,
+        location: String?,
         visibility: String,
         date: Timestamp?,
         end_date: Timestamp?,
@@ -90,11 +92,11 @@ interface EventsRepository {
     fun joinEvent(userId: Int, eventId: Int)
 
     /**
-     * Removes a user from the event with the given ID.
-     * @param userId The ID of the user to remove from the event.
-     * @param eventId The ID of the event to remove the user from.
+     * Kicks a user from the event with the given ID.
+     * @param eventId The ID of the event to kick the user from.
+     * @param userId The ID of the user to kick from the event.
      */
-    fun leaveEvent(userId: Int, eventId: Int)
+    fun kickUserFromEvent(userId: Int, eventId: Int)
 
     /**
      * Deletes the event with the given ID.
@@ -112,6 +114,7 @@ interface EventsRepository {
         description: String?,
         category: String?,
         subcategory: String?,
+        locationType: String?,
         location: String?,
         visibility: String?,
         date: Timestamp?,
@@ -126,11 +129,4 @@ interface EventsRepository {
      * @return The IDs of the users that organized the event.
      */
     fun getEventOrganizers(eventId: Int): List<Int>
-
-    /**
-     * Kicks a user from the event with the given ID.
-     * @param eventId The ID of the event to kick the user from.
-     * @param userId The ID of the user to kick from the event.
-     */
-    fun kickUser(userId: Int, eventId: Int)
 }

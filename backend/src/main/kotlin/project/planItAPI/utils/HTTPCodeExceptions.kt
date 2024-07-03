@@ -237,7 +237,7 @@ class OptionNotFoundException : HTTPCodeException(
 )
 
 class UserAlreadyVotedException : HTTPCodeException(
-    message = "User already voted",
+    message = "You have already voted",
     httpCode = BAD_REQUEST
 )
 
@@ -279,5 +279,10 @@ class InvalidLimitAndOffsetException (limit: Boolean, offset: Boolean): HTTPCode
 
 class InvalidEventCodeException : HTTPCodeException(
     message = "Invalid event code",
+    httpCode = BAD_REQUEST
+)
+
+class MustSpecifyLocationTypeException : HTTPCodeException(
+    message = "If location is specified, then locationType must be specified as well",
     httpCode = BAD_REQUEST
 )

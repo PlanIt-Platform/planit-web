@@ -3,6 +3,7 @@ package project.planItAPI.http.controllers.event
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
@@ -23,7 +24,8 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
         Subcategory(input.category, input.subCategory),
         DateFormat(input.date),
         DateFormat(input.endDate),
-        Money(input.price)
+        Money(input.price),
+        if(input.locationType != null) LocationType(input.locationType) else Success(null),
     )
 
     val errors = results.mapNotNull {
@@ -36,14 +38,15 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
     return if (errors.isEmpty()) {
         Success(
             ValidatedEventInputsModel(
-            title = (results[0] as Success).value as Title,
-            description = (results[1] as Success).value as Description,
-            visibility = (results[2] as Success).value as Visibility,
-            category = (results[3] as Success).value as Category,
-            subCategory = (results[4] as Success).value as Subcategory,
-            date = (results[5] as Success).value as DateFormat,
-            endDate = (results[6] as Success).value as DateFormat,
-            price = (results[7] as Success).value as Money
+                title = (results[0] as Success).value as Title,
+                description = (results[1] as Success).value as Description,
+                visibility = (results[2] as Success).value as Visibility,
+                category = (results[3] as Success).value as Category,
+                subCategory = (results[4] as Success).value as Subcategory,
+                date = (results[5] as Success).value as DateFormat,
+                endDate = (results[6] as Success).value as DateFormat,
+                price = (results[7] as Success).value as Money,
+                locationType = (results[8] as Success).value as LocationType?,
             )
         )
     } else {

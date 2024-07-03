@@ -3,6 +3,7 @@ package project.planItAPI.models
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
@@ -13,6 +14,7 @@ data class EventInputModel(
     val description: String?,
     val category: String,
     val subCategory: String?,
+    val locationType: String?,
     val location: String?,
     val visibility: String,
     val date: String,
@@ -47,6 +49,7 @@ data class EventModel(
     val description: String?,
     val category: String,
     val subcategory: String?,
+    val locationType: String?,
     val location: String?,
     val visibility: String,
     val date: String,
@@ -63,6 +66,7 @@ data class EventOutputModel(
     val description: String?,
     val category: String,
     val subcategory: String?,
+    val locationType: String?,
     val location: String?,
     val visibility: String,
     val date: String,
@@ -118,6 +122,7 @@ data class ValidatedEventInputsModel(
     val visibility: Visibility,
     val category: Category,
     val subCategory: Subcategory,
+    val locationType: LocationType?,
     val date: DateFormat,
     val endDate: DateFormat,
     val price: Money

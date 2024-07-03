@@ -136,8 +136,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
     override fun assignRole(userId: Int, roleName: String, eventId: Int): Int? =
         handle.createUpdate(
-            "insert into dbo.Roles(name, event_id, user_id) " +
-                    "values (:name, :event_id, :user_id)",
+            "update dbo.Roles set name = :name where user_id = :user_id and event_id = :event_id",
         )
             .bind("name", roleName)
             .bind("event_id", eventId)

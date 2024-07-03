@@ -10,6 +10,7 @@ drop table if exists dbo.RefreshTokens;
 drop table if exists dbo.Users;
 drop table if exists dbo.Event;
 drop type if exists dbo.VisibilityType;
+drop type if exists dbo.LocationType;
 
 create table dbo.Users
 (
@@ -32,6 +33,7 @@ create table dbo.RefreshTokens
 );
 
 CREATE TYPE dbo.VisibilityType AS ENUM ('Public', 'Private');
+CREATE TYPE dbo.LocationType AS ENUM ('Online', 'Physical');
 
 CREATE TABLE dbo.Event (
     id          serial primary key,
@@ -39,7 +41,8 @@ CREATE TABLE dbo.Event (
     description VARCHAR(512),
     category    VARCHAR(64) NOT NULL,
     subcategory VARCHAR(64),
-    location    VARCHAR(255) NOT NULL,
+    locationType dbo.LocationType,
+    location    VARCHAR(255),
     visibility  dbo.VisibilityType NOT NULL,
     date        TIMESTAMP,
     end_date    TIMESTAMP,

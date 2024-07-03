@@ -6,6 +6,7 @@ import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
@@ -26,6 +27,7 @@ import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
 import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.InvalidValueException
+import project.planItAPI.utils.MustSpecifyLocationTypeException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.PastDateException
 import project.planItAPI.utils.PrivateEventException
@@ -59,6 +61,7 @@ class EventServices(
         description: Description,
         category: Category,
         subcategory: Subcategory,
+        locationType: LocationType?,
         location: String?,
         visibility: Visibility = Visibility.Public,
         date: DateFormat,
@@ -73,13 +76,15 @@ class EventServices(
             val now = getNowTime()
             if (date.value < now) throw PastDateException()
             if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
+            if (locationType == null && location != null) throw MustSpecifyLocationTypeException()
             val eventCode = generateEventCode()
             val eventID = eventsRepository.createEvent(
                 title.value,
                 description.value,
                 category.name,
                 subcategory.name,
-                location ?: "To be Determined",
+                locationType?.name,
+                location,
                 visibility.name,
                 Timestamp.valueOf("${date.value}:00"),
                 if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
@@ -107,7 +112,8 @@ class EventServices(
             }
         }
         return@run EventOutputModel(event.id, event.title, event.description, event.category, event.subcategory,
-            event.location, event.visibility, event.date, event.endDate, event.priceAmount, event.priceCurrency, event.code)
+            event.locationType, event.location, event.visibility, event.date, event.endDate, event.priceAmount,
+            event.priceCurrency, event.code)
     }
 
     /**
@@ -208,7 +214,7 @@ class EventServices(
         if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) {
             throw OnlyOrganizerException()
         }
-        eventsRepository.leaveEvent(userId, event.id)
+        eventsRepository.kickUserFromEvent(userId, event.id)
         return@run SuccessMessage("User left event with success.")
     }
 
@@ -248,6 +254,7 @@ class EventServices(
         description: Description,
         category: Category,
         subcategory: Subcategory,
+        locationType: LocationType?,
         location: String?,
         visibility: Visibility,
         date: DateFormat,
@@ -272,6 +279,7 @@ class EventServices(
             description.value,
             category.name,
             subcategory.name,
+            locationType?.name,
             location ?: "To be Determined",
             visibility.name,
             Timestamp.valueOf("${date.value}:00"),
@@ -316,7 +324,7 @@ class EventServices(
             throw UserNotInEventException()
         }
         if (organizerId == userId) throw CantKickYourselfException()
-        eventsRepository.kickUser(userId, event.id)
+        eventsRepository.kickUserFromEvent(userId, event.id)
         return@run SuccessMessage("User kicked from event with success.")
     }
 
