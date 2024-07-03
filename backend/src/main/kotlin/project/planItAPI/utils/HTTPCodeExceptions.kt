@@ -237,7 +237,7 @@ class OptionNotFoundException : HTTPCodeException(
 )
 
 class UserAlreadyVotedException : HTTPCodeException(
-    message = "User already voted",
+    message = "You have already voted",
     httpCode = BAD_REQUEST
 )
 
@@ -294,5 +294,10 @@ class InvalidCoordinatesException : HTTPCodeException(
 
 class FeedbackIsBlankException : HTTPCodeException(
     message = "Feedback can not be blank",
+    httpCode = BAD_REQUEST
+)
+
+class MustSpecifyLocationTypeException : HTTPCodeException(
+    message = "If location is specified, then locationType must be specified as well",
     httpCode = BAD_REQUEST
 )

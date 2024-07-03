@@ -330,7 +330,7 @@ class EventsRepositoryTests {
             repo.joinEvent(2, eventID!!)
 
 
-            repo.leaveEvent(2, eventID)
+            repo.kickUserFromEvent(2, eventID)
 
             val users = repo.getUsersInEvent(eventID)
             assertEquals(users!!.users.size, 1)

@@ -67,7 +67,9 @@ class UserServices (
         return transactionManager.run {
             val usersRepository = it.usersRepository
 
-            if (usersRepository.getUserByEmail(email.value) != null)
+            val emailResult = usersRepository.getUserByEmail(email.value)
+
+            if (emailResult != null)
                 throw ExistingEmailException()
 
             if (usersRepository.existsByUsername(username.value))

@@ -16,7 +16,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         description: String,
         category: String,
         subcategory: String?,
-        address: String,
+        locationType: String?,
+        location: String?,
         latitude: Double,
         longitude: Double,
         visibility: String,
@@ -30,14 +31,16 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         val eventId = handle.createUpdate(
             "insert into dbo.event(title, description, category, subcategory, address, latitude, longitude, " +
                     "visibility, date, end_date, priceAmount, priceCurrency, password, code) values " +
-                    "(:title, :description, :category, :subcategory, :address, :latitude, :longitude, " +
-                    "CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, :priceCurrency, :password, :code)"
+                    "(:title, :description, :category, :subcategory, CAST(:locationType AS dbo.locationtype), :location, " +
+                    ":latitude, :longitude, CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, " +
+                    ":priceCurrency, :password, :code)"
         )
             .bind("title", title)
             .bind("description", description)
             .bind("category", category)
             .bind("subcategory", subcategory)
-            .bind("address", address)
+            .bind("locationType", locationType)
+            .bind("location", location)
             .bind("latitude", latitude)
             .bind("longitude", longitude)
             .bind("visibility", visibility)
@@ -108,7 +111,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
     override fun searchEvents(searchInput: String, limit: Int, offset: Int): SearchEventListOutputModel {
         return handle.createQuery(
             """
-        SELECT id, title, description, category, address, latitude, longitude, visibility, date
+        SELECT id, title, description, category, location, latitude, longitude, visibility, date
         FROM dbo.Event
         WHERE title LIKE :searchInput
         OR category LIKE :searchInput
@@ -126,7 +129,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
 
     override fun getAllEvents(limit: Int, offset: Int): SearchEventListOutputModel {
         return handle.createQuery(
-            "select id, title, description, category, address, latitude, longitude, visibility, date " +
+            "select id, title, description, category, location, latitude, longitude, visibility, date " +
                     "from dbo.Event " +
                     "LIMIT :limit OFFSET :offset"
 
@@ -157,7 +160,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .execute()
     }
 
-    override fun kickUser(userId: Int, eventId: Int) {
+    override fun kickUserFromEvent(userId: Int, eventId: Int) {
         handle.createUpdate(
             "delete from dbo.Roles where user_id = :user_id and event_id = :event_id"
         )
@@ -200,7 +203,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         description: String?,
         category: String?,
         subcategory: String?,
-        address: String?,
+        locationType: String?,
+        location: String?,
         latitude: Double,
         longitude: Double,
         visibility: String?,
@@ -215,7 +219,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                     "description = :description, " +
                     "category = :category, " +
                     "subcategory = :subcategory, " +
-                    "address = :address, " +
+                    "locationType = CAST(:locationType AS dbo.locationtype)," +
+                    "location = :location, " +
                     "latitude = :latitude, " +
                     "longitude = :longitude, " +
                     "visibility = CAST(:visibility AS dbo.visibilitytype), " +
@@ -230,7 +235,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("description", description)
             .bind("category", category)
             .bind("subcategory", subcategory)
-            .bind("address", address)
+            .bind("locationType", locationType)
+            .bind("location", location)
             .bind("latitude", latitude)
             .bind("longitude", longitude)
             .bind("visibility", visibility)

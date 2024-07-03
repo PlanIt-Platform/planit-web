@@ -4,6 +4,7 @@ import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
@@ -14,7 +15,8 @@ data class EventInputModel(
     val description: String?,
     val category: String,
     val subCategory: String?,
-    val address: String?,
+    val locationType: String?,
+    val location: String?,
     val latitude: Double?,
     val longitude: Double?,
     val visibility: String,
@@ -37,7 +39,8 @@ data class EventModel(
     val description: String?,
     val category: String,
     val subcategory: String?,
-    val address: String?,
+    val locationType: String?,
+    val location: String?,
     val latitude: Double?,
     val longitude: Double?,
     val visibility: String,
@@ -55,7 +58,8 @@ data class EventOutputModel(
     val description: String?,
     val category: String,
     val subcategory: String?,
-    val address: String?,
+    val locationType: String?,
+    val location: String?,
     val latitude: Double?,
     val longitude: Double?,
     val visibility: String,
@@ -71,7 +75,7 @@ data class SearchEventsOutputModel(
     val title: String,
     val description: String?,
     val category: String?,
-    val address: String?,
+    val location: String?,
     val latitude: Double?,
     val longitude: Double?,
     val visibility: String,
@@ -119,6 +123,7 @@ data class ValidatedEventInputsModel(
     val visibility: Visibility,
     val category: Category,
     val subCategory: Subcategory,
+    val locationType: LocationType?,
     val date: DateFormat,
     val endDate: DateFormat,
     val price: Money,

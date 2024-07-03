@@ -1,6 +1,7 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.springframework.stereotype.Component
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
 import project.planItAPI.models.SearchEventListOutputModel
@@ -20,7 +21,8 @@ interface EventsRepository {
      * @param description The description of the new event.
      * @param category The category of the new event.
      * @param subcategory The subcategory of the new event.
-     * @param address The address of the new event.
+     * @param locationType the type of the location.
+     * @param location The location of the new event.
      * @param visibility The visibility of the new event.
      * @param date The date of the new event.
      * @param end_date The end date of the new event.
@@ -35,7 +37,8 @@ interface EventsRepository {
         description: String,
         category: String,
         subcategory: String?,
-        address: String,
+        locationType: String?,
+        location: String?,
         latitude: Double,
         longitude: Double,
         visibility: String,
@@ -92,11 +95,11 @@ interface EventsRepository {
     fun joinEvent(userId: Int, eventId: Int)
 
     /**
-     * Removes a user from the event with the given ID.
-     * @param userId The ID of the user to remove from the event.
-     * @param eventId The ID of the event to remove the user from.
+     * Kicks a user from the event with the given ID.
+     * @param eventId The ID of the event to kick the user from.
+     * @param userId The ID of the user to kick from the event.
      */
-    fun kickUser(userId: Int, eventId: Int)
+    fun kickUserFromEvent(userId: Int, eventId: Int)
 
     /**
      * Deletes the event with the given ID.
@@ -114,7 +117,8 @@ interface EventsRepository {
         description: String?,
         category: String?,
         subcategory: String?,
-        address: String?,
+        locationType: String?,
+        location: String?,
         latitude: Double,
         longitude: Double,
         visibility: String?,

@@ -7,6 +7,7 @@ import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
 import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
@@ -29,6 +30,7 @@ import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
 import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.InvalidValueException
+import project.planItAPI.utils.MustSpecifyLocationTypeException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.PastDateException
 import project.planItAPI.utils.PrivateEventException
@@ -48,7 +50,8 @@ class EventServices(
      * @param description The description of the new event.
      * @param category The category of the new event.
      * @param subcategory The subcategory of the new event.
-     * @param address The address of the new event.
+     * @param locationType the type of the location.
+     * @param location The location of the new event.
      * @param coords The coordinates of the new event.
      * @param visibility The visibility of the new event.
      * @param date The date of the new event.
@@ -63,7 +66,8 @@ class EventServices(
         description: Description,
         category: Category,
         subcategory: Subcategory,
-        address: String?,
+        locationType: LocationType?,
+        location: String?,
         coords: Coordinates,
         visibility: Visibility = Visibility.Public,
         date: DateFormat,
@@ -78,13 +82,15 @@ class EventServices(
             val now = getNowTime()
             if (date.value < now) throw PastDateException()
             if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
+            if (locationType == null && location != null) throw MustSpecifyLocationTypeException()
             val eventCode = generateEventCode()
             val eventID = eventsRepository.createEvent(
                 title.value,
                 description.value,
                 category.name,
                 subcategory.name,
-                address ?: "To be Determined",
+                locationType?.name,
+                location,
                 coords.latitude,
                 coords.longitude,
                 visibility.name,
@@ -114,7 +120,7 @@ class EventServices(
             }
         }
         return@run EventOutputModel(event.id, event.title, event.description, event.category, event.subcategory,
-            event.address, event.latitude, event.longitude, event.visibility, event.date, event.endDate,
+            event.locationType, event.location, event.latitude, event.longitude, event.visibility, event.date, event.endDate,
             event.priceAmount, event.priceCurrency, event.code)
     }
 
@@ -237,7 +243,7 @@ class EventServices(
         if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) {
             throw OnlyOrganizerException()
         }
-        eventsRepository.kickUser(userId, event.id)
+        eventsRepository.kickUserFromEvent(userId, event.id)
         return@run SuccessMessage("User left event with success.")
     }
 
@@ -263,7 +269,8 @@ class EventServices(
      * @param description The new description of the event.
      * @param category The new category of the event.
      * @param subcategory The new subcategory of the event.
-     * @param address The new address of the event.
+     * @param locationType the type of the location.
+     * @param location The new location of the event.
      * @param coords The new coordinates of the event.
      * @param visibility The new visibility of the event.
      * @param date The new date of the event.
@@ -278,7 +285,8 @@ class EventServices(
         description: Description,
         category: Category,
         subcategory: Subcategory,
-        address: String?,
+        locationType: LocationType?,
+        location: String?,
         coords: Coordinates,
         visibility: Visibility,
         date: DateFormat,
@@ -303,7 +311,8 @@ class EventServices(
             description.value,
             category.name,
             subcategory.name,
-            address ?: "To be Determined",
+            locationType?.name,
+            location ?: "To be Determined",
             coords.latitude,
             coords.longitude,
             visibility.name,
@@ -349,14 +358,14 @@ class EventServices(
             throw UserNotInEventException()
         }
         if (organizerId == userId) throw CantKickYourselfException()
-        eventsRepository.kickUser(userId, event.id)
+        eventsRepository.kickUserFromEvent(userId, event.id)
         return@run SuccessMessage("User kicked from event with success.")
     }
 
     private fun hidePrivateEventInfo(events: SearchEventListOutputModel): SearchEventListOutputModel {
         val eventsReturn = SearchEventListOutputModel(events.events.map { event ->
             if (event.visibility == "Private") {
-                event.copy(description = null, address = null, latitude = null, longitude = null, date = null, category = null)
+                event.copy(description = null, location = null, latitude = null, longitude = null, date = null, category = null)
             } else {
                 event
             }
