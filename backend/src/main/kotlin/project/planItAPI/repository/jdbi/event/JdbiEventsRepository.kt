@@ -16,33 +16,37 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         description: String,
         category: String,
         subcategory: String?,
-        location: String,
+        address: String,
+        latitude: Double,
+        longitude: Double,
         visibility: String,
         date: Timestamp?,
         end_date: Timestamp?,
         price: Money?,
         userID: Int,
         password: String,
-        code: String
+        eventCode: String
     ): Int? {
         val eventId = handle.createUpdate(
-            "insert into dbo.event(title, description, category, subcategory, location, visibility, date," +
-                    " end_date, priceAmount, priceCurrency, password, code) values (:title, :description, :category," +
-                    " :subcategory, :location, CAST(:visibility AS dbo.visibilitytype), :date, :end_date," +
-                    " :priceAmount, :priceCurrency, :password, :code)"
+            "insert into dbo.event(title, description, category, subcategory, address, latitude, longitude, " +
+                    "visibility, date, end_date, priceAmount, priceCurrency, password, code) values " +
+                    "(:title, :description, :category, :subcategory, :address, :latitude, :longitude, " +
+                    "CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, :priceCurrency, :password, :code)"
         )
             .bind("title", title)
             .bind("description", description)
             .bind("category", category)
             .bind("subcategory", subcategory)
-            .bind("location", location)
+            .bind("address", address)
+            .bind("latitude", latitude)
+            .bind("longitude", longitude)
             .bind("visibility", visibility)
             .bind("date", date)
             .bind("end_date", end_date)
             .bind("priceAmount", price?.amount)
             .bind("priceCurrency", price?.currency)
             .bind("password", password)
-            .bind("code", code)
+            .bind("code", eventCode)
             .executeAndReturnGeneratedKeys()
             .mapTo(Int::class.java)
             .one()
@@ -104,7 +108,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
     override fun searchEvents(searchInput: String, limit: Int, offset: Int): SearchEventListOutputModel {
         return handle.createQuery(
             """
-        SELECT id, title, description, category, location, visibility, date
+        SELECT id, title, description, category, address, latitude, longitude, visibility, date
         FROM dbo.Event
         WHERE title LIKE :searchInput
         OR category LIKE :searchInput
@@ -122,7 +126,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
 
     override fun getAllEvents(limit: Int, offset: Int): SearchEventListOutputModel {
         return handle.createQuery(
-            "select id, title, description, category, location, visibility, date " +
+            "select id, title, description, category, address, latitude, longitude, visibility, date " +
                     "from dbo.Event " +
                     "LIMIT :limit OFFSET :offset"
 
@@ -153,7 +157,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .execute()
     }
 
-    override fun leaveEvent(userId: Int, eventId: Int) {
+    override fun kickUser(userId: Int, eventId: Int) {
         handle.createUpdate(
             "delete from dbo.Roles where user_id = :user_id and event_id = :event_id"
         )
@@ -196,7 +200,9 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         description: String?,
         category: String?,
         subcategory: String?,
-        location: String?,
+        address: String?,
+        latitude: Double,
+        longitude: Double,
         visibility: String?,
         date: Timestamp?,
         end_date: Timestamp?,
@@ -209,7 +215,9 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                     "description = :description, " +
                     "category = :category, " +
                     "subcategory = :subcategory, " +
-                    "location = :location, " +
+                    "address = :address, " +
+                    "latitude = :latitude, " +
+                    "longitude = :longitude, " +
                     "visibility = CAST(:visibility AS dbo.visibilitytype), " +
                     "date = :date, " +
                     "end_date = :end_date, " +
@@ -222,7 +230,9 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("description", description)
             .bind("category", category)
             .bind("subcategory", subcategory)
-            .bind("location", location)
+            .bind("address", address)
+            .bind("latitude", latitude)
+            .bind("longitude", longitude)
             .bind("visibility", visibility)
             .bind("date", date)
             .bind("end_date", end_date)
@@ -240,14 +250,5 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("eventId", eventId)
             .mapTo(Int::class.java)
             .list()
-    }
-
-    override fun kickUser(userId: Int, eventId: Int) {
-        handle.createUpdate(
-            "delete from dbo.UserParticipatesInEvent where user_id = :userId and event_id = :eventId"
-        )
-            .bind("userId", userId)
-            .bind("eventId", eventId)
-            .execute()
     }
 }

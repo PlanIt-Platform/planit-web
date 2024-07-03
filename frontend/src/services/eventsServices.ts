@@ -7,7 +7,9 @@ export async function createEvent({
         description,
         category,
         subCategory,
-        location,
+        address,
+        latitude,
+        longitude,
         visibility,
         date,
         endDate,
@@ -24,7 +26,9 @@ export async function createEvent({
             description: description || null,
             category,
             subCategory: subCategory,
-            location: location || null,
+            address: address || null,
+            latitude,
+            longitude,
             visibility,
             date,
             endDate: endDate || null,
@@ -38,7 +42,9 @@ export async function editEvent(eventId, {
     description,
     category,
     subCategory,
-    location,
+    address,
+    latitude,
+    longitude,
     visibility,
     date,
     endDate,
@@ -55,7 +61,9 @@ export async function editEvent(eventId, {
             description: description || null,
             category,
             subCategory: subCategory,
-            location: location || null,
+            address: address || null,
+            latitude,
+            longitude,
             visibility,
             date,
             endDate: endDate || null,
@@ -68,8 +76,16 @@ export async function getEvent(eventId) {
     return await executeRequestAndRefreshToken(get, GET_EVENT + eventId)
 }
 
-export async function searchEvents(searchInput) {
-    return await executeRequestAndRefreshToken(get, SEARCH_EVENTS + '?searchInput=' + searchInput)
+export async function searchEvents(searchInput, limit = 10, offset = 0) {
+    return await executeRequestAndRefreshToken(
+        get,
+        SEARCH_EVENTS + '?searchInput=' + searchInput + '&limit='+ limit + '&offset=' + offset)
+}
+
+export async function findNearbyEvents(latitude, longitude, radius, limit, offset) {
+    return await executeRequestAndRefreshToken(
+        get,
+        SEARCH_EVENTS + '/' + radius + '/' + latitude + '/' + longitude + '?limit=' + limit + '&offset=' + offset)
 }
 
 export async function getCategories() {
@@ -86,6 +102,10 @@ export async function getUsersInEvent(eventId) {
 
 export async function joinEvent(eventId, password) {
     return await executeRequestAndRefreshToken(post, GET_EVENT + eventId + '/join', JSON.stringify({password}))
+}
+
+export async function joinEventWithCode(code) {
+    return await executeRequestAndRefreshToken(post, GET_EVENT + code)
 }
 
 export async function leaveEvent(eventId) {

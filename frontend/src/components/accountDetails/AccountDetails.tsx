@@ -2,13 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {editUser, getUser} from "../../services/usersServices";
 import {getUserId} from "../authentication/Session";
 import './AccountDetails.css';
-import {getCategories} from "../../services/eventsServices";
-import Error from "../error/Error";
-import Loading from "../loading/Loading";
-
-const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
+import Error from "../shared/error/Error";
+import Loading from "../shared/loading/Loading";
 
 export default function AccountDetails(): React.ReactElement {
     const userId = getUserId();
@@ -20,7 +15,7 @@ export default function AccountDetails(): React.ReactElement {
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false);
-    const [interests, setInterests] = useState([]);
+    const [newInterest, setNewInterest] = useState('');
 
     useEffect(() => {
         setIsLoading(true)
@@ -32,15 +27,7 @@ export default function AccountDetails(): React.ReactElement {
                     return
                 }
                 setUserData(res.data);
-                getCategories()
-                    .then((res) => {
-                        if (res.data.error) setError(res.data.error);
-                        else {
-                            const filteredInterests = res.data.filter(interest => interest !== 'Simple Meeting');
-                            setInterests(filteredInterests);
-                        }
-                        setIsLoading(false)
-                    })
+               setIsLoading(false)
             })
     }, [])
 
@@ -62,15 +49,7 @@ export default function AccountDetails(): React.ReactElement {
         setUserData({...userData, [event.target.name]: event.target.value});
     }
 
-    const handleInterestChange = (event) => {
-        if (event.target.checked) {
-            setUserData({...userData, interests: [...userData.interests, event.target.value]});
-        } else {
-            setUserData({...userData, interests: userData.interests.filter(interest => interest !== event.target.value)});
-        }
-    }
-
-    if (isLoading) return <Loading onClose={() => setIsLoading(false)} />
+    if (isLoading) return <Loading/>
 
     return (
         <div className={"divStyle"}>
@@ -99,27 +78,37 @@ export default function AccountDetails(): React.ReactElement {
                 {isEditing ? (
                     <input type="text" name="description" value={userData.description} onChange={handleChange} />
                 ) : (
-                    <p className="value">{userData.description}</p>
+                    <p className="value">{userData.description || "No description available"}</p>
                 )}
             </div>
             <hr />
             <div className="detail">
                 <p className="attribute">Interests:</p>
                 {isEditing ? (
-                    interests.map(interest => (
-                        <div key={interest}>
-                            <input
-                                type="checkbox"
-                                id={interest}
-                                value={interest}
-                                checked={userData.interests.includes(interest)}
-                                onChange={handleInterestChange}
-                            />
-                            <label htmlFor={interest}>{interest}</label>
+                    <>
+                        <input type="text" style={{paddingRight: "0px"}}
+                               placeholder={"Enter an interest"}
+                               value={newInterest} onChange={(ev) => setNewInterest(ev.target.value)} />
+                        <button onClick={() => {
+                            setUserData({...userData, interests: [...userData.interests, newInterest]});
+                            setNewInterest('');
+                            }}>Add Interest
+                        </button>
+                        <div className="interests-container">
+                            {userData.interests.map((interest, index) => (
+                                <div key={index} className="interest">
+                                    {interest}
+                                    <button onClick={() =>
+                                        setUserData({
+                                            ...userData,
+                                            interests: userData.interests.filter((_, i) => i !== index)})
+                                    }>X</button>
+                                </div>
+                            ))}
                         </div>
-                    ))
+                    </>
                 ) : (
-                    <p className="value">{(userData.interests || []).map(capitalizeFirstLetter).join(", ")}</p>
+                    <p className="value">{userData.interests.length > 0 ? userData.interests.join(" ") : 'No interests available'}</p>
                 )}
             </div>
             <hr />

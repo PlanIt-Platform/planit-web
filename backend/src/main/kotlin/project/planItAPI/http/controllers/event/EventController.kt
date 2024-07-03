@@ -35,7 +35,6 @@ import project.planItAPI.utils.Success
 import project.planItAPI.domain.event.transformURIToCategory
 import project.planItAPI.domain.validateLimitAndOffset
 import project.planItAPI.http.PathTemplates.JOIN_EVENT_WITH_CODE
-import project.planItAPI.utils.InvalidEventCodeException
 
 /**
  * Controller class for handling event-related operations in a RESTful manner.
@@ -57,7 +56,8 @@ class EventController(private val eventServices: EventServices) {
                     validatedInputs.description,
                     validatedInputs.category,
                     validatedInputs.subCategory,
-                    input.location,
+                    input.address,
+                    validatedInputs.coordinates,
                     validatedInputs.visibility,
                     validatedInputs.date,
                     validatedInputs.endDate,
@@ -124,6 +124,40 @@ class EventController(private val eventServices: EventServices) {
 
                     is Success -> {
                         return responseHandler(200, res.value)
+                    }
+                }
+            }
+        }
+    }
+
+    @GetMapping(FIND_NEARBY_EVENTS)
+    fun findNearbyEvents(
+        @PathVariable radius: Int,
+        @PathVariable latitude: Double,
+        @PathVariable longitude: Double,
+        @RequestParam offset: Int?,
+        @RequestParam limit: Int?
+    ): ResponseEntity<*> {
+        return when (val coordsValidation = validateFindNearbyEventsInput(radius, latitude, longitude)) {
+            is Failure -> failureResponse(coordsValidation)
+            is Success -> {
+                return when (val limitOffsetValidation = validateLimitAndOffset(limit, offset)) {
+                    is Failure -> failureResponse(limitOffsetValidation)
+                    is Success -> {
+                        return when (val res = eventServices.findNearbyEvents(
+                            radius,
+                            coordsValidation.value,
+                            limitOffsetValidation.value.first,
+                            limitOffsetValidation.value.second
+                        )) {
+                            is Failure -> {
+                                failureResponse(res)
+                            }
+
+                            is Success -> {
+                                return responseHandler(200, res.value)
+                            }
+                        }
                     }
                 }
             }
@@ -227,7 +261,8 @@ class EventController(private val eventServices: EventServices) {
                     validatedInputs.description,
                     validatedInputs.category,
                     validatedInputs.subCategory,
-                    input.location,
+                    input.address,
+                    validatedInputs.coordinates,
                     validatedInputs.visibility,
                     validatedInputs.date,
                     validatedInputs.endDate,

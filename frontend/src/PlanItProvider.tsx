@@ -24,7 +24,12 @@ export function PlanItProvider({ children }) {
     const[eventsSearched, setEventsSearched] = useState([]);
 
     return (
-        <PlanItContext.Provider value={{ userToken, setUserToken, userId, setUserId, eventsSearched, setEventsSearched }}>
+        <PlanItContext.Provider value={
+            {
+                userToken, setUserToken,
+                userId, setUserId,
+                eventsSearched, setEventsSearched
+            }}>
     {children}
     </PlanItContext.Provider>
 );

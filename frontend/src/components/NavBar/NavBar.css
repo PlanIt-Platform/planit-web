@@ -32,7 +32,7 @@ body
     user-select: none;
 }
 
-#menuToggle input
+.menuToggleMenu
 {
     display: block;
     width: 30px;
@@ -48,7 +48,7 @@ body
     -webkit-touch-callout: none;
 }
 
-#menuToggle span
+.menuToggleSpan
 {
     display: block;
     width: 23px;
@@ -68,30 +68,30 @@ body
     opacity 0.55s ease;
 }
 
-#menuToggle span:first-child
+.menuToggleSpan:first-child
 {
     transform-origin: 0% 0%;
 }
 
-#menuToggle span:nth-last-child(2)
+.menuToggleSpan:nth-last-child(2)
 {
     transform-origin: 0% 100%;
 }
 
-#menuToggle input:checked ~ span
+.menuToggleMenu:checked ~ span
 {
     opacity: 1;
     transform: rotate(45deg) translate(1px, 3px);
     background: #232323;
 }
 
-#menuToggle input:checked ~ span:nth-last-child(3)
+.menuToggleMenu:checked ~ span:nth-last-child(3)
 {
     opacity: 0;
     transform: rotate(0deg) scale(0.2, 0.2);
 }
 
-#menuToggle input:checked ~ span:nth-last-child(2)
+.menuToggleMenu:checked ~ span:nth-last-child(2)
 {
     transform: rotate(-45deg) translate(0, -1px);
 }
@@ -248,4 +248,17 @@ body
 
 .buttonExtraPadding {
     padding-left: 830px;
+}
+
+.feedbackStyle {
+    color: #000000;
+    background: none;
+    border: none;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    right: 200px;
+    margin-top: 330px;
+    margin-left: 62px;
+    margin-right: 62px;
 }

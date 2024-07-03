@@ -2,6 +2,7 @@ package project.planItAPI.services.event
 
 import org.springframework.stereotype.Service
 import project.planItAPI.domain.event.Category
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.repository.transaction.TransactionManager
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.domain.event.DateFormat
@@ -18,8 +19,10 @@ import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
 import project.planItAPI.domain.event.readSubCategories
 import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.FindNearbyEventsListOutputModel
 import project.planItAPI.models.JoinEventWithCodeOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
+import project.planItAPI.services.calculateDistance
 import project.planItAPI.services.generateEventCode
 import project.planItAPI.services.getNowTime
 import project.planItAPI.utils.CantKickYourselfException
@@ -45,7 +48,8 @@ class EventServices(
      * @param description The description of the new event.
      * @param category The category of the new event.
      * @param subcategory The subcategory of the new event.
-     * @param location The location of the new event.
+     * @param address The address of the new event.
+     * @param coords The coordinates of the new event.
      * @param visibility The visibility of the new event.
      * @param date The date of the new event.
      * @param endDate The end date of the new event.
@@ -59,7 +63,8 @@ class EventServices(
         description: Description,
         category: Category,
         subcategory: Subcategory,
-        location: String?,
+        address: String?,
+        coords: Coordinates,
         visibility: Visibility = Visibility.Public,
         date: DateFormat,
         endDate: DateFormat,
@@ -79,7 +84,9 @@ class EventServices(
                 description.value,
                 category.name,
                 subcategory.name,
-                location ?: "To be Determined",
+                address ?: "To be Determined",
+                coords.latitude,
+                coords.longitude,
                 visibility.name,
                 Timestamp.valueOf("${date.value}:00"),
                 if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
@@ -107,7 +114,8 @@ class EventServices(
             }
         }
         return@run EventOutputModel(event.id, event.title, event.description, event.category, event.subcategory,
-            event.location, event.visibility, event.date, event.endDate, event.priceAmount, event.priceCurrency, event.code)
+            event.address, event.latitude, event.longitude, event.visibility, event.date, event.endDate,
+            event.priceAmount, event.priceCurrency, event.code)
     }
 
     /**
@@ -151,6 +159,27 @@ class EventServices(
 
         val eventList = eventsRepository.searchEvents(searchInput, limit, offset)
         return@run hidePrivateEventInfo(eventList)
+    }
+
+    /**
+     * Finds nearby events based on the provided radius and user coordinates.
+     * @param radius The radius to search for events in.
+     * @param userCoords The coordinates of the user.
+     * @param limit The maximum number of events to return.
+     * @param offset The offset to start returning events from.
+     * @return [FindNearbyEventsResult] The events that are nearby the user.
+     */
+    fun findNearbyEvents(radius: Int, userCoords: Coordinates, limit: Int, offset: Int): FindNearbyEventsResult = transactionManager.run {
+        val eventsRepository = it.eventsRepository
+        val eventList = eventsRepository.getAllEvents(limit, offset).events
+
+        val nearbyEvents = eventList.filter { event ->
+            if (event.latitude == null || event.longitude == null) return@filter false
+            val distance = calculateDistance(userCoords.latitude, userCoords.longitude, event.latitude, event.longitude)
+            return@filter distance <= radius && event.visibility == "Public"
+        }
+
+        return@run FindNearbyEventsListOutputModel(nearbyEvents)
     }
 
     /**
@@ -208,7 +237,7 @@ class EventServices(
         if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) {
             throw OnlyOrganizerException()
         }
-        eventsRepository.leaveEvent(userId, event.id)
+        eventsRepository.kickUser(userId, event.id)
         return@run SuccessMessage("User left event with success.")
     }
 
@@ -234,7 +263,8 @@ class EventServices(
      * @param description The new description of the event.
      * @param category The new category of the event.
      * @param subcategory The new subcategory of the event.
-     * @param location The new location of the event.
+     * @param address The new address of the event.
+     * @param coords The new coordinates of the event.
      * @param visibility The new visibility of the event.
      * @param date The new date of the event.
      * @param endDate The new end date of the event.
@@ -248,7 +278,8 @@ class EventServices(
         description: Description,
         category: Category,
         subcategory: Subcategory,
-        location: String?,
+        address: String?,
+        coords: Coordinates,
         visibility: Visibility,
         date: DateFormat,
         endDate: DateFormat,
@@ -272,7 +303,9 @@ class EventServices(
             description.value,
             category.name,
             subcategory.name,
-            location ?: "To be Determined",
+            address ?: "To be Determined",
+            coords.latitude,
+            coords.longitude,
             visibility.name,
             Timestamp.valueOf("${date.value}:00"),
             if(endDate.value != "") Timestamp.valueOf("${endDate.value}:00") else null,
@@ -323,7 +356,7 @@ class EventServices(
     private fun hidePrivateEventInfo(events: SearchEventListOutputModel): SearchEventListOutputModel {
         val eventsReturn = SearchEventListOutputModel(events.events.map { event ->
             if (event.visibility == "Private") {
-                event.copy(description = null, location = null, date = null, category = null)
+                event.copy(description = null, address = null, latitude = null, longitude = null, date = null, category = null)
             } else {
                 event
             }

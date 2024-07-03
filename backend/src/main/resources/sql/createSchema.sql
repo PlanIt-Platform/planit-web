@@ -39,7 +39,9 @@ CREATE TABLE dbo.Event (
     description VARCHAR(512),
     category    VARCHAR(64) NOT NULL,
     subcategory VARCHAR(64),
-    location    VARCHAR(255) NOT NULL,
+    address    VARCHAR(255) NOT NULL,
+    latitude    DECIMAL(8, 6) NOT NULL,
+    longitude   DECIMAL(9, 6) NOT NULL,
     visibility  dbo.VisibilityType NOT NULL,
     date        TIMESTAMP,
     end_date    TIMESTAMP,
@@ -110,6 +112,12 @@ CREATE TABLE dbo.Roles (
     FOREIGN KEY (user_id) REFERENCES dbo.Users(id),
     FOREIGN KEY (event_id) REFERENCES dbo.Event(id),
     CONSTRAINT check_role_name CHECK (name IN ('Participant', 'Organizer'))
+);
+
+CREATE TABLE dbo.Feedback (
+    id serial PRIMARY KEY,
+    text VARCHAR(255),
+    date TIMESTAMP
 );
 
 insert into dbo.Roles (name) values ('Participant');

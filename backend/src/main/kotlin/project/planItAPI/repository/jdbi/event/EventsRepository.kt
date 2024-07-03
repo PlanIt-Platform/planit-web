@@ -20,7 +20,7 @@ interface EventsRepository {
      * @param description The description of the new event.
      * @param category The category of the new event.
      * @param subcategory The subcategory of the new event.
-     * @param location The location of the new event.
+     * @param address The address of the new event.
      * @param visibility The visibility of the new event.
      * @param date The date of the new event.
      * @param end_date The end date of the new event.
@@ -35,7 +35,9 @@ interface EventsRepository {
         description: String,
         category: String,
         subcategory: String?,
-        location: String,
+        address: String,
+        latitude: Double,
+        longitude: Double,
         visibility: String,
         date: Timestamp?,
         end_date: Timestamp?,
@@ -94,7 +96,7 @@ interface EventsRepository {
      * @param userId The ID of the user to remove from the event.
      * @param eventId The ID of the event to remove the user from.
      */
-    fun leaveEvent(userId: Int, eventId: Int)
+    fun kickUser(userId: Int, eventId: Int)
 
     /**
      * Deletes the event with the given ID.
@@ -112,7 +114,9 @@ interface EventsRepository {
         description: String?,
         category: String?,
         subcategory: String?,
-        location: String?,
+        address: String?,
+        latitude: Double,
+        longitude: Double,
         visibility: String?,
         date: Timestamp?,
         end_date: Timestamp?,
@@ -126,11 +130,4 @@ interface EventsRepository {
      * @return The IDs of the users that organized the event.
      */
     fun getEventOrganizers(eventId: Int): List<Int>
-
-    /**
-     * Kicks a user from the event with the given ID.
-     * @param eventId The ID of the event to kick the user from.
-     * @param userId The ID of the user to kick from the event.
-     */
-    fun kickUser(userId: Int, eventId: Int)
 }

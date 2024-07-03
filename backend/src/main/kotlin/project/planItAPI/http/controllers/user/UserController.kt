@@ -15,6 +15,7 @@ import project.planItAPI.http.controllers.failureResponse
 import project.planItAPI.http.controllers.responseHandler
 import project.planItAPI.http.controllers.setTokenCookies
 import project.planItAPI.models.AssignRoleInputModel
+import project.planItAPI.models.FeedbackInputModel
 import project.planItAPI.models.UserRegisterInputModel
 import project.planItAPI.services.user.UserServices
 import project.planItAPI.utils.Failure
@@ -277,6 +278,26 @@ class UserController(private val userServices: UserServices) {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @PostMapping(PathTemplates.FEEDBACK)
+    fun sendFeedback(@RequestBody feedback: FeedbackInputModel): ResponseEntity<*> {
+        return when (val res = userServices.sendFeedback(feedback.text)) {
+            is Failure -> failureResponse(res)
+            is Success -> {
+                return responseHandler(201, res.value)
+            }
+        }
+    }
+
+    @GetMapping(PathTemplates.FEEDBACK)
+    fun getFeedback(): ResponseEntity<*> {
+        return when (val res = userServices.getFeedback()) {
+            is Failure -> failureResponse(res)
+            is Success -> {
+                return responseHandler(200, res.value)
             }
         }
     }

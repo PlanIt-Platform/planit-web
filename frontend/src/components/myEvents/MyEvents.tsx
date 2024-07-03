@@ -11,8 +11,9 @@ import foodbg from "../../../images/foodbg.png";
 import charitybg from "../../../images/caridadebg.png";
 import technologybg from "../../../images/technologybg.png";
 import businessbg from "../../../images/businessbg.png";
-import Error from "../error/Error";
-import Loading from "../loading/Loading";
+import Error from "../shared/error/Error";
+import Loading from "../shared/loading/Loading";
+import {formatDate} from "../event/shared/formatDate";
 
 const categoryBackgrounds = {
     'Simple Meeting': simplemeetingbg,
@@ -23,20 +24,6 @@ const categoryBackgrounds = {
     'Charity': charitybg,
     'Technology': technologybg,
     'Business': businessbg
-}
-
-function formatDate(dateString) {
-    // Remove the seconds from the date string
-    const dateWithoutSeconds = dateString.slice(0, 16);
-
-    const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    return new Date(dateWithoutSeconds).toLocaleDateString(undefined, options);
 }
 
 export default function MyEvents() {
@@ -60,7 +47,7 @@ export default function MyEvents() {
 
     return (
         <div>
-            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
+            {isLoading && <Loading/>}
             <div className="events-grid" style={{paddingTop: 130}}>
                 {events.length === 0 && <h1>No events found.</h1>}
                 {events.map((event: any) => (
@@ -79,7 +66,7 @@ export default function MyEvents() {
                             </div>
                             <div className="info-container">
                                 <img src={location} alt="location" className={"info_img"}/>
-                                <p>{event.location}</p>
+                                <p>{event.address}</p>
                             </div>
                         </div>
                     </div>

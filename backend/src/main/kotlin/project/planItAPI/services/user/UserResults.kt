@@ -1,5 +1,6 @@
 package project.planItAPI.services.user
 
+import project.planItAPI.models.FeedbackOutputModel
 import project.planItAPI.models.UserRegisterOutputModel
 import project.planItAPI.utils.Either
 import project.planItAPI.models.RefreshTokensOutputModel
@@ -61,3 +62,14 @@ typealias RemoveRoleResult = Either<Exception, SuccessMessage>
  * Type alias for the result of a task
  */
 typealias GetUserRoleResult = Either<Exception, RoleOutputModel>
+
+
+/**
+ * Type alias for the result of a feedback submission operation.
+ */
+typealias SendFeedbackResult = Either<Exception, SuccessMessage>
+
+/**
+ * Type alias for the result of a feedback retrieval operation.
+ */
+typealias GetFeedbackResult = Either<Exception, List<FeedbackOutputModel>>

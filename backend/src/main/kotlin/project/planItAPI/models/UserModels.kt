@@ -254,3 +254,23 @@ data class RoleOutputModel(
     val id: Int,
     val name: String
 )
+
+/**
+ * Data class representing the feedback input information.
+ * @property text The feedback of the user.
+ */
+data class FeedbackInputModel(
+    val text: String
+)
+
+/**
+ * Data class representing the feedback input information.
+ * @property id The ID of the feedback.
+ * @property text The feedback of the user.
+ * @property date The date when the feedback was given.
+ */
+data class FeedbackOutputModel(
+    val id: Int,
+    val text: String,
+    val date: String
+)

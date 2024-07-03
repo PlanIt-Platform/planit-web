@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function CalendarDays({events, calendarDay, changeCalendarDay}){
+export function CalendarDays({events, calendarDay}){
     const firstDayOfMonth = new Date(calendarDay.getFullYear(), calendarDay.getMonth(), 1);
     const weekDayOfFirstDay = firstDayOfMonth.getDay();
     let calendarDays = []
@@ -26,18 +26,18 @@ export function CalendarDays({events, calendarDay, changeCalendarDay}){
         <div className="table-content">
             {calendarDays.map((day, index) => {
                 let dayClass = '';
-                const eventsForDay = events.filter(event => new Date(event.date).toDateString() === day.date.toDateString());
-                if (eventsForDay.length === 1) {
+                const eventsPerDay = events.filter(event => new Date(event.date).toDateString() === day.date.toDateString());
+                if (eventsPerDay.length === 1) {
                     dayClass = 'day-with-one-event';
-                } else if (eventsForDay.length === 2) {
+                } else if (eventsPerDay.length === 2) {
                     dayClass = 'day-with-two-events';
-                } else if (eventsForDay.length >= 3) {
+                } else if (eventsPerDay.length >= 3) {
                     dayClass = 'day-with-three-or-more-events';
                 }
 
                 return (
                     <div key={index} className={`calendar-day ${dayClass} ${day.currentMoth ? 'current-month' : ''} 
-                    ${day.selected ? 'selected' : ''}`} onClick={() => changeCalendarDay(day)}>
+                    ${day.selected ? 'selected' : ''}`}>
                         <p>{day.number}</p>
                     </div>
                 )

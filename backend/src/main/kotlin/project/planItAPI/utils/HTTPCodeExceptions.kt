@@ -256,6 +256,11 @@ class FailedToAssignRoleException : HTTPCodeException(
     httpCode = BAD_REQUEST
 )
 
+class FailedToRemoveRoleException : HTTPCodeException(
+    message = "Failed to remove role",
+    httpCode = BAD_REQUEST
+)
+
 class RoleNotFoundException : HTTPCodeException(
     message = "Role not found",
     httpCode = NOT_FOUND
@@ -279,5 +284,15 @@ class InvalidLimitAndOffsetException (limit: Boolean, offset: Boolean): HTTPCode
 
 class InvalidEventCodeException : HTTPCodeException(
     message = "Invalid event code",
+    httpCode = BAD_REQUEST
+)
+
+class InvalidCoordinatesException : HTTPCodeException(
+    message = "Invalid coordinates",
+    httpCode = BAD_REQUEST
+)
+
+class FeedbackIsBlankException : HTTPCodeException(
+    message = "Feedback can not be blank",
     httpCode = BAD_REQUEST
 )

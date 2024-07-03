@@ -1,0 +1,140 @@
+.h3_userProfile {
+    margin: 10px 50px;
+    font-size: 32px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 15ch;
+}
+
+.h5_userProfile {
+    margin: 5px 0;
+    text-transform: lowercase;
+    color: rgba(151, 146, 185, 0.64);
+}
+
+.p_userProfile {
+    font-size: 17px;
+    line-height: 21px;
+}
+
+.card-container {
+    background-color: #074365;
+    border-radius: 20px;
+    box-shadow: 0px 10px 20px -10px rgba(0,0,0,0.75);
+    color: #B3B8CD;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    position: fixed;
+    width: 350px;
+    max-width: 100%;
+    text-align: center;
+    font-family: Montserrat, sans-serif;
+    z-index: 9999;
+    top: 50%; /* Center the element vertically */
+    left: 50%; /* Center the element horizontally */
+    transform: translate(-50%, -50%);
+}
+
+.card-container .pro {
+    color: #231E39;
+    background-color: #FEBB0B;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 3px 7px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+button.primary {
+    background-color: #03BFCB;
+    border: 1px solid #03BFCB;
+    border-radius: 3px;
+    color: #231E39;
+    font-family: Montserrat, sans-serif;
+    font-weight: 500;
+    padding: 10px 25px;
+}
+
+.roleContainer {
+    background-color: #02899C;
+    border: 1px solid #02899C;
+    border-radius: 3px;
+    color: #231E39;
+    font-family: Montserrat, sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 10px 25px;
+    width: 85px;
+    height: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.roleName{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 15ch;
+    align-content: center;
+}
+
+.skills {
+    background-color: #05324b;
+    text-align: left;
+    padding: 1px 10px 10px 10px;
+    margin-top: 30px;
+}
+
+.skills ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.skills ul li {
+    border: 1px solid #07293d;
+    border-radius: 2px;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 0 7px 0;
+    padding: 5px;
+}
+
+.profile-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.minus_img {
+    position: absolute;
+    top: 288px;
+    right: 115px;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+}
+
+.kick_img {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.user_img {
+    border: 1px solid #03BFCB;
+    border-radius: 50%;
+    padding: 2px;
+    position: relative;
+    width: 120px;
+    height: 120px;
+}

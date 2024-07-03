@@ -22,10 +22,11 @@
 }
 
 .image-overlay {
-    left: 620px;
-    top: 50px; /* Adjust the value to move the image lower */
+    position: absolute;
+    left: 600px;
+    top: 20px; /* Adjust the value to move the image lower */
     z-index: 2; /* Ensure the image appears above the text */
     width: 21%; /* Adjust width as needed */
-    height: 100%; /* Adjust height as needed */
+    height: 40%; /* Adjust height as needed */
     pointer-events: none; /* Ensures that the image doesn't interfere with clicking on the text */
 }

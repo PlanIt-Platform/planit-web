@@ -1,6 +1,7 @@
 package project.planItAPI.repository.jdbi.user
 
 import org.springframework.stereotype.Component
+import project.planItAPI.models.FeedbackOutputModel
 import project.planItAPI.models.RefreshTokenInfo
 import project.planItAPI.models.RoleOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
@@ -150,6 +151,19 @@ interface UsersRepository {
      * @return [RoleOutputModel] containing role information, or null if not found.
      */
     fun getUserRole(userId: Int, eventId: Int): RoleOutputModel?
+
+    /**
+     * Sends feedback to the application developers.
+     * @param feedback The feedback message.
+     * @param date The date the feedback was sent.
+     */
+    fun sendFeedback(feedback: String, date: Timestamp)
+
+    /**
+     * Retrieves feedback messages.
+     * @return List of [FeedbackOutputModel] containing feedback information.
+     */
+    fun getFeedback(): List<FeedbackOutputModel>
 
     // fun uploadProfilePicture(id: Int, picture: ByteArray, fileType: String): Int?
 }

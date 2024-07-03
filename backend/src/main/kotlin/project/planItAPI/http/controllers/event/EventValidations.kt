@@ -1,5 +1,6 @@
 package project.planItAPI.http.controllers.event
 
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
@@ -23,7 +24,8 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
         Subcategory(input.category, input.subCategory),
         DateFormat(input.date),
         DateFormat(input.endDate),
-        Money(input.price)
+        Money(input.price),
+        Coordinates(input.latitude, input.longitude),
     )
 
     val errors = results.mapNotNull {
@@ -43,10 +45,28 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
             subCategory = (results[4] as Success).value as Subcategory,
             date = (results[5] as Success).value as DateFormat,
             endDate = (results[6] as Success).value as DateFormat,
-            price = (results[7] as Success).value as Money
+            price = (results[7] as Success).value as Money,
+            coordinates = (results[8] as Success).value as Coordinates
             )
         )
     } else {
         Failure(HTTPCodeException(errors.joinToString { it.message }, 400))
+    }
+}
+
+fun validateFindNearbyEventsInput(
+    radius: Int,
+    latitude: Double,
+    longitude: Double
+): Either<Exception, Coordinates> {
+    if (radius < 0) {
+        return Failure(HTTPCodeException("Radius must be a positive integer", 400))
+    }
+    val result = Coordinates(latitude, longitude)
+
+    return if (result is Success) {
+        Success(result.value)
+    } else {
+        Failure(HTTPCodeException((result as Failure).value.message, 400))
     }
 }

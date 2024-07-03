@@ -1,6 +1,7 @@
 package project.planItAPI.models
 
 import project.planItAPI.domain.event.Category
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
 import project.planItAPI.domain.event.Money
@@ -13,25 +14,14 @@ data class EventInputModel(
     val description: String?,
     val category: String,
     val subCategory: String?,
-    val location: String?,
+    val address: String?,
+    val latitude: Double?,
+    val longitude: Double?,
     val visibility: String,
     val date: String,
     val endDate: String?,
     val price: String,
     val password: String
-)
-
-data class EditEventInputModel(
-    val title: String?,
-    val description: String?,
-    val category: String,
-    val subCategory: String,
-    val location: String?,
-    val visibility: String?,
-    val date: String?,
-    val endDate: String?,
-    val price: String?,
-    val password: String?
 )
 
 data class CreateEventOutputModel(
@@ -47,7 +37,9 @@ data class EventModel(
     val description: String?,
     val category: String,
     val subcategory: String?,
-    val location: String?,
+    val address: String?,
+    val latitude: Double?,
+    val longitude: Double?,
     val visibility: String,
     val date: String,
     val endDate: String?,
@@ -63,7 +55,9 @@ data class EventOutputModel(
     val description: String?,
     val category: String,
     val subcategory: String?,
-    val location: String?,
+    val address: String?,
+    val latitude: Double?,
+    val longitude: Double?,
     val visibility: String,
     val date: String,
     val endDate: String?,
@@ -77,12 +71,18 @@ data class SearchEventsOutputModel(
     val title: String,
     val description: String?,
     val category: String?,
-    val location: String?,
+    val address: String?,
+    val latitude: Double?,
+    val longitude: Double?,
     val visibility: String,
     val date: String?,
 )
 
 data class SearchEventListOutputModel(
+    val events: List<SearchEventsOutputModel>
+)
+
+data class FindNearbyEventsListOutputModel(
     val events: List<SearchEventsOutputModel>
 )
 
@@ -111,6 +111,7 @@ data class EventPasswordModel(
  * @property date The date of the event.
  * @property endDate The end date of the event.
  * @property price The price of the event.
+ * @property coordinates The coordinates of the event.
  */
 data class ValidatedEventInputsModel(
     val title: Title,
@@ -120,7 +121,8 @@ data class ValidatedEventInputsModel(
     val subCategory: Subcategory,
     val date: DateFormat,
     val endDate: DateFormat,
-    val price: Money
+    val price: Money,
+    val coordinates: Coordinates
 )
 
 /**

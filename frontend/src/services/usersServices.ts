@@ -1,5 +1,5 @@
 import {get, post, put, del} from "./custom/useFetch";
-import {LOGIN, LOGOUT, REGISTER, USER} from "./navigation/URIS";
+import {FEEDBACK, LOGIN, LOGOUT, REGISTER, USER} from "./navigation/URIS";
 import {executeRequestAndRefreshToken} from "./requestUtils";
 
 export async function register({username, name, email, password}) {
@@ -10,11 +10,11 @@ export async function register({username, name, email, password}) {
     )
 }
 
-export async function login(emailOrName, password) {
+export async function login(emailOrUsername, password) {
     return await executeRequestAndRefreshToken(
         post,
         LOGIN,
-        JSON.stringify({emailOrName, password})
+        JSON.stringify({emailOrUsername: emailOrUsername, password})
     )
 }
 
@@ -49,24 +49,32 @@ export async function getUserEvents() {
     )
 }
 
-export async function assignTask(userId, eventId, {taskName}) {
+export async function assignRole(userId, eventId, {roleName}) {
     return await executeRequestAndRefreshToken(
         post,
-        USER + '/' + userId +  '/event/' + eventId + '/task',
-        JSON.stringify({taskName})
+        USER + '/' + userId +  '/event/' + eventId + '/role',
+        JSON.stringify({roleName})
     )
 }
 
-export async function removeTask(userId, taskId, eventId) {
+export async function removeRole(userId, roleId, eventId) {
     return await executeRequestAndRefreshToken(
         del,
-        USER + '/' + userId +  '/event/' + eventId + '/task/' + taskId
+        USER + '/' + userId +  '/event/' + eventId + '/role/' + roleId
     )
 }
 
-export async function getUserTask(userId, eventId) {
+export async function getUserRole(userId, eventId) {
     return await executeRequestAndRefreshToken(
         get,
-        USER + '/' + userId + '/event/' + eventId + '/task'
+        USER + '/' + userId + '/event/' + eventId + '/role'
+    )
+}
+
+export async function sendFeedback(text) {
+    return await executeRequestAndRefreshToken(
+        post,
+        FEEDBACK,
+        JSON.stringify(text)
     )
 }

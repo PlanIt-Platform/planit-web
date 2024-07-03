@@ -31,11 +31,14 @@ import project.planItAPI.services.getNowTime
 import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToAssignRoleException
+import project.planItAPI.utils.FailedToRemoveRoleException
+import project.planItAPI.utils.FeedbackIsBlankException
 import project.planItAPI.utils.InvalidRefreshTokenException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.RoleNotFoundException
 import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
+import java.sql.Timestamp
 
 /**
  * Service class providing user-related functionality.
@@ -249,7 +252,7 @@ class UserServices (
             val eventOrganizers = eventsRepository.getEventOrganizers(eventId)
             if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) throw OnlyOrganizerException()
             val role = usersRepository.getUserRole(userId, eventId)
-            if (role != null && role.name == "Participant") throw FailedToAssignRoleException()
+            if (role != null && role.name == "Participant") throw FailedToRemoveRoleException()
             usersRepository.removeRole(roleId)
             return@run SuccessMessage("Role removed successfully.")
         }
@@ -271,6 +274,32 @@ class UserServices (
             if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
             val role = usersRepository.getUserRole(userId, eventId) ?: throw RoleNotFoundException()
             return@run RoleOutputModel(role.id, role.name)
+        }
+    }
+
+    /**
+     * Sends feedback to the application developers.
+     * @param feedback The feedback to send.
+     * @return The result of the feedback submission as [SuccessMessage].
+     */
+    fun sendFeedback(feedback: String): SendFeedbackResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            if (feedback.isBlank()) throw FeedbackIsBlankException()
+            val date = getNowTime()
+            usersRepository.sendFeedback(feedback, Timestamp.valueOf("${date}:00"),)
+            return@run SuccessMessage("Feedback sent successfully.")
+        }
+    }
+
+    /**
+     * Retrieves feedback to the application developers.
+     * @return The feedback as [GetFeedbackResult].
+     */
+    fun getFeedback(): GetFeedbackResult {
+        return transactionManager.run {
+            val usersRepository = it.usersRepository
+            return@run usersRepository.getFeedback()
         }
     }
 

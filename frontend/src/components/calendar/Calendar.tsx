@@ -8,14 +8,16 @@ import {getUserEvents} from "../../services/usersServices";
 import yellow_paint from "../../../images/yellow_paint.png";
 import purple_paint from "../../../images/purple_paint.png";
 import green_paint from "../../../images/green_paint.png";
-import Error from "../error/Error";
-import Loading from "../loading/Loading";
+import Error from "../shared/error/Error";
+import Loading from "../shared/loading/Loading";
+import {GoogleCalendar} from "../googleCalendar/GoogleCalendar";
 
 export function Calendar() {
     const [events, setEvents] = useState([]);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true)
     const [calendarDay, setCalendarDay] = useState(new Date());
+    const [isGooglePopupOpen, setIsGooglePopupOpen] = useState(true)
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May',
         'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -30,10 +32,6 @@ export function Calendar() {
             });
     }, []);
 
-    const changeCalendarDay = (day) => {
-        setCalendarDay(new Date(day.year, day.month, day.number));
-    }
-
     const nextMonth = () => {
         setCalendarDay(new Date(calendarDay.getFullYear(), calendarDay.getMonth() + 1, calendarDay.getDate()));
     }
@@ -44,7 +42,7 @@ export function Calendar() {
 
     return (
         <div className="calendar-container">
-            {isLoading && <Loading onClose={() => setIsLoading(false)} />}
+            {isLoading && <Loading/>}
             <div className="calendar">
                 <div className="calendar-header">
                     <button onClick={previousMonth}>
@@ -63,7 +61,7 @@ export function Calendar() {
                             </div>
                         ))}
                     </div>
-                    <CalendarDays events={events} calendarDay={calendarDay} changeCalendarDay={changeCalendarDay}/>
+                    <CalendarDays events={events} calendarDay={calendarDay}/>
                 </div>
             </div>
             <div className="color-info">
@@ -81,6 +79,9 @@ export function Calendar() {
                 </div>
             </div>
             {error && <Error message={error} onClose={() => setError(null)} />}
+            {isGooglePopupOpen && <GoogleCalendar mode="getEvents" onClose={() => {
+                setIsGooglePopupOpen(false)
+            }} onEventsRetrieved={(newEvents) => setEvents(prevEvents => [...prevEvents, ...newEvents])} />}
         </div>
     );
 }

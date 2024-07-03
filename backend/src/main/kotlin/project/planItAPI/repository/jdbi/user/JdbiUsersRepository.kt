@@ -1,6 +1,7 @@
 package project.planItAPI.repository.jdbi.user
 
 import org.jdbi.v3.core.Handle
+import project.planItAPI.models.FeedbackOutputModel
 import project.planItAPI.models.RefreshTokenInfo
 import project.planItAPI.models.RoleOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
@@ -92,7 +93,6 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
     }
 
-
     override fun getUserIDByToken(refreshToken: String): Int? =
         handle.createQuery("select user_id from dbo.refreshtokens where token_validation = :token")
             .bind("token", refreshToken)
@@ -112,7 +112,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
     override fun getUserEvents(id: Int): List<SearchEventsOutputModel> {
         return handle.createQuery(
             """
-        SELECT e.id, e.title, e.description, e.category, e.location, e.visibility, e.date
+        SELECT e.id, e.title, e.description, e.category, e.address, e.visibility, e.date
         FROM dbo.Event e
         JOIN dbo.UserParticipatesInEvent upe ON e.id = upe.event_id
         WHERE upe.user_id = :id
@@ -136,8 +136,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
 
     override fun assignRole(userId: Int, roleName: String, eventId: Int): Int? =
         handle.createUpdate(
-            "insert into dbo.Roles(name, event_id, user_id) " +
-                    "values (:name, :event_id, :user_id)",
+            "update dbo.Roles set name = :name where user_id = :user_id and event_id = :event_id",
         )
             .bind("name", roleName)
             .bind("event_id", eventId)
@@ -165,6 +164,24 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
             .mapTo(RoleOutputModel::class.java)
             .singleOrNull()
 
+    }
+
+    override fun sendFeedback(feedback: String, date: Timestamp) {
+        handle.createUpdate(
+            "insert into dbo.Feedback(text, date) " +
+                    "values (:text, :date)",
+        )
+            .bind("text", feedback)
+            .bind("date", date)
+            .execute()
+    }
+
+    override fun getFeedback(): List<FeedbackOutputModel> {
+        return handle.createQuery(
+            "select * from dbo.Feedback",
+        )
+            .mapTo(FeedbackOutputModel::class.java)
+            .list()
     }
 
 /*

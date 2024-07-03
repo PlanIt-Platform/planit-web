@@ -4,6 +4,7 @@ import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.utils.Either
 import project.planItAPI.models.EventModel
 import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.FindNearbyEventsListOutputModel
 import project.planItAPI.models.JoinEventWithCodeOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SuccessMessage
@@ -28,6 +29,11 @@ typealias UsersInEventResult = Either<Exception, UsersInEventList>
  * Represents the result of searching for an event.
  */
 typealias SearchEventResult = Either<Exception, SearchEventListOutputModel>
+
+/**
+ * Represents the result of finding nearby events.
+ */
+typealias FindNearbyEventsResult = Either<Exception, FindNearbyEventsListOutputModel>
 
 /**
  * Represents the result of joining an event.

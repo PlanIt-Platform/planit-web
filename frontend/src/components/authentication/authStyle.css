@@ -84,10 +84,10 @@
     color: #3498db;
 }
 
-.image-overlay {
+.auth-image-overlay {
     position: absolute;
     top: 20px;
-    left: 590px;
+    left: 595px;
     z-index: 2; /* Ensure the image appears above the text */
     width: 21%; /* Adjust width as needed */
     height: 40%; /* Adjust height as needed */
@@ -120,19 +120,13 @@
     transform: scaleX(1);
 }
 
-.checkbox-wrapper {
-    display: block;
-    flex-direction: column;
-    margin-bottom: 20px;
-}
-
 .int-div {
- margin-left: 10px;
+    margin-left: 10px;
 }
 
 .int-div button {
     width: 70%;
-    margin-left: 40px;
+    margin-left: 45px;
     padding: 10px;
     background-color: #3498db;
     color: #ffffff;
@@ -144,22 +138,58 @@
 
 .desc-div h2 {
     margin-top: 40px;
-    margin-left: 10px;
+    margin-left: 95px;
 }
 
 .desc-div textarea {
-    margin-left: 10px;
+    margin-left: 85px;
     margin-bottom: 20px;
 }
 
 .desc-div button {
     width: 70%;
-    margin-left: 40px;
+    margin-left: 50px;
     padding: 10px;
     background-color: #3498db;
     color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.interests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    max-height: 120px;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.interest {
+    display: flex;
+    align-items: center;
+    background-color: #f4f4f4;
+    color: #505050;
+    margin-top: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    font-size: 0.8em;
+    border-radius: 5px;
+}
+
+.interest button {
+    font-size: 0.9em;
+    margin-left: 5px;
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 5px;
     transition: background-color 0.3s ease;
 }

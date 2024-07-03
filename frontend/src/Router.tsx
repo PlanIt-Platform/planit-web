@@ -3,18 +3,19 @@ import {
 } from 'react-router-dom'
 import React from 'react'
 import Home from "./components/home/Home";
-import Login from "./components/authentication/Login";
-import Register from "./components/authentication/Register";
-import SearchEvents from "./components/searchEvents/SearchEvents";
+import Login from "./components/authentication/login/Login";
+import Register from "./components/authentication/register/Register";
+import SearchEvents from "./components/event/searchEvents/SearchEvents";
 import {NavBar} from "./components/NavBar/NavBar";
 import {PlanItProvider} from "./PlanItProvider";
 import AccountDetails from "./components/accountDetails/AccountDetails";
 import {RequireAuth} from "./AuthContainer";
-import GetEvent from "./components/getEvent/GetEvent";
+import GetEvent from "./components/event/get/GetEvent";
 import MyEvents from "./components/myEvents/MyEvents";
 import {initializeApp} from "firebase/app";
 import {getFirestore} from "firebase/firestore";
 import {Calendar} from "./components/calendar/Calendar";
+import NearMe from "./components/nearMe/NearMe";
 
 const app = initializeApp({
     apiKey: "AIzaSyCz8gn12VwIXJzs8F7Y1ZFU8JlSNmI3AIM",
@@ -81,6 +82,13 @@ const router = createBrowserRouter([
                         <MyEvents />
                     </RequireAuth>
                 )
+            },
+            {
+                "path": "/planit/nearme",
+                "element":
+                    <RequireAuth>
+                        <NearMe />
+                    </RequireAuth>
             }
         ]
     },

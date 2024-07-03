@@ -6,6 +6,7 @@ export const REGISTER = URI_PREFIX + "register";
 export const LOGIN = URI_PREFIX + "login";
 export const LOGOUT = URI_PREFIX + "logout";
 export const USER = URI_PREFIX + "user";
+export const FEEDBACK = URI_PREFIX + "feedback";
 
 //Event
 export const CREATE_EVENT = URI_PREFIX + "event";
