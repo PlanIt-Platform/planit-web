@@ -34,6 +34,7 @@ import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.domain.event.transformURIToCategory
 import project.planItAPI.domain.validateLimitAndOffset
+import project.planItAPI.http.PathTemplates.FIND_NEARBY_EVENTS
 import project.planItAPI.http.PathTemplates.JOIN_EVENT_WITH_CODE
 
 /**
