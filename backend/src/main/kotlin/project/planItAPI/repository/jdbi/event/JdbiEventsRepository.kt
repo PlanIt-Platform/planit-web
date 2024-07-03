@@ -29,7 +29,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         eventCode: String
     ): Int? {
         val eventId = handle.createUpdate(
-            "insert into dbo.event(title, description, category, subcategory, address, latitude, longitude, " +
+            "insert into dbo.event(title, description, category, subcategory, locationType, location, latitude, longitude, " +
                     "visibility, date, end_date, priceAmount, priceCurrency, password, code) values " +
                     "(:title, :description, :category, :subcategory, CAST(:locationType AS dbo.locationtype), :location, " +
                     ":latitude, :longitude, CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, " +

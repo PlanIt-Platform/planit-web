@@ -11,7 +11,8 @@ export default function CreateForm({onClose}) {
             description: "",
             category: "Technology",
             subCategory: "Web Development",
-            address: "",
+            locationType: "Physical",
+            location: "",
             latitude: 0,
             longitude: 0,
             visibility: "Public",
@@ -67,6 +68,7 @@ export default function CreateForm({onClose}) {
                 isLoading={isLoading}
                 setError={setError}
                 error={error}
+                isEditing={false}
             />
             {isGooglePopupOpen && <GoogleCalendar mode="addEvent" onClose={() => {
                 setIsGooglePopupOpen(false)

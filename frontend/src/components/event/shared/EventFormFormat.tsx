@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {GoogleMap, LoadScript, Marker} from "@react-google-maps/api";
+import {GoogleMap, Marker, useJsApiLoader} from "@react-google-maps/api";
 import Error from "../../shared/error/Error";
 import Loading from "../../shared/loading/Loading";
 import {getCategories, getSubCategories} from "../../../services/eventsServices";
+
+const googleMapsApiKey = "AIzaSyAWfweHlUl5oUcBz4qZiVm1H5jlvSJXg3E"
 
 export default function EventFormFormat(
     {
@@ -14,18 +16,22 @@ export default function EventFormFormat(
         setIsLoading,
         isLoading,
         setError,
-        error
+        error,
+        isEditing
     }) {
     const [categories, setCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
     const today = new Date().toISOString().split('T')[0];
-    const [locationType, setLocationType] = useState('In-person');
     const [paymentType, setPaymentType] = useState('Free');
     const [markerPosition, setMarkerPosition] = useState({
         lat: 38.736946, lng: -9.142685
     });
+    const { isLoaded } = useJsApiLoader({
+        googleMapsApiKey: googleMapsApiKey
+    });
 
     useEffect(() => {
+        console.log("HERE")
         setIsLoading(true)
         getCategories()
             .then((res) => {
@@ -35,9 +41,10 @@ export default function EventFormFormat(
     }, []);
 
     useEffect(() => {
+        console.log("second useffect")
+        console.log(inputs.category)
         if (inputs.category) {
             const category = inputs.category.replace(/\s+/g, '-')
-            setIsLoading(true)
             getSubCategories(category)
                 .then((res) => {
                     if (res.data.error) setError(res.data.error);
@@ -61,7 +68,7 @@ export default function EventFormFormat(
     function convertAddress(ev) {
         setInputs(prevInputs => ({
             ...prevInputs,
-            address: ev.target.value
+            location: ev.target.value
         }))
         const address = ev.target.value
         const geocoder = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=AIzaSyAWfweHlUl5oUcBz4qZiVm1H5jlvSJXg3E`
@@ -82,10 +89,10 @@ export default function EventFormFormat(
         const geocoder = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.lat},${latLng.lng}&key=AIzaSyAWfweHlUl5oUcBz4qZiVm1H5jlvSJXg3E`
         fetch(geocoder).then(res => res.json()).then(data => {
             if (data.status === 'OK') {
-                const address = data.results[0].formatted_address
+                const location = data.results[0].formatted_address
                 setInputs(prevInputs => ({
                     ...prevInputs,
-                    address: address,
+                    location: location,
                     latitude: latLng.lat,
                     longitude: latLng.lng
                 }))
@@ -134,42 +141,39 @@ export default function EventFormFormat(
                     <label>
                         Location:
                         <select name="locationType" onChange={(ev) => {
-                            setLocationType(ev.target.value)
                             setInputs(prevInputs => ({
                                 ...prevInputs,
-                                address: ""
+                                locationType: ev.target.value,
+                                location: ""
                             }))
                         }}>
-                            <option value="In-person">In-person</option>
-                            <option value="Remote">Remote</option>
+                            <option value="Physical">In-person</option>
+                            <option value="Online">Remote</option>
                         </select>
-                        <input type="text" name="location" value={inputs.address}
-                               onChange={locationType === "In-person" ? convertAddress : handleChange}
-                               placeholder={locationType === "In-person" ? "Type an address" : "Add a link (optional)"}/>
+                        <input type="text" name="location" value={inputs.location}
+                               onChange={inputs.locationType === "Physical" ? convertAddress : handleChange}
+                               placeholder={inputs.locationType === "Physical" ? "Type an address" : "Add a link (optional)"}/>
                     </label>
-                    {locationType === 'In-person' && (
-                        <LoadScript googleMapsApiKey={'AIzaSyAWfweHlUl5oUcBz4qZiVm1H5jlvSJXg3E'}>
-                            <div style={{width: '40%', height: '30vh'}}>
-                                <GoogleMap
-                                    mapContainerStyle={{ width: '100%', height: '100%' }}
-                                    zoom={8}
-                                    center={ { lat: markerPosition.lat, lng: markerPosition.lng } }
-                                    options={{disableDefaultUI: true, clickableIcons: false, keyboardShortcuts: false}}
-                                    onClick={(ev) => {
-                                        const latLng = { lat: ev.latLng.lat(), lng: ev.latLng.lng() };
-                                        setMarkerPosition(latLng);
-                                        convertCoordinates(latLng);
-                                    }
-                                    }
-                                >
-                                    {markerPosition &&
-                                        <Marker
-                                            position={{lat: markerPosition.lat, lng: markerPosition.lng}}
-                                        />
-                                    }
-                                </GoogleMap>
-                            </div>
-                        </LoadScript>
+                    {inputs.locationType === 'Physical' && isLoaded && (
+                        <div style={{ width: '40%', height: '30vh' }}>
+                            <GoogleMap
+                                mapContainerStyle={{ width: '100%', height: '100%' }}
+                                zoom={8}
+                                center={{ lat: markerPosition.lat, lng: markerPosition.lng }}
+                                options={{ disableDefaultUI: true, clickableIcons: false, keyboardShortcuts: false }}
+                                onClick={(ev) => {
+                                    const latLng = { lat: ev.latLng.lat(), lng: ev.latLng.lng() };
+                                    setMarkerPosition(latLng);
+                                    convertCoordinates(latLng);
+                                }}
+                            >
+                                {markerPosition &&
+                                    <Marker
+                                        position={{ lat: markerPosition.lat, lng: markerPosition.lng }}
+                                    />
+                                }
+                            </GoogleMap>
+                        </div>
                     )}
                     <label>
                         Visibility*:
@@ -205,7 +209,9 @@ export default function EventFormFormat(
                             <input type={"text"} name={"currency"} value={inputs.currency} onChange={handleChange} required/>
                         </label>
                     )}
-                    <button type="submit" className="event-form-button">Create Event</button>
+                    <button type="submit" className="event-form-button">
+                        {isEditing ? 'Edit' : 'Create'}
+                    </button>
                     <button type="button" onClick={onClose} className="event-form-button">Cancel</button>
                 </form>
                 {error && <Error message={error} onClose={() => setError(null)} />}

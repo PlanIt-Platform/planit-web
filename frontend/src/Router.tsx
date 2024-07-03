@@ -5,7 +5,7 @@ import React from 'react'
 import Home from "./components/home/Home";
 import Login from "./components/authentication/login/Login";
 import Register from "./components/authentication/register/Register";
-import SearchEvents from "./components/event/searchEvents/SearchEvents";
+import SearchEvents from "./components/event/search/SearchEvents";
 import {NavBar} from "./components/NavBar/NavBar";
 import {PlanItProvider} from "./PlanItProvider";
 import AccountDetails from "./components/accountDetails/AccountDetails";

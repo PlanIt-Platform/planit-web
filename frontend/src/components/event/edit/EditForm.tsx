@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 import {editEvent} from "../../../services/eventsServices";
-import Loading from "../../shared/loading/Loading";
 import {formatDate} from "../shared/formatDate";
 import EventFormFormat from "../shared/EventFormFormat";
 
@@ -10,7 +9,8 @@ export default function EventForm({ event, onClose }) {
         description: event.description,
         category: event.category,
         subCategory: event.subCategory,
-        address: event.address,
+        locationType: event.locationType,
+        location: event.location,
         latitude: event.latitude,
         longitude: event.longitude,
         visibility: event.visibility,
@@ -42,8 +42,6 @@ export default function EventForm({ event, onClose }) {
         }));
     }
 
-    if (isLoading) return <Loading/>
-
     return (
         <EventFormFormat
             inputs={inputs}
@@ -55,6 +53,7 @@ export default function EventForm({ event, onClose }) {
             isLoading={isLoading}
             setError={setError}
             error={error}
+            isEditing={true}
         />
     );
 }

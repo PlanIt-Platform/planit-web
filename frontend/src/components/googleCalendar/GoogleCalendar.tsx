@@ -16,7 +16,7 @@ export function GoogleCalendar({ mode, onClose, inputs, onEventsRetrieved}: {
     function addEvent() {
         const event =  {
             'summary': inputs.title,
-            'location': inputs.address,
+            'location': inputs.location,
             'description': inputs.description,
             'start': {
                 'dateTime': new Date(inputs.date).toISOString(),

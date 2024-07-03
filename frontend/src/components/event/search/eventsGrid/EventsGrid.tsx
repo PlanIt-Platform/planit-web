@@ -74,7 +74,7 @@ export function EventsGrid(
                             </div>
                             <div className="info-container">
                                 <img src={location} alt="location" className={"info_img"}/>
-                                <p title={event.address}>{event.address}</p>
+                                <p title={event.location}>{event.location || "To be determined"}</p>
                             </div>
                         </div>
                         :

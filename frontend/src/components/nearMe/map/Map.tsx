@@ -64,7 +64,7 @@ export function Map(
                                             >
                                                 <div>
                                                     <h2 style={{color: 'black'}}>{event.title}</h2>
-                                                    <p style={{color: 'darkslategray'}}>{event.address}</p>
+                                                    <p style={{color: 'darkslategray'}}>{event.location}</p>
                                                 </div>
                                             </InfoWindow>
                                         }

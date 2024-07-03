@@ -70,15 +70,15 @@ export function EventInformation(
                     <span className="event-description" title={event.description}>{event.description}</span>
                 </div>
             }
-            {event.address &&
+            {event.location &&
                 <>
                     <div className="info-pair" onClick={() => {
                         setIsMapOpen(!isMapOpen)
                     }}>
                         <img src={location} alt="location" className={"info_img"}/>
-                        <span className="info-value" title={event.address}>{event.address}</span>
+                        <span className="info-value" title={event.location}>{event.location}</span>
                     </div>
-                    {isMapOpen && (
+                    {isMapOpen && event.locationType == "Physical" && (
                         <LoadScript googleMapsApiKey={'AIzaSyAWfweHlUl5oUcBz4qZiVm1H5jlvSJXg3E'}>
                             <div style={{width: '70%', height: '20vh', marginLeft: "50px"}}>
                                 <GoogleMap

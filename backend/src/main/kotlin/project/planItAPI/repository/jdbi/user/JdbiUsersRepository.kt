@@ -112,7 +112,7 @@ class JdbiUsersRepository(private val handle: Handle) : UsersRepository {
     override fun getUserEvents(id: Int): List<SearchEventsOutputModel> {
         return handle.createQuery(
             """
-        SELECT e.id, e.title, e.description, e.category, e.address, e.visibility, e.date
+        SELECT e.id, e.title, e.description, e.category, e.location, e.visibility, e.date
         FROM dbo.Event e
         JOIN dbo.UserParticipatesInEvent upe ON e.id = upe.event_id
         WHERE upe.user_id = :id

@@ -13,7 +13,7 @@ spring:
     name: PlanIt
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres?user=postgres&password=123
+    url: jdbc:postgresql://localhost:5432/PlanIt?user=postgres&password=123
     username: postgres
     password: 123
 

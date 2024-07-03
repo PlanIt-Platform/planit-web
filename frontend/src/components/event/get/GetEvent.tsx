@@ -32,7 +32,7 @@ export default function GetEvent(): React.ReactElement {
         description: "",
         category: "",
         subCategory: "",
-        address: "",
+        location: "",
         latitude: 0,
         longitude: 0,
         visibility: "",

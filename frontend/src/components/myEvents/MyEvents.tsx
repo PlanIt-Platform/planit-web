@@ -66,7 +66,7 @@ export default function MyEvents() {
                             </div>
                             <div className="info-container">
                                 <img src={location} alt="location" className={"info_img"}/>
-                                <p>{event.address}</p>
+                                <p>{event.location}</p>
                             </div>
                         </div>
                     </div>
