@@ -23,7 +23,6 @@ import project.planItAPI.http.PathTemplates.KICK_USER
 import project.planItAPI.http.PathTemplates.LEAVE_EVENT
 import project.planItAPI.http.PathTemplates.PREFIX
 import project.planItAPI.http.PathTemplates.SEARCH_EVENTS
-import project.planItAPI.http.PathTemplates.SUBCATEGORIES
 import project.planItAPI.http.PathTemplates.USERS_IN_EVENT
 import project.planItAPI.http.controllers.failureResponse
 import project.planItAPI.http.controllers.responseHandler
@@ -32,7 +31,6 @@ import project.planItAPI.models.EventInputModel
 import project.planItAPI.models.EventPasswordModel
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
-import project.planItAPI.domain.event.transformURIToCategory
 import project.planItAPI.domain.validateLimitAndOffset
 import project.planItAPI.http.PathTemplates.FIND_NEARBY_EVENTS
 import project.planItAPI.http.PathTemplates.JOIN_EVENT_WITH_CODE
@@ -56,7 +54,6 @@ class EventController(private val eventServices: EventServices) {
                     validatedInputs.title,
                     validatedInputs.description,
                     validatedInputs.category,
-                    validatedInputs.subCategory,
                     validatedInputs.locationType,
                     input.location,
                     validatedInputs.coordinates,
@@ -262,7 +259,6 @@ class EventController(private val eventServices: EventServices) {
                     validatedInputs.title,
                     validatedInputs.description,
                     validatedInputs.category,
-                    validatedInputs.subCategory,
                     validatedInputs.locationType,
                     input.location,
                     validatedInputs.coordinates,
@@ -288,27 +284,6 @@ class EventController(private val eventServices: EventServices) {
 
             is Success -> {
                 return responseHandler(200, res.value)
-            }
-        }
-    }
-
-    @GetMapping(SUBCATEGORIES)
-    fun getSubcategories(@PathVariable category: String): ResponseEntity<*> {
-        return when (val categoryResult = transformURIToCategory(category)) {
-            is Failure -> failureResponse(categoryResult)
-            is Success -> {
-                when (val res = eventServices.getSubcategories(categoryResult.value.name)) {
-                    is Failure -> {
-                        failureResponse(res)
-                    }
-
-                    is Success -> {
-                        if (res.value.isEmpty()) {
-                            return responseHandler(200, "No subcategories found for category $category.")
-                        }
-                        return responseHandler(200, res.value)
-                    }
-                }
             }
         }
     }

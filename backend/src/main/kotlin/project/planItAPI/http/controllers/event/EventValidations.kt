@@ -6,7 +6,6 @@ import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
 import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
-import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.models.EventInputModel
@@ -22,7 +21,6 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
         Description(input.description),
         Visibility(input.visibility),
         Category(input.category),
-        Subcategory(input.category, input.subCategory),
         if(input.locationType != null) LocationType(input.locationType) else Success(null),
         DateFormat(input.date),
         DateFormat(input.endDate),
@@ -44,12 +42,11 @@ fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEvent
                 description = (results[1] as Success).value as Description,
                 visibility = (results[2] as Success).value as Visibility,
                 category = (results[3] as Success).value as Category,
-                subCategory = (results[4] as Success).value as Subcategory,
-                locationType = (results[5] as Success).value as LocationType?,
-                date = (results[6] as Success).value as DateFormat,
-                endDate = (results[7] as Success).value as DateFormat,
-                price = (results[8] as Success).value as Money,
-                coordinates = (results[9] as Success).value as Coordinates
+                locationType = (results[4] as Success).value as LocationType?,
+                date = (results[5] as Success).value as DateFormat,
+                endDate = (results[6] as Success).value as DateFormat,
+                price = (results[7] as Success).value as Money,
+                coordinates = (results[8] as Success).value as Coordinates
             )
         )
     } else {

@@ -40,7 +40,6 @@ CREATE TABLE dbo.Event (
     title       VARCHAR(64) NOT NULL,
     description VARCHAR(512),
     category    VARCHAR(64) NOT NULL,
-    subcategory VARCHAR(64),
     locationType dbo.LocationType,
     location    VARCHAR(255),
     latitude    DECIMAL(8, 6) NOT NULL,

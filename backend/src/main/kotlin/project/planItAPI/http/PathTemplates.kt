@@ -32,7 +32,6 @@ object PathTemplates {
     const val SEARCH_EVENTS = "/events"
     const val FIND_NEARBY_EVENTS = "/events/{radius}/{latitude}/{longitude}"
     const val CATEGORIES = "/event/categories"
-    const val SUBCATEGORIES = "/event/categories/{category}/subcategories"
     const val KICK_USER = "/event/{eventId}/kick/{userId}"
 
     /**

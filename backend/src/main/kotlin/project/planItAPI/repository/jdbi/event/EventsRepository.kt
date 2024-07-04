@@ -1,7 +1,6 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.springframework.stereotype.Component
-import project.planItAPI.domain.event.LocationType
 import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
 import project.planItAPI.models.SearchEventListOutputModel
@@ -20,7 +19,6 @@ interface EventsRepository {
      * @param title The title of the new event.
      * @param description The description of the new event.
      * @param category The category of the new event.
-     * @param subcategory The subcategory of the new event.
      * @param locationType the type of the location.
      * @param location The location of the new event.
      * @param visibility The visibility of the new event.
@@ -36,7 +34,6 @@ interface EventsRepository {
         title: String,
         description: String,
         category: String,
-        subcategory: String?,
         locationType: String?,
         location: String?,
         latitude: Double,
@@ -116,7 +113,6 @@ interface EventsRepository {
         title: String?,
         description: String?,
         category: String?,
-        subcategory: String?,
         locationType: String?,
         location: String?,
         latitude: Double,

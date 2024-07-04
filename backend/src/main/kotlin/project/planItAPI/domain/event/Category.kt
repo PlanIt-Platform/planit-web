@@ -16,12 +16,9 @@ typealias CategoryResult = Either<HTTPCodeException, Category>
 
 class Category private constructor(val name: String) {
     companion object {
-        private val categories = readCategories().keys
-
         operator fun invoke(name: String): CategoryResult {
-            val matchedCategory = categories.find { it.lowercase() == name.lowercase() }
-                ?: return Failure(InvalidValueException("category"))
-            return Success(Category(matchedCategory))
+            val isCategory = isCategory(name)
+            return if (isCategory) Success(Category(name)) else Failure(InvalidValueException("category"))
         }
     }
 }
@@ -30,7 +27,7 @@ class Category private constructor(val name: String) {
  * Reads the categories file and returns the categories as a map.
  * @return A map containing the categories and their subcategories.
  */
-fun readCategories(): Map<String, List<String>> {
+fun readCategories(): List<String> {
     val mapper = jacksonObjectMapper()
     val file = Category::class.java.classLoader.getResource(CATEGORIES_FILE_PATH)
     return if (file != null) {
@@ -47,11 +44,6 @@ fun readCategories(): Map<String, List<String>> {
  * @return True if the category is valid, false if it is not.
  */
 fun isCategory(name: String): Boolean {
-    val categories = readCategories().keys.filter { it.lowercase() == name.lowercase() }
-    return categories.size == 1
-}
-
-fun transformURIToCategory(name: String): CategoryResult {
-    val category = name.replace("-", " ")
-    return Category(category)
+    val categories = readCategories().find { it.lowercase() == name.lowercase() }
+    return categories != null
 }

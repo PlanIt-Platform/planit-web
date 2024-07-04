@@ -9,7 +9,6 @@ import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
 import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
-import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreateEventException
@@ -18,7 +17,6 @@ import project.planItAPI.utils.IncorrectPasswordException
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.domain.event.readCategories
-import project.planItAPI.domain.event.readSubCategories
 import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.FindNearbyEventsListOutputModel
 import project.planItAPI.models.JoinEventWithCodeOutputModel
@@ -29,7 +27,6 @@ import project.planItAPI.services.getNowTime
 import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
 import project.planItAPI.utils.EventHasEndedException
-import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.MustSpecifyLocationTypeException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.PastDateException
@@ -49,7 +46,6 @@ class EventServices(
      * @param title The title of the new event.
      * @param description The description of the new event.
      * @param category The category of the new event.
-     * @param subcategory The subcategory of the new event.
      * @param locationType the type of the location.
      * @param location The location of the new event.
      * @param coords The coordinates of the new event.
@@ -65,7 +61,6 @@ class EventServices(
         title: Title,
         description: Description,
         category: Category,
-        subcategory: Subcategory,
         locationType: LocationType?,
         location: String?,
         coords: Coordinates,
@@ -88,7 +83,6 @@ class EventServices(
                 title.value,
                 description.value,
                 category.name,
-                subcategory.name,
                 locationType?.name,
                 location,
                 coords.latitude,
@@ -119,8 +113,8 @@ class EventServices(
                 throw UserNotInEventException()
             }
         }
-        return@run EventOutputModel(event.id, event.title, event.description, event.category, event.subcategory,
-            event.locationType, event.location, event.latitude, event.longitude, event.visibility, event.date, event.endDate,
+        return@run EventOutputModel(event.id, event.title, event.description, event.category, event.locationType,
+            event.location, event.latitude, event.longitude, event.visibility, event.date, event.endDate,
             event.priceAmount, event.priceCurrency, event.code)
     }
 
@@ -155,9 +149,8 @@ class EventServices(
         }
 
         val categories = readCategories()
-        val subCategories = categories.keys.flatMap { cat -> readSubCategories(cat) ?: emptyList() }
 
-        if (searchInput in categories.keys || searchInput in subCategories) {
+        if (searchInput in categories) {
             val eventList = eventsRepository.searchEvents(searchInput, limit, offset).events
                 .filter { event -> event.visibility == "Public" }
             return@run hidePrivateEventInfo(SearchEventListOutputModel(eventList))
@@ -268,7 +261,6 @@ class EventServices(
      * @param title The new title of the event.
      * @param description The new description of the event.
      * @param category The new category of the event.
-     * @param subcategory The new subcategory of the event.
      * @param locationType the type of the location.
      * @param location The new location of the event.
      * @param coords The new coordinates of the event.
@@ -284,7 +276,6 @@ class EventServices(
         title: Title,
         description: Description,
         category: Category,
-        subcategory: Subcategory,
         locationType: LocationType?,
         location: String?,
         coords: Coordinates,
@@ -310,7 +301,6 @@ class EventServices(
             title.value,
             description.value,
             category.name,
-            subcategory.name,
             locationType?.name,
             location ?: "To be Determined",
             coords.latitude,
@@ -330,16 +320,7 @@ class EventServices(
      * If the categories are not found, a [Failure] is thrown.
      */
     fun getCategories(): CategoriesResult = transactionManager.run {
-        return@run readCategories().keys.toList()
-    }
-
-    /**
-     * Retrieves the list of event subcategories for the given category.
-     * @param category The category to retrieve the subcategories from.
-     * @return [SubcategoriesResult] The list of event subcategories for the given category.
-     */
-    fun getSubcategories(category: String): SubcategoriesResult = transactionManager.run {
-        return@run readSubCategories(category) ?: throw InvalidValueException("category")
+        return@run readCategories()
     }
 
     /**

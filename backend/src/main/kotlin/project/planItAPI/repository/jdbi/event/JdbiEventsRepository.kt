@@ -15,7 +15,6 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         title: String,
         description: String,
         category: String,
-        subcategory: String?,
         locationType: String?,
         location: String?,
         latitude: Double,
@@ -29,16 +28,15 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         eventCode: String
     ): Int? {
         val eventId = handle.createUpdate(
-            "insert into dbo.event(title, description, category, subcategory, locationType, location, latitude, longitude, " +
+            "insert into dbo.event(title, description, category, locationType, location, latitude, longitude, " +
                     "visibility, date, end_date, priceAmount, priceCurrency, password, code) values " +
-                    "(:title, :description, :category, :subcategory, CAST(:locationType AS dbo.locationtype), :location, " +
+                    "(:title, :description, :category, CAST(:locationType AS dbo.locationtype), :location, " +
                     ":latitude, :longitude, CAST(:visibility AS dbo.visibilitytype), :date, :end_date, :priceAmount, " +
                     ":priceCurrency, :password, :code)"
         )
             .bind("title", title)
             .bind("description", description)
             .bind("category", category)
-            .bind("subcategory", subcategory)
             .bind("locationType", locationType)
             .bind("location", location)
             .bind("latitude", latitude)
@@ -202,7 +200,6 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         title: String?,
         description: String?,
         category: String?,
-        subcategory: String?,
         locationType: String?,
         location: String?,
         latitude: Double,
@@ -218,7 +215,6 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
                     "title = :title, " +
                     "description = :description, " +
                     "category = :category, " +
-                    "subcategory = :subcategory, " +
                     "locationType = CAST(:locationType AS dbo.locationtype)," +
                     "location = :location, " +
                     "latitude = :latitude, " +
@@ -234,7 +230,6 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .bind("title", title)
             .bind("description", description)
             .bind("category", category)
-            .bind("subcategory", subcategory)
             .bind("locationType", locationType)
             .bind("location", location)
             .bind("latitude", latitude)

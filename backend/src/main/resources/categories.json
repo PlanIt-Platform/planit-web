@@ -1,64 +1,11 @@
-{
-  "Technology":[
-    "Web Development",
-    "Mobile Development",
-    "Software Development",
-    "Networking and Security",
-    "Artificial Intelligence and Machine Learning",
-    "Tech Startups and Entrepreneurship",
-    "Emerging Technologies"
-  ],
-
-  "Arts and Culture":[
-    "Visual Arts and Exhibitions",
-    "Performing Arts (Theater, Dance, Music)",
-    "Literature and Writing",
-    "Cultural Festivals and Celebrations",
-    "Heritage and History Events"
-  ],
-
-  "Sports and Fitness":[
-    "Team Sports (Football, Basketball, Volleyball)",
-    "Individual Sports (Running, Swimming, Tennis)",
-    "Fitness Classes and Workouts",
-    "Outdoor Adventures (Hiking, Cycling, Camping)",
-    "Sports Tournaments and Competitions"
-  ],
-
-  "Business":[
-    "Networking Events and Mixers",
-    "Business Seminars and Conferences",
-    "Leadership and Management Workshops",
-    "Entrepreneurship and Startup Meetups",
-    "Career Fairs and Job Expos"
-  ],
-
-  "Food and Drinks":[
-    "Food Festivals and Tastings",
-    "Cooking Classes and Culinary Workshops",
-    "Wine and Beer Tastings",
-    "Farmers Markets and Food Markets",
-    "Gastronomic Tours and Dining Experiences"
-  ],
-
-  "Education": [
-    "School Events and Activities",
-    "Educational Workshops and Seminars",
-    "Training and Certification Programs",
-    "Academic Conferences",
-    "Educational Tours and Field Trips",
-    "Online Learning and Webinars",
-    "Reunions and Alumni Events"
-  ],
-
-  "Charity": [
-    "Fundraising Events",
-    "Volunteer Opportunities",
-    "Community Service Projects",
-    "Charity Auctions and Raffles",
-    "Awareness Campaigns and Drives"
-  ],
-
-  "Simple Meeting": []
-}
+[
+  "Technology",
+  "Arts and Culture",
+  "Sports and Fitness",
+  "Business",
+  "Food and Drinks",
+  "Education",
+  "Charity",
+  "Simple Meeting"
+]
 
