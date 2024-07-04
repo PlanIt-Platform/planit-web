@@ -27,7 +27,7 @@ export default function NearMe(): React.ReactElement {
 
     function handleSearch(userLocation: { lng: number; lat: number }) {
         setIsLoading(true)
-        findNearbyEvents(userLocation.lat, userLocation.lng, selectedRadius, numEvents, 0)
+        findNearbyEvents(userLocation.lat, userLocation.lng, selectedRadius, numEvents)
             .then((res) => {
                 if (res.data.error) setError(res.data.error);
                 else {

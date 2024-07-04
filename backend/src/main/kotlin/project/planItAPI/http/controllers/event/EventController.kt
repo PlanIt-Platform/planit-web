@@ -134,20 +134,18 @@ class EventController(private val eventServices: EventServices) {
         @PathVariable radius: Int,
         @PathVariable latitude: Double,
         @PathVariable longitude: Double,
-        @RequestParam offset: Int?,
         @RequestParam limit: Int?
     ): ResponseEntity<*> {
         return when (val coordsValidation = validateFindNearbyEventsInput(radius, latitude, longitude)) {
             is Failure -> failureResponse(coordsValidation)
             is Success -> {
-                return when (val limitOffsetValidation = validateLimitAndOffset(limit, offset)) {
+                return when (val limitOffsetValidation = validateLimitAndOffset(limit, 0)) {
                     is Failure -> failureResponse(limitOffsetValidation)
                     is Success -> {
                         return when (val res = eventServices.findNearbyEvents(
                             radius,
                             coordsValidation.value,
-                            limitOffsetValidation.value.first,
-                            limitOffsetValidation.value.second
+                            limitOffsetValidation.value.first
                         )) {
                             is Failure -> {
                                 failureResponse(res)

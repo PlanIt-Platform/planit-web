@@ -165,12 +165,11 @@ class EventServices(
      * @param radius The radius to search for events in.
      * @param userCoords The coordinates of the user.
      * @param limit The maximum number of events to return.
-     * @param offset The offset to start returning events from.
      * @return [FindNearbyEventsResult] The events that are nearby the user.
      */
-    fun findNearbyEvents(radius: Int, userCoords: Coordinates, limit: Int, offset: Int): FindNearbyEventsResult = transactionManager.run {
+    fun findNearbyEvents(radius: Int, userCoords: Coordinates, limit: Int): FindNearbyEventsResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
-        val eventList = eventsRepository.getAllEvents(limit, offset).events
+        val eventList = eventsRepository.getAllEvents(limit, 0).events
 
         val nearbyEvents = eventList.filter { event ->
             if (event.latitude == null || event.longitude == null) return@filter false

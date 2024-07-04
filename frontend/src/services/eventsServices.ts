@@ -86,10 +86,10 @@ export async function searchEvents(searchInput, limit = 10, offset = 0) {
         SEARCH_EVENTS + '?searchInput=' + searchInput + '&limit='+ limit + '&offset=' + offset)
 }
 
-export async function findNearbyEvents(latitude, longitude, radius, limit, offset) {
+export async function findNearbyEvents(latitude, longitude, radius, limit) {
     return await executeRequestAndRefreshToken(
         get,
-        SEARCH_EVENTS + '/' + radius + '/' + latitude + '/' + longitude + '?limit=' + limit + '&offset=' + offset)
+        SEARCH_EVENTS + '/' + radius + '/' + latitude + '/' + longitude + '?limit=' + limit)
 }
 
 export async function getCategories() {

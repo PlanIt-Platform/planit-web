@@ -113,7 +113,6 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         FROM dbo.Event
         WHERE title LIKE :searchInput
         OR category LIKE :searchInput
-        OR subcategory LIKE :searchInput
         LIMIT :limit OFFSET :offset
         """
         )
