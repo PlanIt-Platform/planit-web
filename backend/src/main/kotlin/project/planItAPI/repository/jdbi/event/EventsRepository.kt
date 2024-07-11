@@ -1,8 +1,10 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.springframework.stereotype.Component
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
+import project.planItAPI.models.FindNearbyEventsOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.UsersInEventList
 import java.sql.Timestamp
@@ -36,8 +38,8 @@ interface EventsRepository {
         category: String,
         locationType: String?,
         location: String?,
-        latitude: Double,
-        longitude: Double,
+        latitude: Double?,
+        longitude: Double?,
         visibility: String,
         date: Timestamp?,
         end_date: Timestamp?,
@@ -79,6 +81,23 @@ interface EventsRepository {
     fun searchEvents(searchInput: String, limit: Int, offset: Int): SearchEventListOutputModel
 
     /**
+     * Retrieves the events that match the given category.
+     * @param category The category to match events against.
+     * @return A list of [EventModel] containing the events that match the category.
+     */
+    fun searchEventsByCategory(category: String, limit: Int, offset: Int): SearchEventListOutputModel
+
+    /**
+     * Retrieves the events that are nearby the user with the given coordinates.
+     * @param userCoords The coordinates of the user.
+     * @param radius The radius in which to search for events.
+     * @param limit The maximum number of events to return.
+     * @param userId The ID of the user.
+     * @return A list of [FindNearbyEventsOutputModel] containing the nearby events.
+     */
+    fun getNearbyEvents(userCoords: Coordinates, radius: Int, limit: Int, userId: Int): List<FindNearbyEventsOutputModel>
+
+    /**
      * Retrieves all events.
      * @return A list of [EventModel] containing all events.
      */
@@ -115,8 +134,8 @@ interface EventsRepository {
         category: String?,
         locationType: String?,
         location: String?,
-        latitude: Double,
-        longitude: Double,
+        latitude: Double?,
+        longitude: Double?,
         visibility: String?,
         date: Timestamp?,
         end_date: Timestamp?,

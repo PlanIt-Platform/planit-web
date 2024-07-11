@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {GoogleMap, Marker, useJsApiLoader} from "@react-google-maps/api";
 import Error from "../../shared/error/Error";
 import Loading from "../../shared/loading/Loading";
-import {getCategories, getSubCategories} from "../../../services/eventsServices";
+import {getCategories} from "../../../services/eventsServices";
 
 const googleMapsApiKey = "AIzaSyAWfweHlUl5oUcBz4qZiVm1H5jlvSJXg3E"
 
@@ -20,7 +20,6 @@ export default function EventFormFormat(
         isEditing
     }) {
     const [categories, setCategories] = useState([]);
-    const [subCategories, setSubCategories] = useState([]);
     const today = new Date().toISOString().split('T')[0];
     const [paymentType, setPaymentType] = useState('Free');
     const [markerPosition, setMarkerPosition] = useState({
@@ -31,32 +30,14 @@ export default function EventFormFormat(
     });
 
     useEffect(() => {
-        console.log("HERE")
         setIsLoading(true)
         getCategories()
             .then((res) => {
                 if (res.data.error) setError(res.data.error);
                 else setCategories(res.data);
+                setIsLoading(false);
             });
     }, []);
-
-    useEffect(() => {
-        console.log("second useffect")
-        console.log(inputs.category)
-        if (inputs.category) {
-            const category = inputs.category.replace(/\s+/g, '-')
-            getSubCategories(category)
-                .then((res) => {
-                    if (res.data.error) setError(res.data.error);
-                    else {
-                        setSubCategories(res.data);
-                        const defaultSubCategory = res.data[0];
-                        setInputs(inputs => ({...inputs, subCategory: defaultSubCategory}));
-                    }
-                    setIsLoading(false)
-                });
-        }
-    }, [inputs.category]);
 
     function handleKeyPress(event) {
         const keyCode = event.keyCode || event.which;
@@ -128,16 +109,6 @@ export default function EventFormFormat(
                             ))}
                         </select>
                     </label>
-                    {inputs.category != "Simple Meeting" &&  (<label>
-                            Subcategory:
-                            <select name="subCategory" value={inputs.subCategory} onChange={handleChange}>
-                                <option value="">None</option>
-                                {subCategories.map(subCategory => (
-                                    <option key={subCategory} value={subCategory}>{subCategory}</option>
-                                ))}
-                            </select>
-                        </label>
-                    )}
                     <label>
                         Location:
                         <select name="locationType" onChange={(ev) => {
@@ -149,10 +120,13 @@ export default function EventFormFormat(
                         }}>
                             <option value="Physical">In-person</option>
                             <option value="Online">Remote</option>
+                            <option value="None">None</option>
                         </select>
-                        <input type="text" name="location" value={inputs.location}
-                               onChange={inputs.locationType === "Physical" ? convertAddress : handleChange}
-                               placeholder={inputs.locationType === "Physical" ? "Type an address" : "Add a link (optional)"}/>
+                        {inputs.locationType !== "None" &&
+                            <input type="text" name="location" value={inputs.location}
+                                   onChange={inputs.locationType === "Physical" ? convertAddress : handleChange}
+                                   placeholder={inputs.locationType === "Physical" ? "Type an address" : "Add a link (optional)"}/>
+                        }
                     </label>
                     {inputs.locationType === 'Physical' && isLoaded && (
                         <div style={{ width: '40%', height: '30vh' }}>

@@ -21,13 +21,14 @@ import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.FindNearbyEventsListOutputModel
 import project.planItAPI.models.JoinEventWithCodeOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
-import project.planItAPI.services.calculateDistance
 import project.planItAPI.services.generateEventCode
 import project.planItAPI.services.getNowTime
 import project.planItAPI.utils.CantKickYourselfException
 import project.planItAPI.utils.EndDateBeforeDateException
 import project.planItAPI.utils.EventHasEndedException
+import project.planItAPI.utils.InvalidCoordinatesException
 import project.planItAPI.utils.MustSpecifyLocationTypeException
+import project.planItAPI.utils.OnlineEventsWithLocationException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.PastDateException
 import project.planItAPI.utils.PrivateEventException
@@ -78,6 +79,10 @@ class EventServices(
             if (date.value < now) throw PastDateException()
             if (endDate.value != "" && endDate.value < date.value) throw EndDateBeforeDateException()
             if (locationType == null && location != null) throw MustSpecifyLocationTypeException()
+            if (locationType == LocationType.Physical && (coords.latitude == null || coords.longitude == null))
+                throw MustSpecifyLocationTypeException()
+            if (locationType == LocationType.Online && (coords.latitude != null || coords.longitude != null))
+                throw OnlineEventsWithLocationException()
             val eventCode = generateEventCode()
             val eventID = eventsRepository.createEvent(
                 title.value,
@@ -151,7 +156,7 @@ class EventServices(
         val categories = readCategories()
 
         if (searchInput in categories) {
-            val eventList = eventsRepository.searchEvents(searchInput, limit, offset).events
+            val eventList = eventsRepository.searchEventsByCategory(searchInput, limit, offset).events
                 .filter { event -> event.visibility == "Public" }
             return@run hidePrivateEventInfo(SearchEventListOutputModel(eventList))
         }
@@ -165,17 +170,16 @@ class EventServices(
      * @param radius The radius to search for events in.
      * @param userCoords The coordinates of the user.
      * @param limit The maximum number of events to return.
+     * @param userId The ID of the user searching for events.
      * @return [FindNearbyEventsResult] The events that are nearby the user.
      */
-    fun findNearbyEvents(radius: Int, userCoords: Coordinates, limit: Int): FindNearbyEventsResult = transactionManager.run {
+    fun findNearbyEvents(radius: Int, userCoords: Coordinates, limit: Int, userId: Int): FindNearbyEventsResult = transactionManager.run {
         val eventsRepository = it.eventsRepository
-        val eventList = eventsRepository.getAllEvents(limit, 0).events
 
-        val nearbyEvents = eventList.filter { event ->
-            if (event.latitude == null || event.longitude == null) return@filter false
-            val distance = calculateDistance(userCoords.latitude, userCoords.longitude, event.latitude, event.longitude)
-            return@filter distance <= radius && event.visibility == "Public"
+        if (userCoords.latitude == null || userCoords.longitude == null) {
+            throw InvalidCoordinatesException()
         }
+        val nearbyEvents = eventsRepository.getNearbyEvents(userCoords, radius, limit, userId)
 
         return@run FindNearbyEventsListOutputModel(nearbyEvents)
     }
@@ -295,6 +299,10 @@ class EventServices(
         val newPassword = if (visibility == Visibility.Private && password.isBlank()) event.password
         else if (visibility == Visibility.Public) ""
         else password
+        if (locationType == LocationType.Physical && (coords.latitude == null || coords.longitude == null))
+            throw MustSpecifyLocationTypeException()
+        if (locationType == LocationType.Online && (coords.latitude != null || coords.longitude != null))
+            throw OnlineEventsWithLocationException()
         eventsRepository.editEvent(
             eventId,
             title.value,

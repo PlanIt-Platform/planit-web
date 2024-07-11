@@ -6,10 +6,13 @@ import {SearchConfiguration} from "./searchConfiguration/SearchConfiguration";
 import {Map} from "./map/Map";
 import {EventsFound} from "./eventsFound/EventsFound";
 import {findNearbyEvents} from "../../services/eventsServices";
+import JoinPopup from "../event/join/JoinPopup";
 
 export default function NearMe(): React.ReactElement {
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(true)
+    const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [events, setEvents] = useState([])
     const [selectedRadius, setSelectedRadius] = useState(25000)
     const [numEvents, setNumEvents] = useState(20)
@@ -55,8 +58,9 @@ export default function NearMe(): React.ReactElement {
                userLocation={userLocation}
                events={events}
            />
-           <EventsFound events={events}/>
+           <EventsFound events={events} setSelectedEvent={setSelectedEvent} setIsJoinPopupOpen={setIsJoinPopupOpen}/>
            {error && <Error message={error} onClose={() => setError(null)} />}
+            {isJoinPopupOpen && <JoinPopup event={selectedEvent} onClose={() => setIsJoinPopupOpen(false)} />}
         </div>
     )
 }

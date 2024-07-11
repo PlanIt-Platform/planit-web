@@ -1,8 +1,10 @@
 package project.planItAPI.repository.jdbi.event
 
 import org.jdbi.v3.core.Handle
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.models.EventModel
 import project.planItAPI.domain.event.Money
+import project.planItAPI.models.FindNearbyEventsOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.UserInEvent
@@ -17,8 +19,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         category: String,
         locationType: String?,
         location: String?,
-        latitude: Double,
-        longitude: Double,
+        latitude: Double?,
+        longitude: Double?,
         visibility: String,
         date: Timestamp?,
         end_date: Timestamp?,
@@ -112,7 +114,6 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         SELECT id, title, description, category, location, latitude, longitude, visibility, date
         FROM dbo.Event
         WHERE title LIKE :searchInput
-        OR category LIKE :searchInput
         LIMIT :limit OFFSET :offset
         """
         )
@@ -122,6 +123,48 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             .mapTo(SearchEventsOutputModel::class.java)
             .list()
             .let { SearchEventListOutputModel(it) }
+    }
+
+    override fun searchEventsByCategory(category: String, limit: Int, offset: Int): SearchEventListOutputModel {
+        return handle.createQuery(
+            """
+        SELECT id, title, description, category, location, latitude, longitude, visibility, date
+        FROM dbo.Event
+        WHERE category = :category
+        LIMIT :limit OFFSET :offset
+        """
+        )
+            .bind("category", category)
+            .bind("limit", limit)
+            .bind("offset", offset)
+            .mapTo(SearchEventsOutputModel::class.java)
+            .list()
+            .let { SearchEventListOutputModel(it) }
+    }
+
+    override fun getNearbyEvents(userCoords: Coordinates, radius: Int, limit: Int, userId: Int): List<FindNearbyEventsOutputModel> {
+        return handle.createQuery(
+            """
+        SELECT id, title, location, latitude, longitude
+        FROM dbo.Event
+       WHERE (
+            6371 * acos(
+                cos(radians(:userLatitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLongitude)) +
+                sin(radians(:userLatitude)) * sin(radians(latitude))
+            )
+        ) * 1000 <= :radius
+        AND visibility = 'Public'
+        AND id NOT IN (SELECT event_id FROM dbo.UserParticipatesInEvent WHERE user_id = :userId)
+        LIMIT :limit
+        """
+        )
+            .bind("userLongitude", userCoords.longitude)
+            .bind("userLatitude", userCoords.latitude)
+            .bind("radius", radius)
+            .bind("userId", userId)
+            .bind("limit", limit)
+            .mapTo(FindNearbyEventsOutputModel::class.java)
+            .list()
     }
 
     override fun getAllEvents(limit: Int, offset: Int): SearchEventListOutputModel {
@@ -201,8 +244,8 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
         category: String?,
         locationType: String?,
         location: String?,
-        latitude: Double,
-        longitude: Double,
+        latitude: Double?,
+        longitude: Double?,
         visibility: String?,
         date: Timestamp?,
         end_date: Timestamp?,

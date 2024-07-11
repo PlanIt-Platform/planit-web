@@ -10,11 +10,10 @@ export default function CreateForm({onClose}) {
         {title: "",
             description: "",
             category: "Technology",
-            subCategory: "Web Development",
             locationType: "Physical",
             location: "",
-            latitude: 0,
-            longitude: 0,
+            latitude: null,
+            longitude: null,
             visibility: "Public",
             date: "",
             endDate: "",
@@ -73,7 +72,7 @@ export default function CreateForm({onClose}) {
             {isGooglePopupOpen && <GoogleCalendar mode="addEvent" onClose={() => {
                 setIsGooglePopupOpen(false)
                 setSubmitting(true)
-            }} inputs={inputs} />}
+            }} input={inputs} />}
         </>
     );
 }

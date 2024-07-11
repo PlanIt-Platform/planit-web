@@ -86,7 +86,7 @@ export default function SearchEvents(): React.ReactElement {
             {isGooglePopupOpen && <GoogleCalendar mode="addEvent" onClose={() => {
                 setIsGooglePopupOpen(false)
                 setRedirect(true)
-            }} inputs={event} />}
+            }} input={event} />}
             {isJoinPopupOpen && !isParticipant && <JoinPopup event={selectedEvent} onClose={() => setIsJoinPopupOpen(false)} />}
             {isEventFormOpen && <CreateForm onClose={() => setIsEventFormOpen(false)} />}
             {error && <Error message={error} onClose={() => setError(null)} />}

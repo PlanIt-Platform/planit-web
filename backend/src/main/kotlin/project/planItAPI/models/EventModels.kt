@@ -82,8 +82,16 @@ data class SearchEventListOutputModel(
     val events: List<SearchEventsOutputModel>
 )
 
+data class FindNearbyEventsOutputModel(
+    val id: Int,
+    val title: String,
+    val location: String,
+    val latitude: Double,
+    val longitude: Double
+)
+
 data class FindNearbyEventsListOutputModel(
-    val events: List<SearchEventsOutputModel>
+    val events: List<FindNearbyEventsOutputModel>
 )
 
 data class JoinEventWithCodeOutputModel(

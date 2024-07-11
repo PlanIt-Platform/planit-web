@@ -152,12 +152,12 @@ class EventNotFoundException : HTTPCodeException(
 )
 
 class UserNotInEventException : HTTPCodeException(
-    message = "User is not in the event",
+    message = "You are not in the event",
     httpCode = BAD_REQUEST
 )
 
 class UserAlreadyInEventException : HTTPCodeException(
-    message = "User is already in the event",
+    message = "You are already in the event",
     httpCode = BAD_REQUEST
 )
 
@@ -182,12 +182,12 @@ class EndDateBeforeDateException : HTTPCodeException(
 )
 
 class UserIsNotOrganizerException : HTTPCodeException(
-    message = "User is not the organizer of the event",
+    message = "You are not the organizer of the event",
     httpCode = BAD_REQUEST
 )
 
 class OnlyOrganizerException : HTTPCodeException(
-    message = "User is the only organizer of the event",
+    message = "You are the only organizer of the event",
     httpCode = BAD_REQUEST
 )
 
@@ -299,5 +299,10 @@ class FeedbackIsBlankException : HTTPCodeException(
 
 class MustSpecifyLocationTypeException : HTTPCodeException(
     message = "If location is specified, then locationType must be specified as well",
+    httpCode = BAD_REQUEST
+)
+
+class OnlineEventsWithLocationException : HTTPCodeException(
+    message = "Online events do not have a physical location",
     httpCode = BAD_REQUEST
 )

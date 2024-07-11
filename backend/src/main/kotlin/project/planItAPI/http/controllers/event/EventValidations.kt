@@ -13,6 +13,7 @@ import project.planItAPI.models.ValidatedEventInputsModel
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.HTTPCodeException
+import project.planItAPI.utils.InvalidCoordinatesException
 import project.planItAPI.utils.Success
 
 fun validateEventInput(input: EventInputModel): Either<Exception, ValidatedEventInputsModel> {
@@ -64,9 +65,9 @@ fun validateFindNearbyEventsInput(
     }
     val result = Coordinates(latitude, longitude)
 
-    return if (result is Success) {
+    return if (result is Success && result.value.latitude != null && result.value.longitude != null) {
         Success(result.value)
     } else {
-        Failure(HTTPCodeException((result as Failure).value.message, 400))
+        Failure(HTTPCodeException(InvalidCoordinatesException().message, 400))
     }
 }

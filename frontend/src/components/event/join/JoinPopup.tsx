@@ -61,7 +61,7 @@ export default function JoinPopup({ event, onClose }) {
             {isGooglePopupOpen && <GoogleCalendar mode="addEvent" onClose={() => {
                 setIsGooglePopupOpen(false)
                 setRedirect(true)
-            }} inputs={eventDetails} />}
+            }} input={eventDetails} />}
         </>
     );
 }

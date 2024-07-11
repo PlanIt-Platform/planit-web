@@ -8,11 +8,11 @@ import project.planItAPI.utils.Success
 
 typealias CoordinatesResult = Either<HTTPCodeException, Coordinates>
 
-class Coordinates private constructor(val latitude: Double, val longitude: Double) {
+class Coordinates private constructor(val latitude: Double?, val longitude: Double?) {
     companion object {
         operator fun invoke(latitude: Double?, longitude: Double?): CoordinatesResult {
             if (latitude == null || longitude == null) {
-                return Success(Coordinates(0.0, 0.0))
+                return Success(Coordinates(null, null))
             }
             if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
                 return Failure(InvalidCoordinatesException())

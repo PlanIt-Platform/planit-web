@@ -6,33 +6,38 @@ const API_KEY = "AIzaSyAtqkocmk09tuLeKdXr1bjGfA6HQC9wDcI"
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
 const SCOPES = "openid email profile https://www.googleapis.com/auth/calendar"
 
-export function GoogleCalendar({ mode, onClose, inputs, onEventsRetrieved}: {
+export function GoogleCalendar({ mode, onClose, input, onEventsRetrieved}: {
     mode: string,
     onClose: () => void,
-    inputs?: any,
+    input?: any,
     onEventsRetrieved?: (events: any[]) => void
 }) {
 
     function addEvent() {
-        const event =  {
-            'summary': inputs.title,
-            'location': inputs.location,
-            'description': inputs.description,
-            'start': {
-                'dateTime': new Date(inputs.date).toISOString(),
-                'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-            },
-            'end': {
-                'dateTime': inputs.endDate ? new Date(inputs.endDate).toISOString() : new Date(inputs.date).toISOString(),
-                'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-            },
+        const req = (input) => {
+            const event = {
+                'summary': input.title,
+                'location': input.location,
+                'description': input.description,
+                'start': {
+                    'dateTime': new Date(input.date).toISOString(),
+                    'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                },
+                'end': {
+                    'dateTime': input.endDate ? new Date(input.endDate).toISOString() : new Date(input.date).toISOString(),
+                    'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                },
+            }
+
+            let request = gapi.client.calendar.events.insert({
+                'calendarId': 'primary',
+                'resource': event
+            });
+            request.execute()
         }
 
-        let request = gapi.client.calendar.events.insert({
-            'calendarId': 'primary',
-            'resource': event
-        });
-        request.execute()
+        const events = Array.isArray(input) ? input : [input];
+        events.forEach(event => req(event))
     }
 
     function getEvents() {
@@ -91,7 +96,7 @@ export function GoogleCalendar({ mode, onClose, inputs, onEventsRetrieved}: {
             <div className={"overlay"} onClick={onClose}></div>
             <div className="google-popup">
                 {mode == "addEvent" ?
-                    <p>Do you wish to add this event to Google Calendar?</p>
+                    <p>Do you wish to add the event(s) to your Google Calendar?</p>
                 : mode == "getEvents" ?
                     <p>Do you wish to get the events from your Google Calendar?</p>
                 : <> </>}

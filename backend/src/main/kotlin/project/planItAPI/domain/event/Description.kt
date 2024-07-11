@@ -14,7 +14,7 @@ class Description private constructor(val value: String) {
         private const val maxLength = 400
 
         operator fun invoke(value: String?): DescriptionResult {
-            return if (value == null) {
+            return if (value == null || value == "") {
                 Success(Description("No description yet!"))
             } else when (value.length) {
                 !in minLength..maxLength -> Failure(InvalidValueLengthException("description"))

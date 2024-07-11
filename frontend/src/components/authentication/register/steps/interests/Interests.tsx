@@ -12,8 +12,10 @@ export function Interests({setStep, interests, setInterests}) {
                    placeholder={"Enter an interest (e.g. football, etc.)"}
                    value={newInterest} onChange={(ev) => setNewInterest(ev.target.value)} />
             <button onClick={() => {
-                setInterests([...interests, newInterest]);
-                setNewInterest('');
+                if (!interests.includes(newInterest)) {
+                    setInterests([...interests, newInterest]);
+                    setNewInterest('');
+                }
             }}>Add Interest</button>
             <div className="interests-container">
                 {interests.map((interest, index) => (

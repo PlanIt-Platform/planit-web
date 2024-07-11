@@ -128,6 +128,21 @@
     font-weight: bold;
 }
 
+.day-with-one-event:hover {
+    background-color: #8a7511;
+    font-weight: bold;
+}
+
+.day-with-two-events:hover {
+    background-color: #428132;
+    font-weight: bold;
+}
+
+.day-with-three-or-more-events:hover {
+    background-color: #533c72;
+    font-weight: bold;
+}
+
 .color-info {
     display: flex;
     flex-direction: column;
@@ -150,4 +165,67 @@
     width: 20px;
     height: 20px;
     margin-right: 5px;
+}
+
+.add_event_p {
+    height: 100px;
+    margin-top: 30px;
+    margin-left: 190px;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.add_event_p button {
+    background: none;
+    color: rgb(0, 165, 255);
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+}
+
+.day-events-container {
+    position: absolute;
+    bottom: 107%;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 10px;
+    z-index: 10; /* Ensure it stays on top */
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.day-event-card {
+    background-color: #ffffff;
+    padding: 7px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.day-event-card::after {
+    content: '';
+    position: absolute;
+    bottom: -8px; /* Adjust this value to move the arrow below the card */
+    left: 85%;
+    transform: translateX(-50%);
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #ffffff transparent transparent transparent;
+    width: 0;
+    height: 0;
+    z-index: 1; /* Place the arrow on top of the card */
+}
+
+.day-event-card p {
+    margin: 0;
+    padding: 0;
+    color: #0b4669;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
 }

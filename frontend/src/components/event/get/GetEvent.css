@@ -348,3 +348,17 @@
     cursor: pointer;
     position: relative;
 }
+
+.add_event_p_getEvent {
+    margin-left: 525px;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.add_event_p_getEvent button {
+    background: none;
+    color: rgb(0, 165, 255);
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+}

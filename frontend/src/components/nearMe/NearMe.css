@@ -29,9 +29,17 @@
     scrollbar-width: none;
 }
 
+.near-right button {
+    padding: 4px;
+    margin: 10px;
+    min-width: 300px;
+    max-width: 300px;
+}
+
 .near-right p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
+    max-width: 290px;
+    font-size: 18px;
 }

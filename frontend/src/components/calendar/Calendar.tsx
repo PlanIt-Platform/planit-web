@@ -17,7 +17,8 @@ export function Calendar() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true)
     const [calendarDay, setCalendarDay] = useState(new Date());
-    const [isGooglePopupOpen, setIsGooglePopupOpen] = useState(true)
+    const [isGetEventsPopUpOpen, setGetEventsPopUpOpen] = useState(true)
+    const [isAddEventsPopUpOpen, setAddEventsPopUpOpen] = useState(false)
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May',
         'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -32,12 +33,8 @@ export function Calendar() {
             });
     }, []);
 
-    const nextMonth = () => {
-        setCalendarDay(new Date(calendarDay.getFullYear(), calendarDay.getMonth() + 1, calendarDay.getDate()));
-    }
-
-    const previousMonth = () => {
-        setCalendarDay(new Date(calendarDay.getFullYear(), calendarDay.getMonth() - 1, calendarDay.getDate()));
+    const changeMonth = (monthChange) => {
+        setCalendarDay(new Date(calendarDay.getFullYear(), calendarDay.getMonth() + monthChange, calendarDay.getDate()));
     }
 
     return (
@@ -45,11 +42,11 @@ export function Calendar() {
             {isLoading && <Loading/>}
             <div className="calendar">
                 <div className="calendar-header">
-                    <button onClick={previousMonth}>
+                    <button onClick={() => changeMonth(-1)}>
                         <img src={left_arrow} alt="left arrow"/>
                     </button>
                     <h2>{months[calendarDay.getMonth()]} {calendarDay.getFullYear()}</h2>
-                    <button onClick={nextMonth}>
+                    <button onClick={() => changeMonth(1)}>
                         <img src={right_arrow} alt="right arrow"/>
                     </button>
                 </div>
@@ -63,6 +60,10 @@ export function Calendar() {
                     </div>
                     <CalendarDays events={events} calendarDay={calendarDay}/>
                 </div>
+                <p className="add_event_p">
+                    Wish to add these events to your Google Calendar?
+                    Click <button onClick={() => setAddEventsPopUpOpen(true)}>here</button>
+                </p>
             </div>
             <div className="color-info">
                 <div className="color-info-item">
@@ -79,8 +80,11 @@ export function Calendar() {
                 </div>
             </div>
             {error && <Error message={error} onClose={() => setError(null)} />}
-            {isGooglePopupOpen && <GoogleCalendar mode="getEvents" onClose={() => {
-                setIsGooglePopupOpen(false)
+            {isAddEventsPopUpOpen && <GoogleCalendar mode="addEvent" onClose={() => {
+                setAddEventsPopUpOpen(false)
+            }} input={events} />}
+            {isGetEventsPopUpOpen && <GoogleCalendar mode="getEvents" onClose={() => {
+                setGetEventsPopUpOpen(false)
             }} onEventsRetrieved={(newEvents) => setEvents(prevEvents => [...prevEvents, ...newEvents])} />}
         </div>
     );

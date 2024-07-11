@@ -6,7 +6,6 @@ export async function createEvent({
         title,
         description,
         category,
-        subCategory,
         locationType,
         location,
         latitude,
@@ -19,6 +18,7 @@ export async function createEvent({
         password
     }) {
     if (visibility == 'Public') password = ""
+    if (locationType == "None") locationType = null
     return await executeRequestAndRefreshToken(
         post,
         CREATE_EVENT,
@@ -26,7 +26,6 @@ export async function createEvent({
             title,
             description: description || null,
             category,
-            subCategory: subCategory,
             locationType: locationType,
             location: location || null,
             latitude,
@@ -43,7 +42,6 @@ export async function editEvent(eventId, {
     title,
     description,
     category,
-    subCategory,
     locationType,
     location,
     latitude,
@@ -56,6 +54,7 @@ export async function editEvent(eventId, {
     password
 }) {
     if (visibility == 'Public') password = ""
+    if (locationType == "None") locationType = null
     return await executeRequestAndRefreshToken(
         put,
         GET_EVENT + eventId + '/edit',
@@ -63,7 +62,6 @@ export async function editEvent(eventId, {
             title,
             description: description || null,
             category,
-            subCategory: subCategory,
             locationType: locationType,
             location: location || null,
             latitude,
@@ -94,10 +92,6 @@ export async function findNearbyEvents(latitude, longitude, radius, limit) {
 
 export async function getCategories() {
     return await executeRequestAndRefreshToken(get, CATEGORIES)
-}
-
-export async function getSubCategories(category) {
-    return await executeRequestAndRefreshToken(get, CATEGORIES + '/' + category + '/subcategories')
 }
 
 export async function getUsersInEvent(eventId) {

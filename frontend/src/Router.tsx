@@ -41,7 +41,11 @@ const router = createBrowserRouter([
             },
             {
                 "path": "/planit/calendar",
-                "element": <Calendar />,
+                "element": (
+                    <RequireAuth>
+                        <Calendar />
+                    </RequireAuth>
+                )
             },
             {
                 "path": "/planit/events",

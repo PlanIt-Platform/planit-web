@@ -8,7 +8,6 @@ export default function EventForm({ event, onClose }) {
         title: event.title,
         description: event.description,
         category: event.category,
-        subCategory: event.subCategory,
         locationType: event.locationType,
         location: event.location,
         latitude: event.latitude,

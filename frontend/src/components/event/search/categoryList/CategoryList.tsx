@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import globe_icon from "../../../../../images/globe_icon.png";
 import sports_icon from "../../../../../images/sports_icon.png";
 import culture_icon from "../../../../../images/culture_icon.png";
@@ -7,20 +7,38 @@ import food_icon from "../../../../../images/food_icon.png";
 import charity_icon from "../../../../../images/charity_icon.png";
 import technology_icon from "../../../../../images/technology_icon.png";
 import business_icon from "../../../../../images/business_icon.png";
-import {searchEvents} from "../../../../services/eventsServices";
+import {getCategories, searchEvents} from "../../../../services/eventsServices";
 
-const categoryIcons = {
-    'All': globe_icon,
-    'Sports and Fitness': sports_icon,
-    'Arts and Culture': culture_icon,
-    'Education': education_icon,
-    'Food and Drinks': food_icon,
-    'Charity': charity_icon,
-    'Technology': technology_icon,
-    'Business': business_icon
-};
+const icons = [
+    technology_icon,
+    culture_icon,
+    sports_icon,
+    business_icon,
+    food_icon,
+    education_icon,
+    charity_icon
+]
 
 export function CategoryList({setPageEvents, currentPage, itemsPerPage, setIsLoading, setError}) {
+    const [categoryIcons, setCategoryIcons] = useState({
+        "All": globe_icon
+    });
+
+    useEffect(() => {
+        getCategories()
+            .then((res) => {
+                if (res.data.error) setError(res.data.error);
+                else {
+                    const newIcons = {};
+                    res.data.forEach((category, index) => {
+                        if (category == "Simple Meeting") return;
+                        newIcons[category] = icons[index % icons.length]
+                    });
+                    setCategoryIcons({ ...categoryIcons, ...newIcons });
+                    setError('')
+                }
+            });
+    }, []);
 
     const handleCategoryClick = (category: string) => {
         setIsLoading(true)

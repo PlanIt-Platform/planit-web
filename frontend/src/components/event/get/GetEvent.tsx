@@ -11,6 +11,7 @@ import Error from "../../shared/error/Error";
 import Loading from "../../shared/loading/Loading";
 import {EventInformation} from "./eventInformation/EventInformation";
 import {ParticipantsList} from "./participantsList/ParticipantsList";
+import {GoogleCalendar} from "../../googleCalendar/GoogleCalendar";
 
 export default function GetEvent(): React.ReactElement {
     const userId = getUserId();
@@ -27,11 +28,11 @@ export default function GetEvent(): React.ReactElement {
     const [participantId, setParticipantId] = useState(0);
     const [update, setUpdate] = useState(false);
     const [redirectHome, setRedirectHome] = useState(false);
+    const [isGooglePopupOpen, setIsGooglePopupOpen] = useState(false)
     const [event, setEvent] = useState({
         title: "",
         description: "",
         category: "",
-        subCategory: "",
         location: "",
         latitude: 0,
         longitude: 0,
@@ -108,6 +109,10 @@ export default function GetEvent(): React.ReactElement {
                     setIsAssigningRole={setIsAssigningRole}
                 />
             </div>
+            <p className="add_event_p_getEvent">
+                Wish to add this event to your Google Calendar?
+                Click <button onClick={() => setIsGooglePopupOpen(true)}>here</button>
+            </p>
             {isAssigningRole && <AssignRole onClose={() => {
                 setIsAssigningRole(false)
                 setUpdate(!update)
@@ -129,6 +134,9 @@ export default function GetEvent(): React.ReactElement {
                     isOrganizer={isOrganizer}
                 />
             }
+            {isGooglePopupOpen && <GoogleCalendar mode="addEvent" onClose={() => {
+                setIsGooglePopupOpen(false)
+            }} input={event} />}
             {error && <Error message={error} onClose={() => setError(null)} />}
         </>
     );

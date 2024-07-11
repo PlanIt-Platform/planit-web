@@ -1,6 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 export function CalendarDays({events, calendarDay}){
+    const [selectedDay, setSelectedDay] = useState(null);
+    const [showCard, setShowCard] = useState(false);
     const firstDayOfMonth = new Date(calendarDay.getFullYear(), calendarDay.getMonth(), 1);
     const weekDayOfFirstDay = firstDayOfMonth.getDay();
     let calendarDays = []
@@ -36,10 +38,25 @@ export function CalendarDays({events, calendarDay}){
                 }
 
                 return (
-                    <div key={index} className={`calendar-day ${dayClass} ${day.currentMoth ? 'current-month' : ''} 
-                    ${day.selected ? 'selected' : ''}`}>
-                        <p>{day.number}</p>
+                    <div key={index}>
+                        <div key={index} className={`calendar-day ${dayClass} ${day.currentMoth ? 'current-month' : ''} 
+                        ${day.selected ? 'selected' : ''}`} onClick={() => {
+                            setSelectedDay(day.date.toDateString());
+                            setShowCard(!showCard);
+                        }}>
+                            <p>{day.number}</p>
+                            {showCard && selectedDay === day.date.toDateString() && eventsPerDay.length > 0 &&
+                                <div className="day-events-container">
+                                    {eventsPerDay.map((event, index) => (
+                                        <div key={index} className="day-event-card">
+                                            <p title={event.title}>{event.title}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            }
+                        </div>
                     </div>
+
                 )
             })}
         </div>
