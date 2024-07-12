@@ -130,7 +130,7 @@ class JdbiEventsRepository (private val handle: Handle): EventsRepository {
             """
         SELECT id, title, description, category, location, latitude, longitude, visibility, date
         FROM dbo.Event
-        WHERE category = :category
+        WHERE category = :category AND visibility = 'Public'
         LIMIT :limit OFFSET :offset
         """
         )

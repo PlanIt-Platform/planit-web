@@ -155,13 +155,14 @@ class EventServices(
 
         val categories = readCategories()
 
-        if (searchInput in categories) {
-            val eventList = eventsRepository.searchEventsByCategory(searchInput, limit, offset).events
-                .filter { event -> event.visibility == "Public" }
-            return@run hidePrivateEventInfo(SearchEventListOutputModel(eventList))
+        val formattedInput = searchInput.replace("+", " ")
+
+        if (formattedInput in categories) {
+            val eventList = eventsRepository.searchEventsByCategory(formattedInput, limit, offset)
+            return@run eventList
         }
 
-        val eventList = eventsRepository.searchEvents(searchInput, limit, offset)
+        val eventList = eventsRepository.searchEvents(formattedInput, limit, offset)
         return@run hidePrivateEventInfo(eventList)
     }
 
