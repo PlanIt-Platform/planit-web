@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
 import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
@@ -226,7 +225,7 @@ class UserServicesTests {
             userServices.register(name, username, email, password)
             val newName = (Name("newName") as Success).value
             val newDescription = "newDescription"
-            val newInterests = listOf((Category("Technology") as Success).value)
+            val newInterests = listOf("Football", "Games")
             userServices.editUser(1, newName, newDescription, newInterests)
             val editedUser = userServices.getUser(1)
             if (editedUser is Success) {
@@ -235,7 +234,7 @@ class UserServicesTests {
                 assertEquals(email.value, editedUser.value.email)
                 assertEquals(1, editedUser.value.id)
                 assertEquals(newDescription, editedUser.value.description)
-                assertEquals(newInterests.map { it.name }, editedUser.value.interests)
+                assertEquals(newInterests, editedUser.value.interests)
             } else {
                 assert(false)
             }
@@ -243,7 +242,7 @@ class UserServicesTests {
 
         @Test
         fun `cannot editUser because no user exists`() {
-            val result = userServices.editUser(1, name, "", listOf((Category("Technology") as Success).value))
+            val result = userServices.editUser(1, name, "", listOf("Football", "Games"))
             assert(result is Failure)
             if (result is Failure) {
                 assert(result.value is UserNotFoundException)
@@ -255,7 +254,7 @@ class UserServicesTests {
             userServices.register(name, username, email, password)
             val loginResult = userServices.login((EmailOrUsername(email.value) as Success).value, password)
             if (loginResult is Success) {
-                val result = userServices.editUser(2, name, "", listOf((Category("Technology") as Success).value))
+                val result = userServices.editUser(2, name, "", listOf("Football", "Games"))
                 assert(result is Failure)
                 if (result is Failure) {
                     assert(result.value is UserNotFoundException)

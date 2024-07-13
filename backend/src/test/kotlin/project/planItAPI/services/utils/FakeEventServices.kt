@@ -1,36 +1,38 @@
 package project.planItAPI.services.utils
 
 import project.planItAPI.domain.event.Category
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
-import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.models.CreateEventOutputModel
-import project.planItAPI.models.EventModel
 import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.FindNearbyEventsListOutputModel
+import project.planItAPI.models.FindNearbyEventsOutputModel
+import project.planItAPI.models.JoinEventWithCodeOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserInEvent
 import project.planItAPI.models.UsersInEventList
 import project.planItAPI.repository.transaction.TransactionManager
-import project.planItAPI.services.event.CategoriesResult
 import project.planItAPI.services.event.CreateEventResult
 import project.planItAPI.services.event.DeleteEventResult
 import project.planItAPI.services.event.EditEventResult
 import project.planItAPI.services.event.EventResult
 import project.planItAPI.services.event.EventServices
+import project.planItAPI.services.event.FindNearbyEventsResult
 import project.planItAPI.services.event.JoinEventResult
+import project.planItAPI.services.event.JoinEventWithCodeResult
 import project.planItAPI.services.event.LeaveEventResult
 import project.planItAPI.services.event.SearchEventResult
 import project.planItAPI.services.event.UsersInEventResult
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreateEventException
 import project.planItAPI.utils.Failure
-import project.planItAPI.utils.IncorrectPasswordException
-import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -47,8 +49,9 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         title: Title,
         description: Description,
         category: Category,
-        subcategory: Subcategory,
+        locationType: LocationType?,
         location: String?,
+        coords: Coordinates,
         visibility: Visibility,
         date: DateFormat,
         endDate: DateFormat,
@@ -61,7 +64,7 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
             Failure(FailedToCreateEventException())
         } else {
             val eventID = generateEventID()
-            Success(CreateEventOutputModel(eventID, title.value, "Created with success."))
+            Success(CreateEventOutputModel(eventID, title.value, "AAAA","Created with success."))
         }
     }
 
@@ -75,13 +78,16 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                         "Event Title",
                         "Event description",
                         "Technology",
-                        "Web Development",
-                        "Location",
+                         "Physical",
+                         "Setubal",
+                         38.5245,
+                         -8.89307,
                         "Public",
                         "2024-12-12 12:00",
                         "2024-12-24 15:00",
                         100.00,
-                        "EUR"
+                        "EUR",
+                        "AAAA"
                     )
                 )
             }
@@ -92,13 +98,16 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                         "Event 2 Title",
                         "Event 2 description",
                         "Business",
-                        "Networking Events and Mixers",
-                        "Location 2",
+                         "Physical",
+                         "Setubal",
+                         38.5245,
+                         -8.89307,
                         "Private",
                         "2024-01-12 11:00",
                         "2024-01-24 15:00",
                         50.00,
-                        "EUR"
+                        "EUR",
+                        "AAAA"
                     )
                 )
             }
@@ -166,7 +175,9 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                             "Event Title",
                             "Event description",
                             "Technology",
-                            "Location",
+                            "Setubal",
+                             38.5245,
+                             -8.89307,
                             "Public",
                             "2024-12-12 12:00"
                         ),
@@ -175,7 +186,9 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                             "Event 2 Title",
                             "Event 2 description",
                             "Business",
-                            "Location 2",
+                            "Setubal",
+                            38.5245,
+                            -8.89307,
                             "Private",
                             "2024-01-12 11:00"
                         )
@@ -192,7 +205,9 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
                             "Event Title",
                             "Event description",
                             "Technology",
-                            "Location",
+                            "Setubal",
+                             38.5245,
+                             -8.89307,
                             "Public",
                             "2024-12-12 12:00",
                         )
@@ -202,6 +217,33 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         }
         else {
             Success(SearchEventListOutputModel(emptyList()))
+        }
+    }
+
+    override fun findNearbyEvents(
+        radius: Int,
+        userCoords: Coordinates,
+        limit: Int,
+        userId: Int
+    ): FindNearbyEventsResult {
+        // Simulate the behavior of finding nearby events
+        return if (radius == 50) {
+            Success(
+                FindNearbyEventsListOutputModel(
+                    listOf(
+                        FindNearbyEventsOutputModel(
+                            1,
+                            "Test Event",
+                            "Setubal",
+                            38.5245,
+                            -8.89307
+                        )
+                    )
+                )
+            )
+        }
+        else {
+            Success(FindNearbyEventsListOutputModel(emptyList()))
         }
     }
 
@@ -217,6 +259,24 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         }
 
         return Success(SuccessMessage("User joined event with success."))
+    }
+
+    override fun joinEventByCode(userId: Int, eventCode: String): JoinEventWithCodeResult {
+        val eventResult = if (eventCode == "AAAAAA") {
+            getEvent(1, userId)
+        } else {
+            Failure(EventNotFoundException())
+        }
+        if (eventResult is Failure) {
+            return Failure(EventNotFoundException())
+        }
+        val usersInEvent = (getUsersInEvent(1, userId) as Success).value
+
+        if (usersInEvent.users.any { user -> user.id == userId }) {
+            return Failure(UserAlreadyInEventException())
+        }
+
+        return Success(JoinEventWithCodeOutputModel("Event Test", 1, "User joined event with success."))
     }
 
     override fun leaveEvent(userId: Int, eventId: Int): LeaveEventResult {
@@ -250,8 +310,9 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         title: Title,
         description: Description,
         category: Category,
-        subcategory: Subcategory,
+        locationType: LocationType?,
         location: String?,
+        coords: Coordinates,
         visibility: Visibility,
         date: DateFormat,
         endDate: DateFormat,
@@ -268,23 +329,6 @@ class FakeEventServices(transactionManager: TransactionManager) : EventServices(
         }
 
         return Success(SuccessMessage("Event edited with success."))
-    }
-
-    override fun getSubcategories(category: String): CategoriesResult {
-        if (category != "Technology") {
-            return Failure(InvalidValueException("category"))
-        }
-        val subCategories = listOf(
-            "Web Development",
-            "Mobile Development",
-            "Software Development",
-            "Networking and Security",
-            "Artificial Intelligence and Machine Learning",
-            "Tech Startups and Entrepreneurship",
-            "Emerging Technologies"
-        )
-
-        return Success(subCategories)
     }
 }
 

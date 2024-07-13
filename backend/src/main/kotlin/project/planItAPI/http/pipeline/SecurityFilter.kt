@@ -18,8 +18,7 @@ class SecurityFilter : HttpFilter() {
         "/logout",
         "/refresh-token",
         "/about",
-        "/categories",
-        "/subcategories"
+        "/categories"
     )
 
     private val authenticationEndpoints = listOf(

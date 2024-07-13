@@ -17,13 +17,13 @@ fun validateLimitAndOffset(limit: Int?, offset: Int?): Either<Exception, Pair<In
     val validatedOffset = offset ?: 0
 
     if(validatedLimit < 0 && validatedOffset < 0) {
-        return Failure(InvalidLimitAndOffsetException(true, true))
+        return Failure(InvalidLimitAndOffsetException(limit = true, offset = true))
     }
     if(validatedLimit < 0) {
-        return Failure(InvalidLimitAndOffsetException(true, false))
+        return Failure(InvalidLimitAndOffsetException(limit = true, offset = false))
     }
     if(validatedOffset < 0) {
-        return Failure(InvalidLimitAndOffsetException(false, true))
+        return Failure(InvalidLimitAndOffsetException(limit = false, offset = true))
     }
     return Success(Pair(validatedLimit, validatedOffset))
 }

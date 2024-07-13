@@ -7,10 +7,11 @@ import org.junit.jupiter.api.fail
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import project.planItAPI.domain.event.Category
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.domain.event.DateFormat
 import project.planItAPI.domain.event.Description
+import project.planItAPI.domain.event.LocationType
 import project.planItAPI.domain.event.Money
-import project.planItAPI.domain.event.Subcategory
 import project.planItAPI.domain.event.Title
 import project.planItAPI.domain.event.Visibility
 import project.planItAPI.models.CreateEventOutputModel
@@ -22,8 +23,6 @@ import project.planItAPI.services.utils.FakeTransactionManager
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToCreateEventException
 import project.planItAPI.utils.Failure
-import project.planItAPI.utils.IncorrectPasswordException
-import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
 import project.planItAPI.utils.UserAlreadyInEventException
 import project.planItAPI.utils.UserIsNotOrganizerException
@@ -51,17 +50,19 @@ class EventServicesTests {
         val title = (Title("Event Title") as Success).value
         val description = (Description("description") as Success).value
         val category = (Category("Technology") as Success).value
-        val subcategory = (Subcategory("Technology", "Web Development") as Success).value
         val date = (DateFormat("2024-12-12 12:00") as Success).value
         val endDate = (DateFormat("2024-12-24 15:00") as Success).value
         val money = (Money("100 EUR") as Success).value
+        val coords = (Coordinates(38.5245, -8.89307) as Success).value
+        val locationType = LocationType.Physical
 
         val eventResult = eventsServices.createEvent(
             title,
             description,
             category,
-            subcategory,
-            "location",
+            locationType,
+             "Setubal",
+            coords,
             visibility,
             date,
             endDate,
@@ -83,10 +84,11 @@ class EventServicesTests {
         val title = (Title("Event Title") as Success).value
         val description = (Description("description") as Success).value
         val category = (Category("Technology") as Success).value
-        val subcategory = (Subcategory("Technology", "Web Development") as Success).value
         val date = (DateFormat("2024-12-12 12:00") as Success).value
         val endDate = (DateFormat("2024-12-24 15:00") as Success).value
         val money = (Money("100 EUR") as Success).value
+        val coords = (Coordinates(38.5245, -8.89307) as Success).value
+        val locationType = LocationType.Physical
 
         val eventResult = eventsServices.editEvent(
             userId,
@@ -94,8 +96,9 @@ class EventServicesTests {
             title,
             description,
             category,
-            subcategory,
-            "location",
+            locationType,
+            "Setubal",
+            coords,
             Visibility.Public,
             date,
             endDate,
@@ -178,7 +181,7 @@ class EventServicesTests {
     }
 
     @Test
-    fun `searchEvents with input "Technology" succeeds`() {
+    fun `searchEvents with input Technology succeeds`() {
         val searchEventsResult = eventsServices.searchEvents("Technology", 5, 5)
         if (searchEventsResult is Success) {
             assertEquals(1, searchEventsResult.value.events.size)
@@ -202,6 +205,28 @@ class EventServicesTests {
         val searchEventsResult = eventsServices.searchEvents("", 5, 5)
         if (searchEventsResult is Success) {
             assertEquals(2, searchEventsResult.value.events.size)
+        } else {
+            fail("Expected Success but got Failure")
+        }
+    }
+
+    @Test
+    fun `findNearbyEvents succeeds`() {
+        val coords = (Coordinates(38.5245, -8.89307) as Success).value
+        val findNearbyEventsResult = eventsServices.findNearbyEvents(50, coords, 5, 5)
+        if (findNearbyEventsResult is Success) {
+            assertEquals(1, findNearbyEventsResult.value.events.size)
+        } else {
+            fail("Expected Success but got Failure")
+        }
+    }
+
+    @Test
+    fun `findNearbyEvents succeeds when there are no events nearby`() {
+        val coords = (Coordinates(38.5245, -8.89307) as Success).value
+        val findNearbyEventsResult = eventsServices.findNearbyEvents(1, coords, 5, 5)
+        if (findNearbyEventsResult is Success) {
+            assertEquals(0, findNearbyEventsResult.value.events.size)
         } else {
             fail("Expected Success but got Failure")
         }
@@ -234,6 +259,36 @@ class EventServicesTests {
             assertEquals("User joined event with success.", joinEventResult.value.success)
         } else {
             fail("Expected Success but got Failure")
+        }
+    }
+
+    @Test
+    fun `joinEventByCode succeeds`() {
+        val joinEventResult = eventsServices.joinEventByCode(5, "AAAAAA")
+        if (joinEventResult is Success) {
+            assertEquals("User joined event with success.", joinEventResult.value.message)
+        } else {
+            fail("Expected Success but got Failure")
+        }
+    }
+
+    @Test
+    fun `joinEventByCode fails when event is not found`() {
+        val joinEventResult = eventsServices.joinEventByCode(3, "BBBBBB")
+        if (joinEventResult is Failure) {
+            assertEquals(EventNotFoundException::class, joinEventResult.value::class)
+        } else {
+            fail("Expected Failure but got Success")
+        }
+    }
+
+    @Test
+    fun `joinEventByCode fails when user is already in the event`() {
+        val joinEventResult = eventsServices.joinEventByCode(1, "AAAAAA")
+        if (joinEventResult is Failure) {
+            assertEquals(UserAlreadyInEventException::class, joinEventResult.value::class)
+        } else {
+            fail("Expected Failure but got Success")
         }
     }
 
@@ -312,25 +367,5 @@ class EventServicesTests {
     @Test
     fun `editEvent succeeds`() {
         testEditEvent(1, 1, SuccessMessage::class, "Event edited with success.")
-    }
-
-    @Test
-    fun `getSubcategories fails when category is not found`() {
-        val subcategoriesResult = eventsServices.getSubcategories("Not Found")
-        if (subcategoriesResult is Failure) {
-            assertEquals(InvalidValueException::class, subcategoriesResult.value::class)
-        } else {
-            fail("Expected Failure but got Success")
-        }
-    }
-
-    @Test
-    fun `getSubcategories succeeds`() {
-        val subcategoriesResult = eventsServices.getSubcategories("Technology")
-        if (subcategoriesResult is Success) {
-            assertEquals(7, subcategoriesResult.value.size)
-        } else {
-            fail("Expected Success but got Failure")
-        }
     }
 }

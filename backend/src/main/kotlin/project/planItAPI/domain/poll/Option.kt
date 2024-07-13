@@ -1,6 +1,5 @@
 package project.planItAPI.domain.poll
 
-import project.planItAPI.domain.user.Name
 import project.planItAPI.utils.Either
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.HTTPCodeException

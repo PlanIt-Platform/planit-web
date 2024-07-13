@@ -56,7 +56,6 @@ export function CalendarDays({events, calendarDay}){
                             }
                         </div>
                     </div>
-
                 )
             })}
         </div>

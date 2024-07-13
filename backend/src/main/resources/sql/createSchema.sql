@@ -53,23 +53,6 @@ CREATE TABLE dbo.Event (
     code        VARCHAR(6)
 );
 
-CREATE TABLE dbo.Chat (
-  id        serial primary key,
-  name      VARCHAR(255) NOT NULL,
-  event_id  INT NOT NULL,
-  FOREIGN KEY (event_id) REFERENCES dbo.Event(id)
-);
-
-CREATE TABLE dbo.Message (
-  id            serial primary key,
-  text          VARCHAR(512),
-  time          TIMESTAMP,
-  sender_id     INT NOT NULL,
-  chat_id       INT NOT NULL,
-  FOREIGN KEY (sender_id) REFERENCES dbo.Users(id),
-  FOREIGN KEY (chat_id) REFERENCES dbo.Chat(id)
-);
-
 CREATE TABLE dbo.UserParticipatesInEvent (
   user_id  INT not null,
   event_id INT not null,

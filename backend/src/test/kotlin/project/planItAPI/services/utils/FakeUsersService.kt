@@ -1,6 +1,5 @@
 package project.planItAPI.services.utils
 
-import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
 import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
@@ -161,7 +160,7 @@ class FakeUserServices(transactionManager: TransactionManager)
         }
     }
 
-    override fun editUser(userID: Int, name: Name, description: String, interests: List<Category>): EditUserResult {
+    override fun editUser(userID: Int, name: Name, description: String, interests: List<String>): EditUserResult {
         //Simulate the editing of a user
         val user = users.find { it.id == userID }
         if (user != null) {
@@ -174,7 +173,7 @@ class FakeUserServices(transactionManager: TransactionManager)
                     user.email,
                     user.password,
                     description,
-                    interests.map { it.name }
+                    interests
                 )
             )
             return Success(SuccessMessage("User edited successfully."))

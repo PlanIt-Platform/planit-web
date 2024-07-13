@@ -16,16 +16,14 @@ object PathTemplates {
     const val ROLE = "/user/{userId}/event/{eventId}/role"
     const val REMOVE_ROLE = "/user/{userId}/event/{eventId}/role/{roleId}"
     const val FEEDBACK = "/feedback"
-    //const val UPLOAD_PROFILE_PICTURE = "/user/{id}/upload-profile-picture"
 
     /**
      * Event paths
      */
     const val CREATE_EVENT = "/event"
-    const val GET_EVENT = "/event/{id}"
+    const val EVENT = "/event/{id}"
     const val USERS_IN_EVENT = "/event/{id}/users"
     const val EDIT_EVENT = "/event/{eventId}/edit"
-    const val DELETE_EVENT = "/event/{eventId}"
     const val JOIN_EVENT = "/event/{eventId}/join"
     const val JOIN_EVENT_WITH_CODE = "/event/{code}"
     const val LEAVE_EVENT = "/event/{eventId}/leave"

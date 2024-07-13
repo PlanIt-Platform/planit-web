@@ -12,12 +12,10 @@ private const val EXISTING_USERNAME = "Username is already being used."
 private const val USER_REGISTER_ERROR_MESSAGE = "There was an error registering the user."
 private const val INCORRECT_LOGIN_MESSAGE = "Email or username not found."
 private const val USER_NOT_FOUND_MESSAGE = "User not found."
-private const val UNSUPPORTED_MEDIA_TYPE_MESSAGE = "Unsupported media type."
 
 // HTTP CODE CONSTANTS
 private const val BAD_REQUEST = 400
 private const val NOT_FOUND = 404
-private const val UNSUPPORTED_MEDIA_TYPE = 451
 private const val INTERNAL_SERVER_ERROR = 500
 
 /**
@@ -122,15 +120,6 @@ class UserNotFoundException : HTTPCodeException(
     httpCode = NOT_FOUND
 )
 
-/**
- * Exception indicating that the media type is not supported.
- * The HTTP code is 415, because it is an unsupported media type.
- */
-class UnsupportedMediaTypeException : HTTPCodeException(
-    message = UNSUPPORTED_MEDIA_TYPE_MESSAGE,
-    httpCode = UNSUPPORTED_MEDIA_TYPE
-)
-
 class InvalidTimestampFormatException (name: String) : HTTPCodeException(
         message = "$name has invalid timestamp. The correct format is 'YYYY-MM-DD HH:MM'",
     httpCode = BAD_REQUEST
@@ -138,11 +127,6 @@ class InvalidTimestampFormatException (name: String) : HTTPCodeException(
 
 class InvalidPriceFormatException : HTTPCodeException(
     message = "Invalid price format. The correct format is 'amount currency'. Example: '10.00 USD'",
-    httpCode = BAD_REQUEST
-)
-
-class InvalidSubcategoryException : HTTPCodeException(
-    message = "Invalid subcategory",
     httpCode = BAD_REQUEST
 )
 

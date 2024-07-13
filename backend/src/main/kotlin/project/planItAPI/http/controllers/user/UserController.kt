@@ -324,22 +324,4 @@ class UserController(private val userServices: UserServices) {
             }
         }
     }
-
-    /* @PostMapping(PathTemplates.UPLOAD_PROFILE_PICTURE)
-     fun uploadProfilePicture(@PathVariable id: Int, @RequestParam("image") image: MultipartFile?): ResponseEntity<*> {
-         if(image != null){
-             return when (val res = userServices.uploadProfilePicture(id, image)) {
-                 is Failure -> {
-                     failureResponse(res)
-                 }
-
-                 is Success -> {
-                     return responseHandler(200, res)
-                 }
-             }
-         } else {
-             return responseHandler(400, "No image provided.")
-         }
-     }*/
-
 }

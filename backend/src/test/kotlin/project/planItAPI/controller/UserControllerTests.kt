@@ -427,19 +427,5 @@ class UserControllerTests {
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Name is blank"))
-
-        //User tries to edit his information with invalid categories (interests)
-        //Expected: 400 Bad Request
-        performRequest(
-            RequestMethod.PUT,
-            "/api-planit/user",
-            "{\"name\":\"${name}\"," +
-                    "\"description\":\"test description\"," +
-                    "\"interests\":[\"test1\",\"test2\",\"test3\"]}",
-            cookies = mapOf("access_token" to accessToken)
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid category"))
-
     }
 }

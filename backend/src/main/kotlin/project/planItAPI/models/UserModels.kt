@@ -1,6 +1,5 @@
 package project.planItAPI.models
 
-import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
 import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
@@ -142,19 +141,6 @@ data class RefreshTokenInfo(
 data class AccessRefreshTokensModel(
     val accessToken: String,
     val refreshToken: String
-)
-
-/**
- * Model containing system information.
- *
- * @property name The name of the application.
- * @property version The version of the application.
- * @property contributors The list of contributors to the application.
- */
-data class SystemInfo(
-    val name: String,
-    val version: String,
-    val contributors: List<String>,
 )
 
 /**

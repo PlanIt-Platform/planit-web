@@ -1,7 +1,6 @@
 package project.planItAPI.services.user
 
 import org.springframework.stereotype.Service
-import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
 import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Name
@@ -28,7 +27,7 @@ import project.planItAPI.utils.UserRegisterErrorException
 import project.planItAPI.models.SuccessMessage
 import project.planItAPI.models.UserEventsOutputModel
 import project.planItAPI.services.getNowTime
-import project.planItAPI.utils.EventHasEndedException
+import project.planItAPI.services.user.utils.validateRoleLogic
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.FailedToAssignRoleException
 import project.planItAPI.utils.FailedToRemoveRoleException
@@ -36,7 +35,6 @@ import project.planItAPI.utils.FeedbackIsBlankException
 import project.planItAPI.utils.InvalidRefreshTokenException
 import project.planItAPI.utils.OnlyOrganizerException
 import project.planItAPI.utils.RoleNotFoundException
-import project.planItAPI.utils.UserIsNotOrganizerException
 import project.planItAPI.utils.UserNotInEventException
 import java.sql.Timestamp
 
@@ -214,12 +212,7 @@ class UserServices (
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val eventsRepository = it.eventsRepository
-            if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
-            val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-            if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
-            val usersInEvent = eventsRepository.getUsersInEvent(eventId)
-            if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
-            if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
+            validateRoleLogic(userId, eventId, organizerId, usersRepository, eventsRepository)
             val role = usersRepository.getUserRole(userId, eventId)
             if (role != null && role.name == input.roleName) throw FailedToAssignRoleException()
             val roleId = usersRepository.assignRole(
@@ -244,12 +237,7 @@ class UserServices (
         return transactionManager.run {
             val usersRepository = it.usersRepository
             val eventsRepository = it.eventsRepository
-            if (usersRepository.getUser(userId) == null) throw UserNotFoundException()
-            val event = eventsRepository.getEvent(eventId) ?: throw EventNotFoundException()
-            if (event.endDate != null && event.endDate < getNowTime()) throw EventHasEndedException()
-            val usersInEvent = eventsRepository.getUsersInEvent(eventId)
-            if (usersInEvent != null && !usersInEvent.users.any { user -> user.id == userId }) throw UserNotInEventException()
-            if (organizerId !in eventsRepository.getEventOrganizers(eventId)) throw UserIsNotOrganizerException()
+            validateRoleLogic(userId, eventId, organizerId, usersRepository, eventsRepository)
             if (usersRepository.getUserRole(userId, eventId) == null) throw RoleNotFoundException()
             val eventOrganizers = eventsRepository.getEventOrganizers(eventId)
             if (eventOrganizers.size == 1 && eventOrganizers.contains(userId)) throw OnlyOrganizerException()
@@ -289,7 +277,7 @@ class UserServices (
             val usersRepository = it.usersRepository
             if (feedback.isBlank()) throw FeedbackIsBlankException()
             val date = getNowTime()
-            usersRepository.sendFeedback(feedback, Timestamp.valueOf("${date}:00"),)
+            usersRepository.sendFeedback(feedback, Timestamp.valueOf("${date}:00"))
             return@run SuccessMessage("Feedback sent successfully.")
         }
     }
@@ -327,25 +315,9 @@ class UserServices (
         }
     }
 
-    /**
-     * Updates the user's profile picture.
-     *
-     * @param userID The ID of the user to update the profile picture for.
-     * @param profilePicture The new profile picture.
-     * @return The user's information as [UploadProfilePictureResult].
-     */
-    /* fun uploadProfilePicture(userID: Int, profilePicture: MultipartFile): UploadProfilePictureResult {
-         return transactionManager.run {
-             val usersRepository = it.usersRepository
-             val imageBytes = profilePicture.bytes ?: throw UnsupportedMediaTypeException()
-             val fileType = profilePicture.contentType ?: throw UnsupportedMediaTypeException()
-             usersRepository.uploadProfilePicture(userID, imageBytes, fileType) ?: throw UserNotFoundException()
-             return@run SuccessMessage("Profile picture uploaded successfully.")
-         }
-     }*/
 
     // Private helper function to create access and refresh tokens for a user.
-    private fun createTokens(userID: Int, username: String, repo: UsersRepository): AccessRefreshTokensModel {
+    fun createTokens(userID: Int, username: String, repo: UsersRepository): AccessRefreshTokensModel {
         val userRefreshTokens = repo.getUserRefreshTokens(userID)
         if (userRefreshTokens.size >= usersConfig.maxTokensPerUser) {
             repo.deleteUserRefreshToken(userID, userRefreshTokens.first().token_validation)
@@ -361,11 +333,4 @@ class UserServices (
             refreshToken = refreshToken,
         )
     }
-
-    /*
-    fun byteArrayToMultipartFile(imageBytes: ByteArray, fileName: String, fileType: String): MultipartFile {
-        val inputStream: InputStream = imageBytes.inputStream()
-        return MockMultipartFile(fileName, fileName, fileType, inputStream)
-    }
-    */
 }

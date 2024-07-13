@@ -2,7 +2,6 @@ package project.planItAPI.services.event
 
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.utils.Either
-import project.planItAPI.models.EventModel
 import project.planItAPI.models.EventOutputModel
 import project.planItAPI.models.FindNearbyEventsListOutputModel
 import project.planItAPI.models.JoinEventWithCodeOutputModel
@@ -65,11 +64,6 @@ typealias EditEventResult = Either<Exception, SuccessMessage>
  * Represents the result of retrieving a list of event categories.
  */
 typealias CategoriesResult = Either<Exception, List<String>>
-
-/**
- * Represents the result of retrieving a list of event subcategories.
- */
-typealias SubcategoriesResult = Either<Exception, List<String>>
 
 /**
  * Represents the result of kicking a user from an event.

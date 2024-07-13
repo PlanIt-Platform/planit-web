@@ -1,8 +1,6 @@
 package project.planItAPI.repository.jdbi.utils
 
 import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.core.kotlin.KotlinPlugin
-import org.jdbi.v3.postgres.PostgresPlugin
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean

@@ -6,10 +6,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.postgresql.ds.PGSimpleDataSource
+import project.planItAPI.domain.event.Coordinates
 import project.planItAPI.executeSQLScript
 import project.planItAPI.repository.jdbi.event.JdbiEventsRepository
 import project.planItAPI.repository.jdbi.user.JdbiUsersRepository
 import project.planItAPI.repository.jdbi.utils.configureWithAppRequirements
+import project.planItAPI.utils.Success
 import java.sql.Timestamp
 
 class EventsRepositoryTests {
@@ -51,14 +53,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             assert(eventID != null)
@@ -71,8 +76,7 @@ class EventsRepositoryTests {
                 assertEquals(event.title, "title")
                 assertEquals(event.description, "description")
                 assertEquals(event.category, "Technology")
-                assertEquals(event.subcategory, "Web Development")
-                assertEquals(event.location, "location")
+                assertEquals(event.location, "Setubal")
             }
 
             //Check if user is in the event
@@ -105,14 +109,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             assert(eventID != null)
@@ -140,14 +147,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = null,
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             assert(eventID != null)
@@ -182,14 +192,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             val eventList = repo.searchEvents("title", 10, 0)
@@ -202,14 +215,17 @@ class EventsRepositoryTests {
                 title = "WebDev",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             val secondEventList = repo.searchEvents("WebDev", 10, 0)
@@ -218,7 +234,7 @@ class EventsRepositoryTests {
             assert(secondEventList.events.size == 1)
             assertEquals(secondEventList.events[0].id, secondEventID)
 
-            val allEventsList = repo.searchEvents("Technology",10 ,0)
+            val allEventsList = repo.searchEventsByCategory("Technology",10 ,0)
 
             assert(allEventsList.events.isNotEmpty())
             assert(allEventsList.events.size == 2)
@@ -227,6 +243,70 @@ class EventsRepositoryTests {
         }
     }
 
+    @Test
+    fun `findNearbyEvents returns emptyList when no events are found`() {
+        runWithHandle { handle ->
+            val repo = JdbiEventsRepository(handle)
+            val coords = (Coordinates(38.5245, -8.89307) as Success).value
+            val eventList = repo.getNearbyEvents(coords, 50, 5, 1)
+            assert(eventList.isEmpty())
+        }
+    }
+
+    @Test
+    fun `findNearbyEvents returns events when events are found`() {
+        runWithHandle { handle ->
+            val repo = JdbiEventsRepository(handle)
+            val userId = registerUser("user", "password", "user@gmail.com", "User")
+            val eventID = repo.createEvent(
+                title = "title",
+                description = "description",
+                category = "Technology",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
+                visibility = "Public",
+                date = Timestamp(System.currentTimeMillis()),
+                end_date = null,
+                price = null,
+                userID = userId,
+                password = "",
+                eventCode = "AAAA"
+            )
+            val coords = (Coordinates(38.519400, -9.013800) as Success).value
+            val eventList = repo.getNearbyEvents(coords, 50000, 10, 2)
+
+            println(eventList)
+            assert(eventList.isNotEmpty())
+            assert(eventList.size == 1)
+            assertEquals(eventList[0].id, eventID)
+
+            val secondEventID = repo.createEvent(
+                title = "WebDev",
+                description = "description",
+                category = "Technology",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
+                visibility = "Public",
+                date = Timestamp(System.currentTimeMillis()),
+                end_date = null,
+                price = null,
+                userID = userId,
+                password = "",
+                eventCode = "AAAA"
+            )
+
+            val secondEventList = repo.getNearbyEvents(coords, 50000, 5, 2)
+
+            assert(secondEventList.isNotEmpty())
+            assert(secondEventList.size == 2)
+            assertEquals(secondEventList[0].id, eventID)
+            assertEquals(secondEventList[1].id, secondEventID)
+        }
+    }
     @Test
     fun `getAllEvents returns emptyList when no events are found`() {
         runWithHandle { handle ->
@@ -245,27 +325,33 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
             val secondEventID = repo.createEvent(
                 title = "WebDev",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             val eventList = repo.getAllEvents(10, 0)
@@ -286,14 +372,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = null,
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             val userId2 = registerUser("user123", "password1", "user2@gmail.com", "User2")
@@ -308,6 +397,41 @@ class EventsRepositoryTests {
     }
 
     @Test
+    fun `joinEventByCode is successful`() {
+        runWithHandle { handle ->
+            val repo = JdbiEventsRepository(handle)
+            val userId = registerUser("user", "password", "user@gmail.com", "User")
+            val eventID = repo.createEvent(
+                title = "title",
+                description = "description",
+                category = "Technology",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
+                visibility = "Public",
+                date = Timestamp(System.currentTimeMillis()),
+                end_date = null,
+                price = null,
+                userID = userId,
+                password = "",
+                eventCode = "AAAA"
+            )
+
+            val userId2 = registerUser("user123", "password1", "user2@gmail.com", "User2")
+            val event = repo.getEventByCode("AAAA")
+            if (event != null) {
+                repo.joinEvent(2, event.id)
+            }
+
+            val users = repo.getUsersInEvent(eventID!!)
+            assert(users != null)
+            assertEquals(users!!.users.size, 2)
+            assertEquals(users.users[0].id, userId)
+            assertEquals(users.users[1].id, userId2)
+        }
+    }
+    @Test
     fun `leaveEvent is successful`() {
         runWithHandle { handle ->
             val repo = JdbiEventsRepository(handle)
@@ -316,14 +440,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = null,
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             registerUser("user123", "password1", "user2@gmail.com", "User2")
@@ -347,14 +474,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = null,
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             if (eventID != null) {
@@ -374,14 +504,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             repo.editEvent(
@@ -389,8 +522,10 @@ class EventsRepositoryTests {
                 title = "newTitle",
                 description = "newDescription",
                 category = "newCategory",
-                subcategory = "newSubcategory",
-                location = "newLocation",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Private",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
@@ -404,8 +539,7 @@ class EventsRepositoryTests {
                 assertEquals(event.title, "newTitle")
                 assertEquals(event.description, "newDescription")
                 assertEquals(event.category, "newCategory")
-                assertEquals(event.subcategory, "newSubcategory")
-                assertEquals(event.location, "newLocation")
+                assertEquals(event.location, "Setubal")
                 assertEquals(event.visibility, "Private")
             }
         }
@@ -420,14 +554,17 @@ class EventsRepositoryTests {
                 title = "title",
                 description = "description",
                 category = "Technology",
-                subcategory = "Web Development",
-                location = "location",
+                locationType = "Physical",
+                location = "Setubal",
+                latitude = 38.5245,
+                longitude = -8.89307,
                 visibility = "Public",
                 date = Timestamp(System.currentTimeMillis()),
                 end_date = null,
                 price = null,
                 userID = userId,
-                password = ""
+                password = "",
+                eventCode = "AAAA"
             )
 
             val organizers = repo.getEventOrganizers(eventID!!)

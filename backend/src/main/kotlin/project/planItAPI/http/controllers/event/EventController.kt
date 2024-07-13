@@ -15,9 +15,7 @@ import project.planItAPI.domain.Id
 import project.planItAPI.domain.event.Code
 import project.planItAPI.http.PathTemplates.CATEGORIES
 import project.planItAPI.http.PathTemplates.CREATE_EVENT
-import project.planItAPI.http.PathTemplates.DELETE_EVENT
 import project.planItAPI.http.PathTemplates.EDIT_EVENT
-import project.planItAPI.http.PathTemplates.GET_EVENT
 import project.planItAPI.http.PathTemplates.JOIN_EVENT
 import project.planItAPI.http.PathTemplates.KICK_USER
 import project.planItAPI.http.PathTemplates.LEAVE_EVENT
@@ -32,6 +30,7 @@ import project.planItAPI.models.EventPasswordModel
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.Success
 import project.planItAPI.domain.validateLimitAndOffset
+import project.planItAPI.http.PathTemplates.EVENT
 import project.planItAPI.http.PathTemplates.FIND_NEARBY_EVENTS
 import project.planItAPI.http.PathTemplates.JOIN_EVENT_WITH_CODE
 
@@ -71,7 +70,7 @@ class EventController(private val eventServices: EventServices) {
         }
     }
 
-    @GetMapping(GET_EVENT)
+    @GetMapping(EVENT)
     fun getEvent(@PathVariable id: Int, @RequestAttribute("userId") userId: String): ResponseEntity<*> {
         return when (val idResult = Id(id)) {
             is Failure -> failureResponse(idResult)
@@ -221,12 +220,12 @@ class EventController(private val eventServices: EventServices) {
         }
     }
 
-    @DeleteMapping(DELETE_EVENT)
-    fun deleteEvent(@RequestAttribute("userId") userId: String, @PathVariable eventId: Int): ResponseEntity<*> {
-        return when (val idResult = Id(eventId)) {
+    @DeleteMapping(EVENT)
+    fun deleteEvent(@RequestAttribute("userId") userId: String, @PathVariable id: Int): ResponseEntity<*> {
+        return when (val idResult = Id(id)) {
             is Failure -> failureResponse(idResult)
             is Success -> {
-                when (val res = eventServices.deleteEvent(userId.toInt(), eventId)) {
+                when (val res = eventServices.deleteEvent(userId.toInt(), id)) {
                     is Failure -> {
                         failureResponse(res)
                     }

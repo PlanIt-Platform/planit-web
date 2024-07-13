@@ -16,9 +16,6 @@ import project.planItAPI.utils.PollHasEndedException
 import project.planItAPI.utils.PollNotFoundException
 import project.planItAPI.utils.UserAlreadyVotedException
 import project.planItAPI.utils.UserIsNotOrganizerException
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 @Service
 class PollServices(

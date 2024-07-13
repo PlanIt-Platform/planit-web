@@ -1,6 +1,5 @@
 package project.planItAPI.http.controllers.user
 
-import project.planItAPI.domain.event.Category
 import project.planItAPI.domain.user.Email
 import project.planItAPI.domain.user.EmailOrUsername
 import project.planItAPI.domain.user.Password

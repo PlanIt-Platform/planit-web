@@ -79,9 +79,10 @@ export async function getEvent(eventId) {
 }
 
 export async function searchEvents(searchInput, limit = 10, offset = 0) {
+    let formattedSearchInput = searchInput.replace(" ", '+');
     return await executeRequestAndRefreshToken(
         get,
-        SEARCH_EVENTS + '?searchInput=' + searchInput + '&limit='+ limit + '&offset=' + offset)
+        SEARCH_EVENTS + '?searchInput=' + formattedSearchInput + '&limit='+ limit + '&offset=' + offset)
 }
 
 export async function findNearbyEvents(latitude, longitude, radius, limit) {

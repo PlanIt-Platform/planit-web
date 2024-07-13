@@ -24,6 +24,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import project.planItAPI.models.CreateEventOutputModel
 import project.planItAPI.models.EventOutputModel
+import project.planItAPI.models.FindNearbyEventsListOutputModel
+import project.planItAPI.models.FindNearbyEventsOutputModel
+import project.planItAPI.models.JoinEventWithCodeOutputModel
 import project.planItAPI.models.SearchEventListOutputModel
 import project.planItAPI.models.SearchEventsOutputModel
 import project.planItAPI.models.SuccessMessage
@@ -31,11 +34,13 @@ import project.planItAPI.models.UserInEvent
 import project.planItAPI.models.UserRegisterOutputModel
 import project.planItAPI.models.UsersInEventList
 import project.planItAPI.services.event.EventServices
+import project.planItAPI.utils.EventHasEndedException
 import project.planItAPI.utils.EventNotFoundException
 import project.planItAPI.utils.Failure
 import project.planItAPI.utils.IncorrectPasswordException
 import project.planItAPI.utils.InvalidValueException
 import project.planItAPI.utils.Success
+import project.planItAPI.utils.UserAlreadyInEventException
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -78,8 +83,10 @@ class EventControllerTests {
         title: String,
         description: String,
         category: String,
-        subCategory: String,
+        locationType: String,
         location: String,
+        latitude: Double,
+        longitude: Double,
         visibility: String,
         date: String,
         endDate: String,
@@ -87,8 +94,9 @@ class EventControllerTests {
         password: String
     ): String {
         return "{\"title\":\"$title\",\"description\":\"$description\"," +
-                "\"category\":\"$category\",\"subCategory\":\"$subCategory\"," +
-                "\"location\":\"$location\",\"visibility\":\"$visibility\"," +
+                "\"category\":\"$category\"," + "\"locationType\":\"$locationType\"," +
+                "\"location\":\"$location\"," + "\"latitude\":$latitude," + "\"longitude\":$longitude," +
+                "\"visibility\":\"$visibility\"," +
                 "\"date\":\"$date\",\"endDate\":\"$endDate\"," +
                 "\"price\":\"$price\",\"password\":\"$password\"}"
     }
@@ -134,6 +142,7 @@ class EventControllerTests {
                 any(),
                 any(),
                 any(),
+                any(),
                 anyInt(),
                 anyString()
             )
@@ -142,6 +151,7 @@ class EventControllerTests {
                 CreateEventOutputModel(
                     1,
                     "Test Event",
+                    "AAAA",
                     "Created with success."
                 )
             )
@@ -154,7 +164,12 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Simple Meeting",
-                "", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,
+                "Public",
+                "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00E", ""
             )
        )
@@ -170,7 +185,11 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Simple Meeting",
-                "", "Test Location", "Invalid Visibility", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,
+                "Invalid Visibility", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -185,28 +204,16 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Invalid Category",
-                "", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00E", ""
             ),
            cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Invalid category"))
-
-        //User tries to create event with invalid subcategory
-        //Expected: 400 Bad Request
-        performRequest(
-            RequestMethod.POST,
-            "/api-planit/event",
-            createEventBody(
-                "Test Event", "Test Event Description", "Business",
-                "Invalid Subcategory", "Test Location", "Public", "2022-12-12 12:00",
-                "2022-12-12 15:00", "10.00E", ""
-            ),
-            cookies = mapOf("access_token" to accessToken)
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid subcategory"))
 
         //User tries to create event with invalid date format
         //Expected: 400 Bad Request
@@ -215,7 +222,10 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12",
                 "2022-12-12 15:00", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -233,7 +243,10 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-40-40 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-40-40 12:00",
                 "2022-12-12 15:00", "10.00 EUR", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -251,7 +264,10 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307, "Public", "2022-12-12 12:00",
                 "2022-12-12 15", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -269,7 +285,10 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -287,7 +306,10 @@ class EventControllerTests {
             "/api-planit/event",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00 EUR", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -309,13 +331,16 @@ class EventControllerTests {
                         "Test Event",
                         "Test Event Description",
                         "Business",
-                        "Leadership and Management Workshops",
-                        "Test Location",
+                        "Physical",
+                        "Setubal",
+                        38.5245,
+                        -8.89307,
                         "Public",
                         "2022-12-12 12:00",
                         "2022-12-12 15:00",
                         10.52,
-                      "Eur"
+                      "Eur",
+                        "AAAA"
                     )
                 )
             )
@@ -359,8 +384,7 @@ class EventControllerTests {
             .andExpect(jsonPath("$.title").value("Test Event"))
             .andExpect(jsonPath("$.description").value("Test Event Description"))
             .andExpect(jsonPath("$.category").value("Business"))
-            .andExpect(jsonPath("$.subcategory").value("Leadership and Management Workshops"))
-            .andExpect(jsonPath("$.location").value("Test Location"))
+            .andExpect(jsonPath("$.location").value("Setubal"))
             .andExpect(jsonPath("$.visibility").value("Public"))
             .andExpect(jsonPath("$.date").value("2022-12-12 12:00"))
             .andExpect(jsonPath("$.endDate").value("2022-12-12 15:00"))
@@ -441,7 +465,9 @@ class EventControllerTests {
                                 "Test Event",
                                 "Test Event Description",
                                 "Business",
-                                "Test Location",
+                                "Setubal",
+                                38.5245,
+                                -8.89307,
                                 "Public",
                                 "2022-12-12 12:00"
                             )
@@ -485,7 +511,7 @@ class EventControllerTests {
             .andExpect(jsonPath("$.events[0].id").value(1))
             .andExpect(jsonPath("$.events[0].title").value("Test Event"))
             .andExpect(jsonPath("$.events[0].category").value("Business"))
-            .andExpect(jsonPath("$.events[0].location").value("Test Location"))
+            .andExpect(jsonPath("$.events[0].location").value("Setubal"))
             .andExpect(jsonPath("$.events[0].visibility").value("Public"))
             .andExpect(jsonPath("$.events[0].date").value("2022-12-12 12:00"))
 
@@ -497,6 +523,55 @@ class EventControllerTests {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.events", Matchers.hasSize<Any>(0)))
+    }
+
+    @Test
+    fun findNearbyEvents(){
+        `when`(
+            eventServices.findNearbyEvents(anyInt(), any(), anyInt(), anyInt()))
+            .thenReturn(
+                Success(
+                    FindNearbyEventsListOutputModel(
+                        listOf(
+                           FindNearbyEventsOutputModel(
+                                 1,
+                                 "Test Event",
+                                 "Setubal",
+                                 38.5245,
+                                 -8.89307,
+                            )
+                           )
+                        )
+                    )
+                )
+
+        //User not authenticated tries to search for nearby events
+        //Expected: 401 Unauthorized
+        performRequest(
+            RequestMethod.GET,
+            "/api-planit/events/50/30.0/-8.0",
+            "",
+        )
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.error").value("Unauthorized"))
+
+        val accessToken = authenticateUser()
+
+        //User tries to search for nearby events successfully
+        //Expected: 200 OK
+        performRequest(
+            RequestMethod.GET,
+            "/api-planit/events/50/38.519400/-9.013800",
+            "",
+            cookies = mapOf("access_token" to accessToken)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.events", Matchers.hasSize<Any>(1)))
+            .andExpect(jsonPath("$.events[0].id").value(1))
+            .andExpect(jsonPath("$.events[0].title").value("Test Event"))
+            .andExpect(jsonPath("$.events[0].location").value("Setubal"))
+            .andExpect(jsonPath("$.events[0].latitude").value(38.5245))
+            .andExpect(jsonPath("$.events[0].longitude").value(-8.89307))
     }
 
     @Test
@@ -575,6 +650,100 @@ class EventControllerTests {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.success").value("User joined event with success."))
+    }
+
+    @Test
+    fun joinEventByCode() {
+        `when`(
+            eventServices.joinEventByCode(1, "AAAAAA"))
+            .thenReturn(
+                Success(
+                  JoinEventWithCodeOutputModel(
+                      "Test Event",
+                        1,
+                        "User joined event with success."
+                    )
+                  )
+                )
+
+        `when`(eventServices.joinEventByCode(1, "BBBBBB"))
+            .thenReturn(Failure(EventNotFoundException()))
+
+        `when`(eventServices.joinEventByCode(1, "CCCCCC"))
+            .thenReturn(Failure(EventHasEndedException()))
+
+        `when`(eventServices.joinEventByCode(1, "DDDDDD"))
+            .thenReturn(Failure(UserAlreadyInEventException()))
+
+        //User not authenticated tries to join an Event
+        //Expected: 401 Unauthorized
+        performRequest(
+            RequestMethod.POST,
+            "/api-planit/event/AAAAAA",
+            ""
+        )
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.error").value("Unauthorized"))
+
+        val accessToken = authenticateUser()
+
+        //User tries to join an event with an invalid event code
+        //Expected: 400 Bad Request
+        performRequest(
+            RequestMethod.POST,
+            "/api-planit/event/123",
+            "",
+            cookies = mapOf("access_token" to accessToken)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error").value("Invalid event code"))
+
+
+        //User tries to join an event that does not exist
+        //Expected: 404 Not Found
+        performRequest(
+            RequestMethod.POST,
+            "/api-planit/event/BBBBBB",
+            "",
+            cookies = mapOf("access_token" to accessToken)
+        )
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error").value("Event not found"))
+
+        //User tries to join an event that has ended
+        //Expected: 400 Bad Request
+        performRequest(
+            RequestMethod.POST,
+            "/api-planit/event/CCCCCC",
+            "",
+            cookies = mapOf("access_token" to accessToken)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error").value("Event has ended"))
+
+        //User tries to join an event that he is already in
+        //Expected: 400 Bad Request
+        performRequest(
+            RequestMethod.POST,
+            "/api-planit/event/DDDDDD",
+            "",
+            cookies = mapOf("access_token" to accessToken)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.error").value("You are already in the event"))
+
+        //User tries to join an event successfully
+        //Expected: 200 OK
+        performRequest(
+            RequestMethod.POST,
+            "/api-planit/event/AAAAAA",
+            "",
+            cookies = mapOf("access_token" to accessToken)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.title").value("Test Event"))
+            .andExpect(jsonPath("$.message").value("User joined event with success."))
     }
 
     @Test
@@ -720,7 +889,8 @@ class EventControllerTests {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
+                anyString()
             )
         ).thenReturn(
             Success(
@@ -737,7 +907,10 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307, "Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00 EUR", ""
             ),
         )
@@ -753,7 +926,10 @@ class EventControllerTests {
             "/api-planit/event/0/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307, "Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00 EUR", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -768,7 +944,10 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Simple Meeting",
-                "", "Test Location", "Invalid Visibility", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Invalid Visibility", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -783,28 +962,16 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Invalid Category",
-                "", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307, "Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Invalid category"))
-
-        //User tries to create event with invalid subcategory
-        //Expected: 400 Bad Request
-        performRequest(
-            RequestMethod.PUT,
-            "/api-planit/event/1/edit",
-            createEventBody(
-                "Test Event", "Test Event Description", "Business",
-                "Invalid Subcategory", "Test Location", "Public", "2022-12-12 12:00",
-                "2022-12-12 15:00", "10.00E", ""
-            ),
-            cookies = mapOf("access_token" to accessToken)
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid subcategory"))
 
         //User tries to create event with invalid date format
         //Expected: 400 Bad Request
@@ -813,7 +980,10 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12",
                 "2022-12-12 15:00", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -831,7 +1001,10 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12:00",
                 "2022-12-12 15", "10.00E", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -849,7 +1022,10 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical",
+                "Setubal",
+                38.5245,
+                -8.89307,"Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -868,7 +1044,8 @@ class EventControllerTests {
             "/api-planit/event/1/edit",
             createEventBody(
                 "Test Event", "Test Event Description", "Business",
-                "Leadership and Management Workshops", "Test Location", "Public", "2022-12-12 12:00",
+                "Physical", "Setúbal", 38.5245, -8.89307,
+                "Public", "2022-12-12 12:00",
                 "2022-12-12 15:00", "10.00 EUR", ""
             ),
             cookies = mapOf("access_token" to accessToken)
@@ -903,55 +1080,6 @@ class EventControllerTests {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$", Matchers.hasSize<Any>(3)))
-    }
-
-    @Test
-    fun getSubcategories() {
-        `when`(
-            eventServices.getSubcategories("Technology"))
-            .thenReturn(
-                Success(
-                    listOf(
-                        "Web Development",
-                        "Mobile Development",
-                        "Software Development",
-                        "Networking and Security",
-                        "Artificial Intelligence and Machine Learning",
-                        "Tech Startups and Entrepreneurship",
-                        "Emerging Technologies"
-                    )
-                )
-            )
-
-        `when`(
-            eventServices.getSubcategories("Invalid Category"))
-            .thenReturn(
-                Failure(InvalidValueException("category"))
-            )
-
-        val accessToken = authenticateUser()
-
-        //User tries to get subcategories successfully
-        //Expected: 200 OK
-        performRequest(
-            RequestMethod.GET,
-            "/api-planit/event/categories/Technology/subcategories",
-            "",
-            cookies = mapOf("access_token" to accessToken)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$", Matchers.hasSize<Any>(7)))
-
-        //User tries to get subcategories for an invalid category
-        //Expected: 400 Bad Request
-        performRequest(
-            RequestMethod.GET,
-            "/api-planit/event/categories/InvalidCategory/subcategories",
-            "",
-            cookies = mapOf("access_token" to accessToken)
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Invalid category"))
     }
 }
 
